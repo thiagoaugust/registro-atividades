@@ -48,6 +48,8 @@ public class MetricasPeriodoRepository {
             case MINUTOS_ESTUDO -> registro("coalesce(sum(duracao_min), 0)", " and categoria = 'ESTUDO'");
             case MINUTOS_CATEGORIA -> registro("coalesce(sum(duracao_min), 0)", " and categoria = :categoria");
             case DIAS_COM_CATEGORIA -> registro("count(distinct data_local)", " and categoria = :categoria");
+            case MINUTOS_APROVEITADOS -> registro(
+                    "coalesce(sum(duracao_min), 0)", " and detalhes->>'local' = 'TRANSPORTE_PUBLICO'");
             case MINUTOS_PRATICA -> registro(
                     "coalesce(sum((detalhes->>'minutosPratica')::int), 0)",
                     " and jsonb_exists(detalhes, 'minutosPratica')");

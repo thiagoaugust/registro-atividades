@@ -95,6 +95,7 @@ public class AvaliadorConquistas {
             case "CATEGORIAS_LIDAS" -> () -> metricas.categoriasLidas(ate);
             case "CURSO_CONCLUIDO" -> () -> metricas.cursosConcluidos(ate);
             case "MINUTOS_PRATICA" -> () -> metricas.minutosPratica(ate);
+            case "MINUTOS_APROVEITADOS" -> () -> metricas.minutosAproveitados(ate);
             case "DESAFIO_CONCLUIDO" -> () -> metricas.desafiosConcluidos(ate);
             case "PROJETO_CONCLUIDO" -> () -> metricas.projetosConcluidos(ate);
             case "ITEM_CAPTURADO" -> () -> metricas.itensCapturados(ate);

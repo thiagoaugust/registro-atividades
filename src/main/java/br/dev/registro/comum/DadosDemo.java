@@ -6,10 +6,13 @@ import br.dev.registro.atividades.domain.Livro;
 import br.dev.registro.atividades.domain.Projeto;
 import br.dev.registro.atividades.domain.RegistroAtividade;
 import br.dev.registro.atividades.domain.AreaConhecimento;
+import br.dev.registro.atividades.domain.Curso;
+import br.dev.registro.atividades.domain.StatusCurso;
 import br.dev.registro.atividades.domain.StatusLivro;
 import br.dev.registro.atividades.domain.StatusProjeto;
 import br.dev.registro.atividades.infra.DesafioRepository;
 import br.dev.registro.atividades.infra.AreaConhecimentoRepository;
+import br.dev.registro.atividades.infra.CursoRepository;
 import br.dev.registro.atividades.infra.LivroRepository;
 import br.dev.registro.atividades.infra.ProjetoRepository;
 import br.dev.registro.atividades.infra.RegistroRepository;
@@ -65,6 +68,7 @@ public class DadosDemo {
     private final RegistroRepository registros;
     private final CheckinRepository checkins;
     private final LivroRepository livros;
+    private final CursoRepository cursos;
     private final AreaConhecimentoRepository areas;
     private final DesafioRepository desafios;
     private final ProjetoRepository projetos;
@@ -80,6 +84,7 @@ public class DadosDemo {
             RegistroRepository registros,
             CheckinRepository checkins,
             LivroRepository livros,
+            CursoRepository cursos,
             AreaConhecimentoRepository areas,
             DesafioRepository desafios,
             ProjetoRepository projetos,
@@ -93,6 +98,7 @@ public class DadosDemo {
         this.registros = registros;
         this.checkins = checkins;
         this.livros = livros;
+        this.cursos = cursos;
         this.areas = areas;
         this.desafios = desafios;
         this.projetos = projetos;
@@ -147,6 +153,14 @@ public class DadosDemo {
 
         Desafio corrida = desafio("200 km no trimestre", 200, "km", inicio);
 
+        // Dois cursos em andamento e um concluido: e o que faz o painel de estudo ter carga horaria,
+        // ritmo e previsao de termino para mostrar, e o atalho da aba Dia ter um curso para apontar.
+        Curso cursoQuarkus = curso("Quarkus para quem vem de Spring", "Red Hat Developer", 24, "Tecnico");
+        Curso cursoPostgres = curso("Postgres avancado", "Udemy", 40, "Tecnico");
+        Curso cursoK8s = curso("Kubernetes CKA", "Linux Foundation", 30, "Tecnico");
+        cursoK8s.status = StatusCurso.CONCLUIDO;
+        cursoK8s.concluidoEm = hoje.minusDays(30);
+
         Projeto sistema = projeto("Sistema de registro", "app rodando e em uso diario", StatusProjeto.ATIVO);
         Projeto casa = projeto("Reforma da cozinha", "cozinha pronta e usavel", StatusProjeto.ATIVO);
         Projeto curso = projeto("Curso de Kubernetes", "certificacao CKA", StatusProjeto.CONCLUIDO);
@@ -179,7 +193,7 @@ public class DadosDemo {
                             Map.of("modalidade", "corrida",
                                     "distanciaKm", Math.round(km * 10) / 10.0,
                                     "paceSegPorKm", (int) Math.round(minutos * 60 / km)),
-                            null, corrida, null);
+                            null, corrida, null, null);
                 } else if (tipo == TipoDeDia.FORTE) {
                     registro(dia, Categoria.TREINO, 45 + sorteio.nextInt(30), 6 + sorteio.nextInt(4),
                             "Musculacao",
@@ -187,7 +201,7 @@ public class DadosDemo {
                                     "series", List.of(
                                             Map.of("exercicio", "agachamento", "reps", 10, "cargaKg", 80),
                                             Map.of("exercicio", "supino", "reps", 10, "cargaKg", 60))),
-                            null, null, null);
+                            null, null, null, null);
                 }
 
                 if (tipo != TipoDeDia.FRACO || sorteio.nextBoolean()) {
@@ -196,6 +210,16 @@ public class DadosDemo {
                         case 1 -> "Postgres";
                         case 2 -> "Arquitetura";
                         default -> "Kubernetes";
+                    };
+                    // Estudo avulso existe: nem toda sessao pertence a um curso, e o painel precisa
+                    // mostrar as duas coisas.
+                    Curso cursoDaSessao = switch (tema) {
+                        case "Quarkus" -> cursoQuarkus;
+                        case "Postgres" -> cursoPostgres;
+                        // O curso concluido recebe sessoes so ate o dia em que terminou: um curso
+                        // fechado com zero horas nao teria como ter sido concluido.
+                        case "Kubernetes" -> dia.isAfter(cursoK8s.concluidoEm) ? null : cursoK8s;
+                        default -> null;
                     };
                     int minutosEstudo = 25 + sorteio.nextInt(70);
                     // Dia forte estuda praticando; dia fraco assiste. A fracao de pratica e o que o
@@ -207,8 +231,9 @@ public class DadosDemo {
                             Map.of("tema", tema, "fonte", "doc oficial",
                                     "tecnica", pratica > 0 ? "EXERCICIO" : "LEITURA",
                                     "foco", 2 + sorteio.nextInt(4),
-                                    "minutosPratica", Math.min(pratica, minutosEstudo)),
-                            null, null, null);
+                                    "minutosPratica", Math.min(pratica, minutosEstudo),
+                                    "local", localDaSessao(dia)),
+                            null, null, null, cursoDaSessao);
                 }
 
                 if (sorteio.nextInt(10) < 6) {
@@ -224,8 +249,10 @@ public class DadosDemo {
                     // pilha gerava paginaInicial > paginaFinal, dado que a propria API recusaria.
                     if (de <= limite) {
                         registro(dia, Categoria.LEITURA, 20 + sorteio.nextInt(40), 3 + sorteio.nextInt(4),
-                                alvo.titulo, Map.of("paginaInicial", de, "paginaFinal", ate),
-                                alvo, null, null);
+                                alvo.titulo,
+                                Map.of("paginaInicial", de, "paginaFinal", ate,
+                                        "local", localDaSessao(dia)),
+                                alvo, null, null, null);
 
                         if (alvo == lidoUm) {
                             paginasUm = ate + 1;
@@ -246,7 +273,7 @@ public class DadosDemo {
                     registro(dia, Categoria.PROJETO, 40 + sorteio.nextInt(90), 5 + sorteio.nextInt(5),
                             alvo.titulo,
                             Map.of("marco", "avanco do dia", "statusApos", "em andamento"),
-                            null, null, alvo);
+                            null, null, alvo, null);
                 }
             }
 
@@ -263,6 +290,18 @@ public class DadosDemo {
         // que faz o historico semeado ter a mesma pontuacao que teria se tivesse sido digitado.
         recalculo.reconstruirLancamentos(inicio, hoje);
         recalculo.recalcularIntervalo(inicio, hoje);
+    }
+
+    /**
+     * Onde a sessao aconteceu. Dia de semana pega o transporte publico com frequencia; fim de semana,
+     * nunca. Sem isso o bonus de tempo aproveitado e o trofeu do mes nao teriam o que mostrar.
+     */
+    private String localDaSessao(LocalDate dia) {
+        boolean semana = dia.getDayOfWeek().getValue() <= 5;
+        if (semana && sorteio.nextInt(10) < 4) {
+            return "TRANSPORTE_PUBLICO";
+        }
+        return semana && sorteio.nextBoolean() ? "TRABALHO" : "CASA";
     }
 
     private TipoDeDia sortearTipo(LocalDate dia, int indice) {
@@ -464,7 +503,8 @@ public class DadosDemo {
             Map<String, Object> detalhes,
             Livro livro,
             Desafio desafio,
-            Projeto projeto) {
+            Projeto projeto,
+            Curso curso) {
         RegistroAtividade registro = new RegistroAtividade();
         registro.dataLocal = dia;
         registro.duracaoMin = duracao;
@@ -475,6 +515,7 @@ public class DadosDemo {
         registro.detalhes = new LinkedHashMap<>(detalhes);
         registro.livro = livro;
         registro.projeto = projeto;
+        registro.curso = curso;
 
         // O desafio de corrida soma os km do treino; o progresso sai desses registros.
         if (desafio != null && detalhes.containsKey("distanciaKm")) {
@@ -482,6 +523,16 @@ public class DadosDemo {
             registro.detalhes.put("valorProgresso", detalhes.get("distanciaKm"));
         }
         registros.persist(registro);
+    }
+
+    private Curso curso(String titulo, String instituicao, double cargaHoraria, String area) {
+        Curso curso = new Curso();
+        curso.titulo = titulo;
+        curso.instituicao = instituicao;
+        curso.cargaHoraria = BigDecimal.valueOf(cargaHoraria);
+        curso.area = area(area);
+        cursos.persist(curso);
+        return curso;
     }
 
     private Livro livro(String titulo, String autor, int paginas, String area, int dificuldade) {

@@ -25,9 +25,14 @@ public final class CalculadoraXp {
             Map<Categoria, Integer> porCategoria) {
     }
 
-    /** duracao x fator de esforco x multiplicador da categoria. */
-    public static int pontosBrutos(int duracaoMin, int esforco, Categoria categoria, ParametrosXp p) {
-        return (int) Math.round(duracaoMin * p.fatorEsforco(esforco) * p.multiplicador(categoria));
+    /**
+     * duracao x fator de esforco x multiplicador da categoria, com bonus quando a sessao aconteceu
+     * em tempo aproveitado (transporte publico): o mesmo tempo custou mais para existir.
+     */
+    public static int pontosBrutos(
+            int duracaoMin, int esforco, Categoria categoria, boolean tempoAproveitado, ParametrosXp p) {
+        double bruto = duracaoMin * p.fatorEsforco(esforco) * p.multiplicador(categoria);
+        return (int) Math.round(tempoAproveitado ? bruto * (1 + p.bonusTempoAproveitado()) : bruto);
     }
 
     /**

@@ -7,6 +7,16 @@ import { Campo, Card } from "@/components/ui/campo";
 
 const TECNICAS_ESTUDO = ["LEITURA", "EXERCICIO", "FLASHCARD", "PROJETO_PRATICO"];
 
+const LOCAIS = ["CASA", "TRABALHO", "TRANSPORTE_PUBLICO", "RUA", "OUTRO"] as const;
+
+const ROTULO_LOCAL: Record<(typeof LOCAIS)[number], string> = {
+  CASA: "casa",
+  TRABALHO: "trabalho",
+  TRANSPORTE_PUBLICO: "transporte publico",
+  RUA: "rua",
+  OUTRO: "outro",
+};
+
 /** "5:30" -> 330 segundos por km. Vazio ou malformado volta undefined. */
 function paceParaSegundos(texto: string): number | undefined {
   const partes = texto.split(":");
@@ -40,16 +50,61 @@ function textoOuUndefined(texto: string): string | undefined {
   return texto.trim() === "" ? undefined : texto.trim();
 }
 
+/**
+ * Onde a sessao aconteceu. Existe por causa de uma bonificacao: ler ou estudar no transporte
+ * publico e tempo resgatado de um deslocamento, e vale 30% mais XP.
+ */
+function CampoLocal({
+  valor,
+  aoMudar,
+  className,
+}: {
+  valor: string;
+  aoMudar: (valor: string) => void;
+  className?: string;
+}) {
+  return (
+    <Campo
+      rotulo="Onde"
+      className={className}
+      dica={valor === "TRANSPORTE_PUBLICO" ? "+30% de XP: tempo aproveitado" : undefined}
+      ajuda="Onde voce estava. Transporte publico rende 30% mais XP e conta para o trofeu do tempo aproveitado: e tempo que estava perdido no deslocamento e custa mais atencao para virar estudo."
+    >
+      <Select value={valor} onChange={(e) => aoMudar(e.target.value)}>
+        <option value="">-</option>
+        {LOCAIS.map((l) => (
+          <option key={l} value={l}>
+            {ROTULO_LOCAL[l]}
+          </option>
+        ))}
+      </Select>
+    </Campo>
+  );
+}
+
 interface Props {
   data: string;
   editando?: RegistroDto | null;
+  /**
+   * Pre-selecao vinda de "em andamento". A `chave` sobe a cada clique para o efeito rodar de novo
+   * mesmo quando o item escolhido e o mesmo de antes.
+   */
+  atalho?: { categoria: Categoria; vinculoId?: string; cursoId?: string; chave: number } | null;
   aoSalvar: (dados: DadosRegistro) => void;
   aoCancelar?: () => void;
   salvando?: boolean;
   erro?: string | null;
 }
 
-export function FormularioRegistro({ data, editando, aoSalvar, aoCancelar, salvando, erro }: Props) {
+export function FormularioRegistro({
+  data,
+  editando,
+  atalho,
+  aoSalvar,
+  aoCancelar,
+  salvando,
+  erro,
+}: Props) {
   const [categoria, setCategoria] = useState<Categoria>("TREINO");
   const [duracao, setDuracao] = useState("45");
   const [esforco, setEsforco] = useState(5);
@@ -70,6 +125,7 @@ export function FormularioRegistro({ data, editando, aoSalvar, aoCancelar, salva
   const [tecnica, setTecnica] = useState("");
   const [foco, setFoco] = useState("");
   const [minutosPratica, setMinutosPratica] = useState("");
+  const [local, setLocal] = useState("");
   const [cursoId, setCursoId] = useState("");
   const [paginaFinal, setPaginaFinal] = useState("");
   const [progresso, setProgresso] = useState("");
@@ -107,6 +163,7 @@ export function FormularioRegistro({ data, editando, aoSalvar, aoCancelar, salva
     setTecnica(String(d.tecnica ?? ""));
     setFoco(String(d.foco ?? ""));
     setMinutosPratica(String(d.minutosPratica ?? ""));
+    setLocal(String(d.local ?? ""));
     setCursoId(String(editando.curso?.id ?? ""));
     setPaginaFinal(String(d.paginaFinal ?? ""));
     setProgresso(String(d.valorProgresso ?? ""));
@@ -114,6 +171,18 @@ export function FormularioRegistro({ data, editando, aoSalvar, aoCancelar, salva
     setStatusApos(String(d.statusApos ?? ""));
     setExpandido(true);
   }, [editando]);
+
+  // O atalho de "em andamento" abre o formulario ja apontado para o item: a categoria certa, o
+  // vinculo escolhido e a secao de detalhes aberta, onde estao a pagina e o local.
+  useEffect(() => {
+    if (!atalho) {
+      return;
+    }
+    trocarCategoria(atalho.categoria);
+    setVinculoId(atalho.vinculoId ?? "");
+    setCursoId(atalho.cursoId ?? "");
+    setExpandido(true);
+  }, [atalho?.chave]);
 
   /** Trocar de categoria zera os detalhes: o backend recusa campo de outra categoria. */
   function trocarCategoria(nova: Categoria) {
@@ -128,6 +197,7 @@ export function FormularioRegistro({ data, editando, aoSalvar, aoCancelar, salva
     setTecnica("");
     setFoco("");
     setMinutosPratica("");
+    setLocal("");
     setCursoId("");
     setPaginaFinal("");
     setProgresso("");
@@ -173,10 +243,12 @@ export function FormularioRegistro({ data, editando, aoSalvar, aoCancelar, salva
         por("tecnica", textoOuUndefined(tecnica));
         por("foco", numeroOuUndefined(foco));
         por("minutosPratica", numeroOuUndefined(minutosPratica));
+        por("local", textoOuUndefined(local));
         break;
       case "LEITURA":
         // So "parei na pagina X": o backend deriva o inicio a partir da ultima pagina do livro.
         por("paginaFinal", numeroOuUndefined(paginaFinal));
+        por("local", textoOuUndefined(local));
         break;
       case "DESAFIO":
         por("valorProgresso", numeroOuUndefined(progresso));
@@ -357,6 +429,7 @@ export function FormularioRegistro({ data, editando, aoSalvar, aoCancelar, salva
                 >
                   <Input type="number" min={1} max={5} value={foco} onChange={(e) => setFoco(e.target.value)} />
                 </Campo>
+                <CampoLocal valor={local} aoMudar={setLocal} />
                 <Campo
                   rotulo="Minutos de pratica"
                   className="sm:col-span-2"
@@ -401,6 +474,7 @@ export function FormularioRegistro({ data, editando, aoSalvar, aoCancelar, salva
                     onChange={(e) => setPaginaFinal(e.target.value)}
                   />
                 </Campo>
+                <CampoLocal valor={local} aoMudar={setLocal} className="sm:col-span-2" />
               </div>
             )}
 

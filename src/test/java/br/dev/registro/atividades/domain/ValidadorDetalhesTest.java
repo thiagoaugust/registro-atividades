@@ -34,6 +34,29 @@ class ValidadorDetalhesTest {
     }
 
     @Test
+    void aceita_local_conhecido_em_estudo_e_leitura() {
+        assertThatCode(() -> ValidadorDetalhes.validar(
+                registro(Categoria.ESTUDO, "local", "TRANSPORTE_PUBLICO"))).doesNotThrowAnyException();
+        assertThatCode(() -> ValidadorDetalhes.validar(
+                registro(Categoria.LEITURA, "local", "CASA"))).doesNotThrowAnyException();
+    }
+
+    @Test
+    void recusa_local_desconhecido() {
+        assertThatThrownBy(() -> ValidadorDetalhes.validar(registro(Categoria.ESTUDO, "local", "ONIBUS")))
+                .isInstanceOf(RegraNegocioException.class)
+                .hasMessageContaining("detalhes.local deve ser um de");
+    }
+
+    @Test
+    void treino_nao_tem_local() {
+        // Nao e descuido: o bonus existe para o tempo resgatado de um deslocamento, e correr nao e isso.
+        assertThatThrownBy(() -> ValidadorDetalhes.validar(registro(Categoria.TREINO, "local", "RUA")))
+                .isInstanceOf(RegraNegocioException.class)
+                .hasMessageContaining("local nao e um campo de TREINO");
+    }
+
+    @Test
     void recusa_campo_que_nao_pertence_a_categoria() {
         assertThatThrownBy(() -> ValidadorDetalhes.validar(registro(Categoria.ESTUDO, "distanciaKm", 10)))
                 .isInstanceOf(RegraNegocioException.class)

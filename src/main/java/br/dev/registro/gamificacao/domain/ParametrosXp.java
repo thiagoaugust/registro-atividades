@@ -23,7 +23,8 @@ public record ParametrosXp(
         int tetoDiarioCategoria,
         int tetoGtdDiario,
         double bonusEquilibrio,
-        int categoriasParaEquilibrio) {
+        int categoriasParaEquilibrio,
+        double bonusTempoAproveitado) {
 
     public static ParametrosXp padrao() {
         return new ParametrosXp(
@@ -38,7 +39,8 @@ public record ParametrosXp(
                 120,
                 30,
                 0.15,
-                3);
+                3,
+                0.30);
     }
 
     public double multiplicador(Categoria categoria) {

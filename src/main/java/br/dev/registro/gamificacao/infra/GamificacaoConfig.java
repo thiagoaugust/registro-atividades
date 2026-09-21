@@ -60,6 +60,13 @@ public interface GamificacaoConfig {
 
         @WithDefault("3")
         int categoriasParaEquilibrio();
+
+        /**
+         * Quanto rende estudar ou ler em tempo aproveitado (transporte publico). E um bonus, nao um
+         * multiplicador de categoria: vale para a sessao que aconteceu ali, nao para o tipo dela.
+         */
+        @WithDefault("0.30")
+        double bonusTempoAproveitado();
     }
 
     interface Indice {
@@ -118,7 +125,8 @@ public interface GamificacaoConfig {
                 xp().tetoDiarioCategoria(),
                 xp().tetoGtdDiario(),
                 xp().bonusEquilibrio(),
-                xp().categoriasParaEquilibrio());
+                xp().categoriasParaEquilibrio(),
+                xp().bonusTempoAproveitado());
     }
 
     default ParametrosIndice parametrosIndice() {

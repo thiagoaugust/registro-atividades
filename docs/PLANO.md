@@ -248,8 +248,8 @@ um typo em `distanciaKm` viraria um campo fantasma que nenhum gráfico encontrar
 | Categoria | Campos |
 |---|---|
 | `TREINO` | `modalidade`, `distanciaKm?`, `paceSegPorKm?`, `series?[{exercicio, reps, cargaKg}]`, `fcMedia?` |
-| `ESTUDO` | `tema`, `fonte?`, `tecnica?` (`LEITURA`/`EXERCICIO`/`FLASHCARD`/`PROJETO_PRATICO`), `foco?` (1-5) |
-| `LEITURA` | `paginaFinal` (onde parou); `paginaInicial` é **derivada** pelo serviço. O livro é FK, não JSONB |
+| `ESTUDO` | `tema`, `fonte?`, `tecnica?` (`LEITURA`/`EXERCICIO`/`FLASHCARD`/`PROJETO_PRATICO`), `foco?` (1-5), `minutosPratica?`, `local?` |
+| `LEITURA` | `paginaFinal` (onde parou), `local?`; `paginaInicial` é **derivada** pelo serviço. O livro é FK, não JSONB |
 | `DESAFIO` | `valorProgresso` (na unidade do desafio) |
 | `PROJETO` | `marco?`, `statusApos?` |
 
@@ -811,6 +811,52 @@ Um troféu é um desafio mensal cumprido; a estante mostra os do ano.
 intervalo — a mesma conta apura o progresso e lê os períodos passados para calibrar. Se fossem duas,
 a meta e a medição poderiam discordar. A categoria vem do JSONB e entra como *parâmetro* da query,
 nunca interpolada.
+
+---
+
+## 5.7 Em andamento na aba Dia, e o tempo aproveitado
+
+### Atalho de lançamento
+
+A aba Dia abriu com o que está aberto agora: **livros em leitura, cursos em andamento e projetos
+ativos**, cada um com barra de progresso e um botão *Registrar*.
+
+O botão não registra — ele **aponta o formulário**: troca a categoria, escolhe o vínculo, abre a
+seção de detalhes e mostra em que página a leitura parou. Registrar uma sessão exigia lembrar a
+categoria certa, achar o item no select e conferir a página; o atalho resolve os três de uma vez.
+
+Nenhum endpoint novo: a tela compõe `/livros/progresso`, `/cursos/progresso` e `/gtd/projetos`, que
+já existiam. O `chave` do atalho é um timestamp, para o efeito do formulário rodar de novo mesmo
+quando o item escolhido é o mesmo de antes.
+
+### `detalhes.local` em estudo e leitura
+
+Novo campo, só nessas duas categorias — são as que cabem num ônibus. Valores fechados
+(`LocalAtividade`): `CASA`, `TRABALHO`, `TRANSPORTE_PUBLICO`, `RUA`, `OUTRO`. Treino não tem local
+de propósito: o bônus existe para tempo resgatado de um deslocamento, e correr não é isso.
+
+`@transporte publico` também entrou como **contexto do GTD** — "onde estou" na aba Agora agora
+inclui o caminho, e uma ação de 15 minutos pode ser filtrada para ele.
+
+### Por que transporte público bonifica
+
+Estudar 40 minutos em casa e estudar 40 minutos em pé num ônibus não custam o mesmo. O segundo não
+tirou tempo de mais nada — era tempo morto — e custa mais atenção para acontecer. O sistema mede
+esforço, e ali há esforço a mais.
+
+| Reconhecimento | Onde | Regra |
+|---|---|---|
+| **+30% de XP** na sessão | `CalculadoraXp.pontosBrutos` | `gamificacao.xp.bonus-tempo-aproveitado` |
+| **Conquista** (2 níveis) | estante de conquistas | 5h e 20h acumuladas |
+| **Troféu mensal** | aba Metas | minutos do mês, calibrado pelos meses anteriores |
+
+O bônus é aplicado **no lançamento**, não na consolidação: é propriedade daquela sessão, não do tipo
+dela. Segue sujeito ao teto diário da categoria, como todo o resto.
+
+A métrica é uma só — `detalhes->>'local' = 'TRANSPORTE_PUBLICO'` — e alimenta a conquista
+(`MINUTOS_APROVEITADOS` em `MetricasRepository`) e o troféu (`MetricaPeriodo.MINUTOS_APROVEITADOS`).
+A categoria não entra no filtro: o campo só existe em estudo e leitura, e repetir a lista obrigaria
+a mexer em dois lugares.
 
 ---
 

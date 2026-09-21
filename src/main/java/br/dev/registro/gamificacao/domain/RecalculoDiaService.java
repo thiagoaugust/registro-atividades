@@ -94,7 +94,8 @@ public class RecalculoDiaService {
             RegistroAtividade registro = registros.findById(evento.registroId());
             if (registro != null) {
                 int pontos = CalculadoraXp.pontosBrutos(
-                        registro.duracaoMin, registro.esforco, registro.categoria, config.parametrosXp());
+                        registro.duracaoMin, registro.esforco, registro.categoria,
+                        registro.tempoAproveitado(), config.parametrosXp());
                 lancamentos.persist(XpLancamento.de(
                         registro.dataLocal, OrigemXp.REGISTRO, registro.id, registro.categoria, pontos));
                 diaNovo = registro.dataLocal;
@@ -212,7 +213,8 @@ public class RecalculoDiaService {
 
         for (RegistroAtividade registro : registros.buscar(de, ate, null)) {
             int pontos = CalculadoraXp.pontosBrutos(
-                    registro.duracaoMin, registro.esforco, registro.categoria, config.parametrosXp());
+                    registro.duracaoMin, registro.esforco, registro.categoria,
+                    registro.tempoAproveitado(), config.parametrosXp());
             lancamentos.persist(XpLancamento.de(
                     registro.dataLocal, OrigemXp.REGISTRO, registro.id, registro.categoria, pontos));
         }

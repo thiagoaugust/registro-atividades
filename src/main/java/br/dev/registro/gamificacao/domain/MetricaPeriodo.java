@@ -16,6 +16,7 @@ public enum MetricaPeriodo {
     KM("km"),
     MINUTOS_ESTUDO("minutos"),
     MINUTOS_PRATICA("minutos"),
+    MINUTOS_APROVEITADOS("minutos"),
     ACOES_CONCLUIDAS("acoes"),
     REVISOES("revisoes");
 

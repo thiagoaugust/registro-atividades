@@ -8,6 +8,7 @@ import { FormularioRegistro } from "@/components/FormularioRegistro";
 import { CheckinCard } from "@/components/CheckinCard";
 import { ResumoDoDia } from "@/components/ResumoDoDia";
 import { FaixaDoDia } from "@/components/FaixaDoDia";
+import { EmAndamento, type Atalho } from "@/components/EmAndamento";
 import {
   CORES_CATEGORIA,
   esforcoMedio,
@@ -29,6 +30,8 @@ function somarDias(iso: string, dias: number): string {
 export function PainelDia() {
   const [data, setData] = useState(hojeLocal());
   const [editando, setEditando] = useState<RegistroDto | null>(null);
+  // A chave sobe a cada clique: e o que faz o formulario reagir mesmo ao mesmo item de novo.
+  const [atalho, setAtalho] = useState<(Atalho & { chave: number }) | null>(null);
   const [erro, setErro] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
@@ -103,6 +106,13 @@ export function PainelDia() {
       <div className="flex flex-col gap-4">
         <FaixaDoDia faixa={faixa.data} />
 
+        <EmAndamento
+          aoRegistrar={(escolha) => {
+            setEditando(null);
+            setAtalho({ ...escolha, chave: Date.now() });
+          }}
+        />
+
         <CheckinCard
           data={data}
           checkin={dia.data?.checkin ?? null}
@@ -114,9 +124,11 @@ export function PainelDia() {
         <FormularioRegistro
           data={data}
           editando={editando}
+          atalho={atalho}
           aoSalvar={(dados) => salvar.mutate(dados)}
           aoCancelar={() => {
             setEditando(null);
+            setAtalho(null);
             setErro(null);
           }}
           salvando={salvar.isPending}

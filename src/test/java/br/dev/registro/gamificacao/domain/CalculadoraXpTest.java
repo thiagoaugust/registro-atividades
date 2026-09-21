@@ -20,21 +20,28 @@ class CalculadoraXpTest {
     @Test
     void esforco_medio_nao_altera_a_duracao() {
         // fator 1,0 e multiplicador 1,0: 60 min de treino a esforco 5 valem 60 XP.
-        assertThat(CalculadoraXp.pontosBrutos(60, 5, Categoria.TREINO, P)).isEqualTo(60);
+        assertThat(CalculadoraXp.pontosBrutos(60, 5, Categoria.TREINO, false, P)).isEqualTo(60);
     }
 
     @Test
     void esforco_maximo_vale_quase_o_dobro_do_minimo() {
-        int minimo = CalculadoraXp.pontosBrutos(60, 1, Categoria.TREINO, P);
-        int maximo = CalculadoraXp.pontosBrutos(60, 10, Categoria.TREINO, P);
+        int minimo = CalculadoraXp.pontosBrutos(60, 1, Categoria.TREINO, false, P);
+        int maximo = CalculadoraXp.pontosBrutos(60, 10, Categoria.TREINO, false, P);
         assertThat(minimo).isEqualTo(41);
         assertThat(maximo).isEqualTo(84);
     }
 
     @Test
+    void tempo_aproveitado_bonifica_a_sessao() {
+        // 60 min de estudo com esforco 5 valem 60; no transporte publico, 30% a mais.
+        assertThat(CalculadoraXp.pontosBrutos(60, 5, Categoria.ESTUDO, true, P)).isEqualTo(78);
+        assertThat(CalculadoraXp.pontosBrutos(60, 5, Categoria.ESTUDO, false, P)).isEqualTo(60);
+    }
+
+    @Test
     void multiplicador_da_categoria_entra_na_conta() {
-        assertThat(CalculadoraXp.pontosBrutos(60, 5, Categoria.LEITURA, P)).isEqualTo(48);
-        assertThat(CalculadoraXp.pontosBrutos(60, 5, Categoria.DESAFIO, P)).isEqualTo(72);
+        assertThat(CalculadoraXp.pontosBrutos(60, 5, Categoria.LEITURA, false, P)).isEqualTo(48);
+        assertThat(CalculadoraXp.pontosBrutos(60, 5, Categoria.DESAFIO, false, P)).isEqualTo(72);
     }
 
     @Test

@@ -134,6 +134,19 @@ public class MetricasRepository {
                 "select count(*) from curso where status = 'CONCLUIDO' and concluido_em <= :ate", ate);
     }
 
+    /**
+     * Minutos de estudo ou leitura feitos no transporte publico. A categoria nao entra no filtro: o
+     * local so existe nessas duas, e amarrar a lista aqui obrigaria a mexer nos dois lugares.
+     */
+    public double minutosAproveitados(LocalDate ate) {
+        return numero(
+                """
+                select coalesce(sum(duracao_min), 0)
+                  from registro_atividade
+                 where detalhes->>'local' = 'TRANSPORTE_PUBLICO' and data_local <= :ate
+                """, ate);
+    }
+
     /** Minutos de pratica deliberada acumulados. */
     public double minutosPratica(LocalDate ate) {
         return numero(

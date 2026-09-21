@@ -19,8 +19,8 @@ public final class ValidadorDetalhes {
 
     private static final Map<Categoria, Set<String>> CHAVES = Map.of(
             Categoria.TREINO, Set.of("modalidade", "distanciaKm", "paceSegPorKm", "series", "fcMedia"),
-            Categoria.ESTUDO, Set.of("tema", "fonte", "tecnica", "foco", "minutosPratica"),
-            Categoria.LEITURA, Set.of("paginaInicial", "paginaFinal"),
+            Categoria.ESTUDO, Set.of("tema", "fonte", "tecnica", "foco", "minutosPratica", "local"),
+            Categoria.LEITURA, Set.of("paginaInicial", "paginaFinal", "local"),
             Categoria.DESAFIO, Set.of("valorProgresso"),
             Categoria.PROJETO, Set.of("marco", "statusApos"));
 
@@ -28,6 +28,15 @@ public final class ValidadorDetalhes {
             Set.of("LEITURA", "EXERCICIO", "FLASHCARD", "PROJETO_PRATICO");
 
     private ValidadorDetalhes() {
+    }
+
+    /** Onde a sessao aconteceu. So estudo e leitura tem local: sao as que cabem num onibus. */
+    private static void validarLocal(Map<String, Object> d, List<String> erros) {
+        Object local = d.get("local");
+        if (local != null && LocalAtividade.de(local) == null) {
+            erros.add("detalhes.local deve ser um de "
+                    + java.util.Arrays.toString(LocalAtividade.values()));
+        }
     }
 
     public static void validar(RegistroAtividade registro) {
@@ -78,6 +87,7 @@ public final class ValidadorDetalhes {
     private static void validarEstudo(RegistroAtividade r, Map<String, Object> d, List<String> erros) {
         exigirTextoSePresente(d, "tema", erros);
         exigirTextoSePresente(d, "fonte", erros);
+        validarLocal(d, erros);
 
         // Pratica deliberada e uma parte da sessao, nao um tempo a parte: nao pode passar do total.
         // Zero e resposta valida — "essa sessao foi so consumo" e uma informacao, nao um campo vazio.
@@ -94,6 +104,7 @@ public final class ValidadorDetalhes {
     }
 
     private static void validarLeitura(RegistroAtividade r, Map<String, Object> d, List<String> erros) {
+        validarLocal(d, erros);
         Integer inicial = inteiroPositivo(d, "paginaInicial", erros);
         Integer fin = inteiroPositivo(d, "paginaFinal", erros);
 

@@ -81,6 +81,15 @@ public class RegistroAtividade {
     @Column(columnDefinition = "jsonb")
     public Map<String, Object> detalhes = new LinkedHashMap<>();
 
+    /** Sessao feita em tempo que ja estava perdido — o XP dela ganha bonus. */
+    public boolean tempoAproveitado() {
+        if (detalhes == null) {
+            return false;
+        }
+        LocalAtividade local = LocalAtividade.de(detalhes.get("local"));
+        return local != null && local.tempoAproveitado();
+    }
+
     @CreationTimestamp
     @Column(name = "criado_em", nullable = false, updatable = false)
     public Instant criadoEm;
