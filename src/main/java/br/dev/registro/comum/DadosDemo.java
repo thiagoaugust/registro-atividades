@@ -5,9 +5,11 @@ import br.dev.registro.atividades.domain.Desafio;
 import br.dev.registro.atividades.domain.Livro;
 import br.dev.registro.atividades.domain.Projeto;
 import br.dev.registro.atividades.domain.RegistroAtividade;
+import br.dev.registro.atividades.domain.AreaConhecimento;
 import br.dev.registro.atividades.domain.StatusLivro;
 import br.dev.registro.atividades.domain.StatusProjeto;
 import br.dev.registro.atividades.infra.DesafioRepository;
+import br.dev.registro.atividades.infra.AreaConhecimentoRepository;
 import br.dev.registro.atividades.infra.LivroRepository;
 import br.dev.registro.atividades.infra.ProjetoRepository;
 import br.dev.registro.atividades.infra.RegistroRepository;
@@ -63,6 +65,7 @@ public class DadosDemo {
     private final RegistroRepository registros;
     private final CheckinRepository checkins;
     private final LivroRepository livros;
+    private final AreaConhecimentoRepository areas;
     private final DesafioRepository desafios;
     private final ProjetoRepository projetos;
     private final InboxRepository inbox;
@@ -77,6 +80,7 @@ public class DadosDemo {
             RegistroRepository registros,
             CheckinRepository checkins,
             LivroRepository livros,
+            AreaConhecimentoRepository areas,
             DesafioRepository desafios,
             ProjetoRepository projetos,
             InboxRepository inbox,
@@ -89,6 +93,7 @@ public class DadosDemo {
         this.registros = registros;
         this.checkins = checkins;
         this.livros = livros;
+        this.areas = areas;
         this.desafios = desafios;
         this.projetos = projetos;
         this.inbox = inbox;
@@ -126,9 +131,19 @@ public class DadosDemo {
         LocalDate hoje = relogio.hoje();
         LocalDate inicio = hoje.minusDays(DIAS - 1L);
 
-        Livro lidoUm = livro("Domain-Driven Design", "Eric Evans", 560);
-        Livro lidoDois = livro("Refactoring", "Martin Fowler", 448);
-        Livro lendo = livro("A Philosophy of Software Design", "John Ousterhout", 190);
+        Livro lidoUm = livro("Domain-Driven Design", "Eric Evans", 560, "Tecnico", 5);
+        Livro lidoDois = livro("Refactoring", "Martin Fowler", 448, "Tecnico", 4);
+        Livro lendo = livro("A Philosophy of Software Design", "John Ousterhout", 190, "Tecnico", 3);
+
+        // Estante anterior ao sistema: sem ela, "livros por area" seria uma barra so de Tecnico.
+        livroRetroativo("O Homem do Castelo Alto", "Philip K. Dick", 288, "Literatura", 2,
+                14, 9.5, inicio.minusDays(40));
+        livroRetroativo("O Corpo Guarda as Marcas", "Bessel van der Kolk", 464, "Psicologia", 4,
+                38, 21, inicio.minusDays(15));
+        livroRetroativo("Sapiens", "Yuval Harari", 464, "Historia", 3,
+                26, 16.5, inicio.plusDays(20));
+        livroRetroativo("Meditacoes", "Marco Aurelio", 176, "Filosofia", 4,
+                21, 7, inicio.plusDays(55));
 
         Desafio corrida = desafio("200 km no trimestre", 200, "km", inicio);
 
@@ -200,11 +215,14 @@ public class DadosDemo {
                     Livro alvo = paginasUm <= lidoUm.totalPaginas ? lidoUm
                             : paginasDois <= lidoDois.totalPaginas ? lidoDois : lendo;
                     int de = alvo == lidoUm ? paginasUm : alvo == lidoDois ? paginasDois : paginasTres;
-                    int ate = Math.min(de + 10 + sorteio.nextInt(25), alvo.totalPaginas);
+                    // O ultimo livro para perto de dois tercos: velocidade, ritmo e previsao de
+                    // termino so tem o que mostrar enquanto existe leitura em andamento.
+                    int limite = alvo == lendo ? alvo.totalPaginas * 2 / 3 : alvo.totalPaginas;
+                    int ate = Math.min(de + 10 + sorteio.nextInt(25), limite);
 
                     // Com todos os livros terminados nao ha o que ler; sem esta condicao a ultima
                     // pilha gerava paginaInicial > paginaFinal, dado que a propria API recusaria.
-                    if (de <= alvo.totalPaginas) {
+                    if (de <= limite) {
                         registro(dia, Categoria.LEITURA, 20 + sorteio.nextInt(40), 3 + sorteio.nextInt(4),
                                 alvo.titulo, Map.of("paginaInicial", de, "paginaFinal", ate),
                                 alvo, null, null);
@@ -466,13 +484,33 @@ public class DadosDemo {
         registros.persist(registro);
     }
 
-    private Livro livro(String titulo, String autor, int paginas) {
+    private Livro livro(String titulo, String autor, int paginas, String area, int dificuldade) {
         Livro livro = new Livro();
         livro.titulo = titulo;
         livro.autor = autor;
         livro.totalPaginas = paginas;
+        livro.area = area(area);
+        livro.dificuldade = (short) dificuldade;
         livros.persist(livro);
         return livro;
+    }
+
+    /**
+     * Livro lido antes de o sistema existir: conta na estante e nas areas, sem gerar registro nem
+     * XP. E o que faz "quantos livros de psicologia eu li" ter resposta ja no primeiro dia.
+     */
+    private void livroRetroativo(
+            String titulo, String autor, int paginas, String area, int dificuldade,
+            int dias, double horas, LocalDate concluidoEm) {
+        Livro livro = livro(titulo, autor, paginas, area, dificuldade);
+        livro.status = StatusLivro.CONCLUIDO;
+        livro.concluidoEm = concluidoEm;
+        livro.diasLeitura = dias;
+        livro.horasLeitura = BigDecimal.valueOf(horas);
+    }
+
+    private AreaConhecimento area(String nome) {
+        return areas.find("nome", nome).firstResult();
     }
 
     private Desafio desafio(String titulo, int meta, String unidade, LocalDate inicio) {
