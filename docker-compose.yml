@@ -1,0 +1,47 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-registro}
+      POSTGRES_USER: ${POSTGRES_USER:-registro}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-registro}
+      TZ: America/Sao_Paulo
+    volumes:
+      - dados-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-registro} -d ${POSTGRES_DB:-registro}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  backend:
+    build: .
+    environment:
+      # QUARKUS_PROFILE=demo,prod semeia ~120 dias de dados no primeiro boot com o banco vazio
+      QUARKUS_PROFILE: ${QUARKUS_PROFILE:-prod}
+      DB_URL: jdbc:postgresql://db:5432/${POSTGRES_DB:-registro}
+      DB_USER: ${POSTGRES_USER:-registro}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-registro}
+      APP_PASSWORD: ${APP_PASSWORD:-admin}
+      TZ: America/Sao_Paulo
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8080/q/health/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+volumes:
+  dados-postgres:
