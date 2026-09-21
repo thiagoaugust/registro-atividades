@@ -135,6 +135,15 @@ export function FormularioRegistro({ data, editando, aoSalvar, aoCancelar, salva
     setStatusApos("");
   }
 
+  /**
+   * So livros em leitura: registrar sessao num livro ja concluido ou abandonado nao faz sentido. A
+   * excecao e o livro que o registro em edicao ja aponta — tirar ele da lista apagaria o vinculo de
+   * um registro antigo so por o livro ter sido terminado depois.
+   */
+  const livrosSelecionaveis = (livros.data ?? []).filter(
+    (l) => l.status === "LENDO" || String(l.id) === vinculoId,
+  );
+
   // Mostrar onde a leitura parou evita a pergunta "em que pagina eu estava?" na hora de registrar.
   const livroEscolhido = progressoLivros.data?.find((l) => String(l.livroId) === vinculoId);
   const dicaDaPagina =
@@ -325,7 +334,7 @@ export function FormularioRegistro({ data, editando, aoSalvar, aoCancelar, salva
                 <Campo rotulo="Livro">
                   <Select value={vinculoId} onChange={(e) => setVinculoId(e.target.value)}>
                     <option value="">-</option>
-                    {livros.data?.map((l) => (
+                    {livrosSelecionaveis.map((l) => (
                       <option key={l.id} value={l.id}>
                         {l.titulo}
                       </option>
