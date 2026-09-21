@@ -62,21 +62,21 @@ public class CatalogoResource {
 
     public record LivroDto(
             Long id, String titulo, String autor, Integer totalPaginas, StatusLivro status,
-            LocalDate concluidoEm, String capaUrl, Short dificuldade, Long categoriaId,
-            String categoria, Integer diasLeitura, BigDecimal horasLeitura) {
+            LocalDate concluidoEm, String capaUrl, Short dificuldade, Long areaId,
+            String area, Integer diasLeitura, BigDecimal horasLeitura) {
 
         static LivroDto de(Livro l) {
             return new LivroDto(
                     l.id, l.titulo, l.autor, l.totalPaginas, l.status, l.concluidoEm,
-                    l.capaUrl, l.dificuldade, l.categoria == null ? null : l.categoria.id,
-                    l.categoria == null ? null : l.categoria.nome, l.diasLeitura, l.horasLeitura);
+                    l.capaUrl, l.dificuldade, l.area == null ? null : l.area.id,
+                    l.area == null ? null : l.area.nome, l.diasLeitura, l.horasLeitura);
         }
     }
 
-    public record CategoriaLivroDto(Long id, String nome, boolean ativa, int ordem) {
+    public record AreaConhecimentoDto(Long id, String nome, boolean ativa, int ordem) {
 
-        static CategoriaLivroDto de(br.dev.registro.atividades.domain.CategoriaLivro c) {
-            return new CategoriaLivroDto(c.id, c.nome, c.ativa, c.ordem);
+        static AreaConhecimentoDto de(br.dev.registro.atividades.domain.AreaConhecimento c) {
+            return new AreaConhecimentoDto(c.id, c.nome, c.ativa, c.ordem);
         }
     }
 
@@ -169,31 +169,31 @@ public class CatalogoResource {
     }
 
     @GET
-    @Path("categorias-livro")
-    public List<CategoriaLivroDto> listarCategoriasLivro(@QueryParam("todas") boolean todas) {
-        return service.listarCategoriasLivro(!todas).stream().map(CategoriaLivroDto::de).toList();
+    @Path("areas")
+    public List<AreaConhecimentoDto> listarAreas(@QueryParam("todas") boolean todas) {
+        return service.listarAreas(!todas).stream().map(AreaConhecimentoDto::de).toList();
     }
 
     @POST
-    @Path("categorias-livro")
-    public Response criarCategoriaLivro(@Valid CatalogoService.DadosCategoriaLivro dados) {
-        CategoriaLivroDto criada = CategoriaLivroDto.de(service.criarCategoriaLivro(dados));
-        return Response.created(java.net.URI.create("/api/categorias-livro/" + criada.id()))
+    @Path("areas")
+    public Response criarAreaConhecimento(@Valid CatalogoService.DadosAreaConhecimento dados) {
+        AreaConhecimentoDto criada = AreaConhecimentoDto.de(service.criarAreaConhecimento(dados));
+        return Response.created(java.net.URI.create("/api/areas/" + criada.id()))
                 .entity(criada)
                 .build();
     }
 
     @PUT
-    @Path("categorias-livro/{id}")
-    public CategoriaLivroDto atualizarCategoriaLivro(
-            @PathParam("id") long id, @Valid CatalogoService.DadosCategoriaLivro dados) {
-        return CategoriaLivroDto.de(service.atualizarCategoriaLivro(id, dados));
+    @Path("areas/{id}")
+    public AreaConhecimentoDto atualizarAreaConhecimento(
+            @PathParam("id") long id, @Valid CatalogoService.DadosAreaConhecimento dados) {
+        return AreaConhecimentoDto.de(service.atualizarAreaConhecimento(id, dados));
     }
 
     @DELETE
-    @Path("categorias-livro/{id}")
-    public Response excluirCategoriaLivro(@PathParam("id") long id) {
-        service.excluirCategoriaLivro(id);
+    @Path("areas/{id}")
+    public Response excluirAreaConhecimento(@PathParam("id") long id) {
+        service.excluirAreaConhecimento(id);
         return Response.noContent().build();
     }
 

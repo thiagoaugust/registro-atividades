@@ -70,9 +70,9 @@ function CartaoLivro({
               {livro.totalPaginas ? ` · ${livro.totalPaginas} paginas` : ""}
             </p>
             <div className="mt-1 flex flex-wrap items-center gap-1.5">
-              {livro.categoria && (
+              {livro.area && (
                 <span className="rounded-full border border-violet-500/30 bg-violet-500/15 px-2 py-0.5 text-xs text-violet-300">
-                  {livro.categoria}
+                  {livro.area}
                 </span>
               )}
               {livro.dificuldade && (
@@ -270,7 +270,7 @@ export function Livros() {
   const [totalPaginas, setTotalPaginas] = useState("");
   const [capaUrl, setCapaUrl] = useState("");
   const [dificuldade, setDificuldade] = useState("");
-  const [categoriaId, setCategoriaId] = useState("");
+  const [areaId, setAreaId] = useState("");
   const [diasLeitura, setDiasLeitura] = useState("");
   const [horasLeitura, setHorasLeitura] = useState("");
   const [concluidoEm, setConcluidoEm] = useState("");
@@ -278,7 +278,7 @@ export function Livros() {
   const queryClient = useQueryClient();
 
   const livros = useQuery({ queryKey: ["progresso-livros"], queryFn: api.progressoLivros });
-  const categorias = useQuery({ queryKey: ["categorias-livro"], queryFn: api.categoriasLivro });
+  const areas = useQuery({ queryKey: ["areas"], queryFn: api.areas });
 
   const invalidar = () => queryClient.invalidateQueries();
 
@@ -288,7 +288,7 @@ export function Livros() {
     setTotalPaginas("");
     setCapaUrl("");
     setDificuldade("");
-    setCategoriaId("");
+    setAreaId("");
     setDiasLeitura("");
     setHorasLeitura("");
     setConcluidoEm("");
@@ -304,7 +304,7 @@ export function Livros() {
         totalPaginas: totalPaginas === "" ? null : Number(totalPaginas),
         capaUrl: capaUrl.trim() || null,
         dificuldade: dificuldade === "" ? null : Number(dificuldade),
-        categoriaId: categoriaId === "" ? null : Number(categoriaId),
+        areaId: areaId === "" ? null : Number(areaId),
         diasLeitura: retroativo && diasLeitura !== "" ? Number(diasLeitura) : null,
         horasLeitura: retroativo && horasLeitura !== "" ? Number(horasLeitura) : null,
         concluidoEm: retroativo && concluidoEm !== "" ? concluidoEm : null,
@@ -324,7 +324,7 @@ export function Livros() {
         totalPaginas: livro.totalPaginas,
         capaUrl: livro.capaUrl,
         dificuldade: livro.dificuldade,
-        categoriaId: livro.categoriaId,
+        areaId: livro.areaId,
         diasLeitura: livro.diasLeitura,
         horasLeitura: livro.horasLeitura,
         concluidoEm: livro.concluidoEm,
@@ -396,10 +396,10 @@ export function Livros() {
               />
             </Campo>
 
-            <Campo rotulo="Categoria">
-              <Select value={categoriaId} onChange={(e) => setCategoriaId(e.target.value)}>
+            <Campo rotulo="Area">
+              <Select value={areaId} onChange={(e) => setAreaId(e.target.value)}>
                 <option value="">-</option>
-                {categorias.data?.map((c) => (
+                {areas.data?.map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.nome}
                   </option>

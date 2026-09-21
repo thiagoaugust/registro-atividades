@@ -114,7 +114,7 @@ public class MetricasRepository {
         return numero(
                 """
                 select count(*) from livro l
-                  join categoria_livro c on c.id = l.categoria_id
+                  join area_conhecimento c on c.id = l.area_id
                  where l.status = 'CONCLUIDO' and c.nome = 'Tecnico' and l.concluido_em <= :ate
                 """, ate);
     }
@@ -123,9 +123,24 @@ public class MetricasRepository {
     public double categoriasLidas(LocalDate ate) {
         return numero(
                 """
-                select count(distinct l.categoria_id) from livro l
-                 where l.status = 'CONCLUIDO' and l.categoria_id is not null
+                select count(distinct l.area_id) from livro l
+                 where l.status = 'CONCLUIDO' and l.area_id is not null
                    and l.concluido_em <= :ate
+                """, ate);
+    }
+
+    public double cursosConcluidos(LocalDate ate) {
+        return numero(
+                "select count(*) from curso where status = 'CONCLUIDO' and concluido_em <= :ate", ate);
+    }
+
+    /** Minutos de pratica deliberada acumulados. */
+    public double minutosPratica(LocalDate ate) {
+        return numero(
+                """
+                select coalesce(sum((detalhes->>'minutosPratica')::int), 0)
+                  from registro_atividade
+                 where jsonb_exists(detalhes, 'minutosPratica') and data_local <= :ate
                 """, ate);
     }
 

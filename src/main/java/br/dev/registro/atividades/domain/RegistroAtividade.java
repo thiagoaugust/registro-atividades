@@ -72,6 +72,10 @@ public class RegistroAtividade {
     @JoinColumn(name = "livro_id")
     public Livro livro;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "curso_id")
+    public Curso curso;
+
     /** Campos especificos da categoria. Validados por {@link ValidadorDetalhes}. */
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")

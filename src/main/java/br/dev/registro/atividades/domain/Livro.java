@@ -47,8 +47,8 @@ public class Livro {
     public Short dificuldade;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "categoria_id")
-    public CategoriaLivro categoria;
+    @JoinColumn(name = "area_id")
+    public AreaConhecimento area;
 
     /**
      * Dias que a leitura levou, para livros lidos antes de o sistema existir. A presenca deste campo

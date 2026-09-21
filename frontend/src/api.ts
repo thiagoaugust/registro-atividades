@@ -20,6 +20,7 @@ export interface RegistroDto {
   projeto: Vinculo | null;
   desafio: Vinculo | null;
   livro: Vinculo | null;
+  curso: Vinculo | null;
   detalhes: Record<string, unknown>;
   criadoEm: string;
   atualizadoEm: string;
@@ -36,6 +37,7 @@ export interface DadosRegistro {
   projetoId?: number | null;
   desafioId?: number | null;
   livroId?: number | null;
+  cursoId?: number | null;
   detalhes?: Record<string, unknown>;
 }
 
@@ -367,7 +369,7 @@ export interface RetrospectivaDto {
 
 export type StatusLivro = "LENDO" | "CONCLUIDO" | "ABANDONADO";
 
-export interface CategoriaLivroDto {
+export interface AreaDto {
   id: number;
   nome: string;
   ativa: boolean;
@@ -400,8 +402,8 @@ export interface ProgressoLeituraDto {
   concluidoEm: string | null;
   capaUrl: string | null;
   dificuldade: number | null;
-  categoriaId: number | null;
-  categoria: string | null;
+  areaId: number | null;
+  area: string | null;
   retroativo: boolean;
   diasLeitura: number | null;
   horasLeitura: number | null;
@@ -428,11 +430,78 @@ export interface DadosLivro {
   status?: StatusLivro;
   capaUrl?: string | null;
   dificuldade?: number | null;
-  categoriaId?: number | null;
+  areaId?: number | null;
   /** Preenchidos so no cadastro de leitura retroativa. */
   diasLeitura?: number | null;
   horasLeitura?: number | null;
   concluidoEm?: string | null;
+}
+
+export type StatusCurso = "CURSANDO" | "CONCLUIDO" | "ABANDONADO";
+
+export interface CursoDto {
+  id: number;
+  titulo: string;
+  instituicao: string | null;
+  url: string | null;
+  cargaHoraria: number | null;
+  areaId: number | null;
+  area: string | null;
+  status: StatusCurso;
+  concluidoEm: string | null;
+  horasRetroativas: number | null;
+  diasRetroativos: number | null;
+}
+
+export interface DadosCurso {
+  titulo: string;
+  instituicao?: string | null;
+  url?: string | null;
+  cargaHoraria?: number | null;
+  areaId?: number | null;
+  status?: StatusCurso;
+  horasRetroativas?: number | null;
+  diasRetroativos?: number | null;
+  concluidoEm?: string | null;
+}
+
+export interface ProgressoCursoDto {
+  cursoId: number;
+  titulo: string;
+  instituicao: string | null;
+  url: string | null;
+  cargaHoraria: number | null;
+  areaId: number | null;
+  area: string | null;
+  status: StatusCurso;
+  concluidoEm: string | null;
+  retroativo: boolean;
+  minutos: number;
+  minutosPratica: number;
+  percentualConcluido: number | null;
+  horasRestantes: number | null;
+  percentualPratica: number | null;
+  sessoes: number;
+  esforcoMedio: number | null;
+  horasPorSemana: number | null;
+  diasRestantes: number | null;
+  previsaoTermino: string | null;
+  primeiraSessao: string | null;
+  ultimaSessao: string | null;
+}
+
+export interface EstudoPorAreaDto {
+  porArea: {
+    areaId: number | null;
+    area: string;
+    minutosCurso: number;
+    minutosLivro: number;
+    minutosPratica: number;
+    cursos: number;
+    livros: number;
+  }[];
+  porTema: { tema: string; minutos: number; minutosPratica: number; sessoes: number }[];
+  pratica: { minutosEstudo: number; minutosPratica: number; percentual: number | null };
 }
 
 /** Erro vindo do backend em RFC 7807. */
@@ -603,15 +672,29 @@ export const api = {
 
   progressoLivros: () => requisicao<ProgressoLeituraDto[]>("/api/livros/progresso"),
 
+  cursos: () => requisicao<CursoDto[]>("/api/cursos"),
+
+  progressoCursos: () => requisicao<ProgressoCursoDto[]>("/api/cursos/progresso"),
+
+  estudoPorArea: (de?: string, ate?: string) =>
+    requisicao<EstudoPorAreaDto>(
+      `/api/cursos/estudo${de && ate ? `?de=${de}&ate=${ate}` : ""}`,
+    ),
+
+  criarCurso: (dados: DadosCurso) =>
+    requisicao<CursoDto>("/api/cursos", { method: "POST", body: JSON.stringify(dados) }),
+
+  atualizarCurso: (id: number, dados: DadosCurso) =>
+    requisicao<CursoDto>(`/api/cursos/${id}`, { method: "PUT", body: JSON.stringify(dados) }),
+
+  excluirCurso: (id: number) => requisicao<void>(`/api/cursos/${id}`, { method: "DELETE" }),
+
   estatisticasLeitura: () => requisicao<EstatisticasLeituraDto>("/api/livros/estatisticas"),
 
-  categoriasLivro: () => requisicao<CategoriaLivroDto[]>("/api/categorias-livro"),
+  areas: () => requisicao<AreaDto[]>("/api/areas"),
 
-  criarCategoriaLivro: (nome: string) =>
-    requisicao<CategoriaLivroDto>("/api/categorias-livro", {
-      method: "POST",
-      body: JSON.stringify({ nome }),
-    }),
+  criarArea: (nome: string) =>
+    requisicao<AreaDto>("/api/areas", { method: "POST", body: JSON.stringify({ nome }) }),
 
   criarLivro: (dados: DadosLivro) =>
     requisicao<LivroDto>("/api/livros", { method: "POST", body: JSON.stringify(dados) }),

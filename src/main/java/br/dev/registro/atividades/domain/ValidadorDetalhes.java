@@ -19,7 +19,7 @@ public final class ValidadorDetalhes {
 
     private static final Map<Categoria, Set<String>> CHAVES = Map.of(
             Categoria.TREINO, Set.of("modalidade", "distanciaKm", "paceSegPorKm", "series", "fcMedia"),
-            Categoria.ESTUDO, Set.of("tema", "fonte", "tecnica", "foco"),
+            Categoria.ESTUDO, Set.of("tema", "fonte", "tecnica", "foco", "minutosPratica"),
             Categoria.LEITURA, Set.of("paginaInicial", "paginaFinal"),
             Categoria.DESAFIO, Set.of("valorProgresso"),
             Categoria.PROJETO, Set.of("marco", "statusApos"));
@@ -42,7 +42,7 @@ public final class ValidadorDetalhes {
 
         switch (registro.categoria) {
             case TREINO -> validarTreino(d, erros);
-            case ESTUDO -> validarEstudo(d, erros);
+            case ESTUDO -> validarEstudo(registro, d, erros);
             case LEITURA -> validarLeitura(registro, d, erros);
             case DESAFIO -> validarDesafio(registro, d, erros);
             case PROJETO -> validarProjeto(d, erros);
@@ -75,9 +75,17 @@ public final class ValidadorDetalhes {
         }
     }
 
-    private static void validarEstudo(Map<String, Object> d, List<String> erros) {
+    private static void validarEstudo(RegistroAtividade r, Map<String, Object> d, List<String> erros) {
         exigirTextoSePresente(d, "tema", erros);
         exigirTextoSePresente(d, "fonte", erros);
+
+        // Pratica deliberada e uma parte da sessao, nao um tempo a parte: nao pode passar do total.
+        // Zero e resposta valida — "essa sessao foi so consumo" e uma informacao, nao um campo vazio.
+        Integer pratica = inteiroNaoNegativo(d, "minutosPratica", erros);
+        if (pratica != null && pratica > r.duracaoMin) {
+            erros.add("detalhes.minutosPratica nao pode passar da duracao da sessao (%d min)"
+                    .formatted(r.duracaoMin));
+        }
         Object tecnica = d.get("tecnica");
         if (tecnica != null && !TECNICAS_ESTUDO.contains(String.valueOf(tecnica))) {
             erros.add("detalhes.tecnica deve ser uma de " + TECNICAS_ESTUDO);
@@ -151,6 +159,23 @@ public final class ValidadorDetalhes {
             return null;
         }
         return valor.intValue();
+    }
+
+    /** Como {@link #inteiroPositivo}, mas zero e um valor informado, nao um erro. */
+    private static Integer inteiroNaoNegativo(Map<String, Object> d, String chave, List<String> erros) {
+        Object v = d.get(chave);
+        if (v == null) {
+            return null;
+        }
+        if (!(v instanceof Number n)) {
+            erros.add("detalhes.%s deve ser numerico".formatted(chave));
+            return null;
+        }
+        if (n.intValue() < 0) {
+            erros.add("detalhes.%s nao pode ser negativo".formatted(chave));
+            return null;
+        }
+        return n.intValue();
     }
 
     private static void intervaloInteiro(

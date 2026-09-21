@@ -1,6 +1,7 @@
 package br.dev.registro.atividades.domain;
 
 import br.dev.registro.atividades.infra.DesafioRepository;
+import br.dev.registro.atividades.infra.CursoRepository;
 import br.dev.registro.atividades.infra.LivroRepository;
 import br.dev.registro.atividades.infra.ProgressoLeituraRepository;
 import br.dev.registro.atividades.infra.ProjetoRepository;
@@ -24,6 +25,7 @@ public class RegistroService {
     private final ProjetoRepository projetos;
     private final DesafioRepository desafios;
     private final LivroRepository livros;
+    private final CursoRepository cursos;
     private final ProgressoLeituraRepository progressos;
     private final Relogio relogio;
     private final Event<RegistroAlterado> registroAlterado;
@@ -33,6 +35,7 @@ public class RegistroService {
             ProjetoRepository projetos,
             DesafioRepository desafios,
             LivroRepository livros,
+            CursoRepository cursos,
             ProgressoLeituraRepository progressos,
             Relogio relogio,
             Event<RegistroAlterado> registroAlterado) {
@@ -40,6 +43,7 @@ public class RegistroService {
         this.projetos = projetos;
         this.desafios = desafios;
         this.livros = livros;
+        this.cursos = cursos;
         this.progressos = progressos;
         this.relogio = relogio;
         this.registroAlterado = registroAlterado;
@@ -107,6 +111,10 @@ public class RegistroService {
                 ? null
                 : livros.findByIdOptional(dados.livroId())
                         .orElseThrow(() -> new RecursoNaoEncontradoException("Livro", dados.livroId()));
+        registro.curso = dados.cursoId() == null
+                ? null
+                : cursos.findByIdOptional(dados.cursoId())
+                        .orElseThrow(() -> new RecursoNaoEncontradoException("Curso", dados.cursoId()));
 
         if (registro.dataLocal.isAfter(relogio.hoje())) {
             throw new RegraNegocioException("nao da para registrar uma atividade no futuro");

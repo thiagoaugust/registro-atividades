@@ -87,7 +87,7 @@ public class ProgressoLeituraRepository {
                              where s.paginas is not null
                         )
                         select l.id, l.titulo, l.autor, l.total_paginas, l.status, l.concluido_em,
-                               l.capa_url, l.dificuldade, l.categoria_id, c.nome,
+                               l.capa_url, l.dificuldade, l.area_id, c.nome,
                                l.dias_leitura, l.horas_leitura,
                                coalesce((select max(p.pagina_final) from com_paginas p
                                           where p.livro_id = l.id), 0),
@@ -108,7 +108,7 @@ public class ProgressoLeituraRepository {
                                coalesce((select sum(p.paginas) from com_paginas p
                                           where p.livro_id = l.id and p.data_local > :inicioJanela), 0)
                           from livro l
-                          left join categoria_livro c on c.id = l.categoria_id
+                          left join area_conhecimento c on c.id = l.area_id
                           -- o que esta sendo lido vem primeiro; concluidos, do mais recente;
                           -- ordenar por status cru daria ordem alfabetica (ABANDONADO, CONCLUIDO...)
                       order by case l.status when 'LENDO' then 0 when 'CONCLUIDO' then 1 else 2 end,
@@ -171,7 +171,7 @@ public class ProgressoLeituraRepository {
     }
 
     public record PorCategoria(
-            Long categoriaId,
+            Long areaId,
             String categoria,
             int concluidos,
             int lendo,
@@ -185,7 +185,7 @@ public class ProgressoLeituraRepository {
         List<Object[]> linhas = em.createNativeQuery(
                         CTE_LEITURA
                                 + """
-                                select l.categoria_id,
+                                select l.area_id,
                                        coalesce(c.nome, 'Sem categoria'),
                                        count(*) filter (where l.status = 'CONCLUIDO'),
                                        count(*) filter (where l.status = 'LENDO'),
@@ -195,9 +195,9 @@ public class ProgressoLeituraRepository {
                                 + MINUTOS_DO_LIVRO
                                 + """
                                   from livro l
-                                  left join categoria_livro c on c.id = l.categoria_id
+                                  left join area_conhecimento c on c.id = l.area_id
                                   left join leitura le on le.livro_id = l.id
-                              group by l.categoria_id, c.nome, c.ordem
+                              group by l.area_id, c.nome, c.ordem
                               order by c.ordem nulls last, c.nome
                                 """)
                 .getResultList();

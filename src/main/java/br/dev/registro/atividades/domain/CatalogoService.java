@@ -1,6 +1,6 @@
 package br.dev.registro.atividades.domain;
 
-import br.dev.registro.atividades.infra.CategoriaLivroRepository;
+import br.dev.registro.atividades.infra.AreaConhecimentoRepository;
 import br.dev.registro.atividades.infra.DesafioRepository;
 import br.dev.registro.atividades.infra.LivroRepository;
 import br.dev.registro.atividades.infra.ProgressoLeituraRepository;
@@ -35,7 +35,7 @@ public class CatalogoService {
     private final LivroRepository livros;
     private final RegistroRepository registros;
     private final ProgressoLeituraRepository progressos;
-    private final CategoriaLivroRepository categoriasLivro;
+    private final AreaConhecimentoRepository areas;
     private final Relogio relogio;
 
     public CatalogoService(
@@ -44,14 +44,14 @@ public class CatalogoService {
             LivroRepository livros,
             RegistroRepository registros,
             ProgressoLeituraRepository progressos,
-            CategoriaLivroRepository categoriasLivro,
+            AreaConhecimentoRepository areas,
             Relogio relogio) {
         this.projetos = projetos;
         this.desafios = desafios;
         this.livros = livros;
         this.registros = registros;
         this.progressos = progressos;
-        this.categoriasLivro = categoriasLivro;
+        this.areas = areas;
         this.relogio = relogio;
     }
 
@@ -77,14 +77,14 @@ public class CatalogoService {
             StatusLivro status,
             @Size(max = 1000) String capaUrl,
             @Min(1) @Max(5) Short dificuldade,
-            Long categoriaId,
+            Long areaId,
             /** Preenchidos so para leitura retroativa: livro lido antes de existir registro. */
             @Positive Integer diasLeitura,
             @Positive BigDecimal horasLeitura,
             LocalDate concluidoEm) {
     }
 
-    public record DadosCategoriaLivro(
+    public record DadosAreaConhecimento(
             @NotBlank @Size(max = 60) String nome, Boolean ativa, Integer ordem) {
     }
 
@@ -237,11 +237,11 @@ public class CatalogoService {
         l.diasLeitura = dados.diasLeitura();
         l.horasLeitura = dados.horasLeitura();
 
-        l.categoria = dados.categoriaId() == null
+        l.area = dados.areaId() == null
                 ? null
-                : categoriasLivro.findByIdOptional(dados.categoriaId())
+                : areas.findByIdOptional(dados.areaId())
                         .orElseThrow(() -> new RecursoNaoEncontradoException(
-                                "Categoria de livro", dados.categoriaId()));
+                                "Categoria de livro", dados.areaId()));
 
         // Livro retroativo ja nasce lido: quem informa quantos dias levou esta cadastrando historico.
         StatusLivro novo = dados.status() != null
@@ -269,29 +269,29 @@ public class CatalogoService {
 
     // ---------- Categorias de livro ----------
 
-    public List<CategoriaLivro> listarCategoriasLivro(boolean apenasAtivas) {
+    public List<AreaConhecimento> listarAreas(boolean apenasAtivas) {
         return apenasAtivas
-                ? categoriasLivro.ativas()
-                : categoriasLivro.listAll(Sort.by("ordem").and("nome"));
+                ? areas.ativas()
+                : areas.listAll(Sort.by("ordem").and("nome"));
     }
 
     @Transactional
-    public CategoriaLivro criarCategoriaLivro(DadosCategoriaLivro dados) {
-        CategoriaLivro categoria = new CategoriaLivro();
+    public AreaConhecimento criarAreaConhecimento(DadosAreaConhecimento dados) {
+        AreaConhecimento categoria = new AreaConhecimento();
         aplicar(dados, categoria);
-        categoriasLivro.persist(categoria);
+        areas.persist(categoria);
         return categoria;
     }
 
     @Transactional
-    public CategoriaLivro atualizarCategoriaLivro(long id, DadosCategoriaLivro dados) {
-        CategoriaLivro categoria = categoriasLivro.findByIdOptional(id)
+    public AreaConhecimento atualizarAreaConhecimento(long id, DadosAreaConhecimento dados) {
+        AreaConhecimento categoria = areas.findByIdOptional(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Categoria de livro", id));
         aplicar(dados, categoria);
         return categoria;
     }
 
-    private void aplicar(DadosCategoriaLivro dados, CategoriaLivro categoria) {
+    private void aplicar(DadosAreaConhecimento dados, AreaConhecimento categoria) {
         categoria.nome = dados.nome().trim();
         if (dados.ativa() != null) {
             categoria.ativa = dados.ativa();
@@ -303,15 +303,15 @@ public class CatalogoService {
 
     /** Categoria em uso e desativada, nao apagada: os livros existentes perderiam a classificacao. */
     @Transactional
-    public void excluirCategoriaLivro(long id) {
-        CategoriaLivro categoria = categoriasLivro.findByIdOptional(id)
+    public void excluirAreaConhecimento(long id) {
+        AreaConhecimento categoria = areas.findByIdOptional(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Categoria de livro", id));
-        long emUso = livros.count("categoria.id = ?1", id);
+        long emUso = livros.count("area.id = ?1", id);
         if (emUso > 0) {
             throw new RegraNegocioException(
                     "a categoria tem %d livro(s); desative em vez de excluir".formatted(emUso));
         }
-        categoriasLivro.delete(categoria);
+        areas.delete(categoria);
     }
 
     @Transactional

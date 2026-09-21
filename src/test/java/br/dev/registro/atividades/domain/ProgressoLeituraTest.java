@@ -140,7 +140,7 @@ class ProgressoLeituraTest {
         assertThat(p.percentualLido()).isEqualTo(100.0);
         assertThat(p.paginasLidas()).isEqualTo(320);
         assertThat(p.paginasRestantes()).isZero();
-        assertThat(p.categoria()).isEqualTo("Historia");
+        assertThat(p.area()).isEqualTo("Historia");
         assertThat(p.previsaoTermino()).isNull();
     }
 

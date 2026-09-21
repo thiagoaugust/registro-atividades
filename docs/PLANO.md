@@ -663,6 +663,30 @@ desincronizar.
 
 ---
 
+## 5.4 Cursos, área de conhecimento e prática deliberada
+
+**`categoria_livro` virou `area_conhecimento`.** A mesma lista classifica livro e curso, e é isso
+que faz "quanto investi em Psicologia" ser uma soma — não dois números em telas diferentes. O campo
+`tema` continua livre por sessão: a área agrupa, o tema detalha.
+
+**`Curso`** com carga horária, instituição, link e área. O progresso é o tempo dedicado dividido pela
+carga — mesma ideia do livro, trocando páginas por horas. Registro de `ESTUDO` ganhou `cursoId`;
+estudo avulso (sem curso) continua valendo.
+
+**Prática deliberada em minutos, não em booleano.** Uma sessão de 120 min com 50 de exercício é
+41% de prática. Isso responde a pergunta que um checkbox não responde: *que fração do meu estudo é
+prática, e não consumo*. Validação: não pode passar da duração da sessão, e **zero é resposta
+válida** — "essa sessão foi só vídeo" é informação, não campo vazio.
+
+**Ritmo do curso em horas por semana** (janela de 28 dias), dividindo pelos dias corridos: quem faz
+4 horas num sábado e para a semana avança 4 por semana, não 4 por dia.
+
+**Curso retroativo** segue o mesmo critério do livro: horas e dias informados no cadastro, conta na
+estante e nas áreas, **não gera registro nem XP**. Sem sessão não há como saber o que foi prática,
+então a fração aparece como "—" em vez de 0%.
+
+---
+
 ## 6. Fora do escopo da v1
 
 Multiusuário, mobile nativo, push, integrações externas (calendário, notas, wearables). O desenho

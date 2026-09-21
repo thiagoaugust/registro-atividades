@@ -235,23 +235,23 @@ class LeituraApiTest {
 
     // ---------- categoria, dificuldade, capa e leitura retroativa ----------
 
-    private static int categoriaPorNome(String nome) {
-        return given().when().get("/api/categorias-livro")
+    private static int areaPorNome(String nome) {
+        return given().when().get("/api/areas")
                 .then().statusCode(200)
                 .extract().path("find { it.nome == '%s' }.id".formatted(nome));
     }
 
     @Test
-    void categorias_vem_semeadas() {
-        given().when().get("/api/categorias-livro")
+    void areas_vem_semeadas() {
+        given().when().get("/api/areas")
                 .then().statusCode(200)
                 .body("nome", org.hamcrest.Matchers.hasItems(
                         "Tecnico", "Literatura", "Historia", "Filosofia", "Psicologia"));
     }
 
     @Test
-    void livro_guarda_capa_dificuldade_e_categoria() {
-        int tecnico = categoriaPorNome("Tecnico");
+    void livro_guarda_capa_dificuldade_e_area() {
+        int tecnico = areaPorNome("Tecnico");
 
         int livro = given().contentType(ContentType.JSON)
                 .body(Map.of(
@@ -260,16 +260,16 @@ class LeituraApiTest {
                         "totalPaginas", 590,
                         "capaUrl", "https://exemplo.com/capa.jpg",
                         "dificuldade", 5,
-                        "categoriaId", tecnico))
+                        "areaId", tecnico))
                 .when().post("/api/livros")
                 .then().statusCode(201)
                 .body("capaUrl", is("https://exemplo.com/capa.jpg"))
                 .body("dificuldade", is(5))
-                .body("categoria", is("Tecnico"))
+                .body("area", is("Tecnico"))
                 .extract().path("id");
 
         Map<String, Object> progresso = progressoDe(livro);
-        assertThat(progresso, "categoria", "Tecnico");
+        assertThat(progresso, "area", "Tecnico");
         assertThat(progresso, "dificuldade", 5);
         assertThat(progresso, "capaUrl", "https://exemplo.com/capa.jpg");
     }
@@ -285,14 +285,14 @@ class LeituraApiTest {
 
     @Test
     void livro_retroativo_nasce_concluido_e_conta_inteiro() {
-        int historia = categoriaPorNome("Historia");
+        int historia = areaPorNome("Historia");
 
         int livro = given().contentType(ContentType.JSON)
                 .body(Map.of(
                         "titulo", "Sapiens",
                         "autor", "Harari",
                         "totalPaginas", 464,
-                        "categoriaId", historia,
+                        "areaId", historia,
                         "dificuldade", 3,
                         "diasLeitura", 30,
                         "horasLeitura", 20.0,
@@ -339,9 +339,9 @@ class LeituraApiTest {
 
     @Test
     void estatisticas_contam_livros_por_categoria() {
-        int filosofia = categoriaPorNome("Filosofia");
+        int filosofia = areaPorNome("Filosofia");
         given().contentType(ContentType.JSON)
-                .body(Map.of("titulo", "Meditacoes", "totalPaginas", 180, "categoriaId", filosofia,
+                .body(Map.of("titulo", "Meditacoes", "totalPaginas", 180, "areaId", filosofia,
                         "diasLeitura", 12, "horasLeitura", 6.0, "concluidoEm", "2026-03-01"))
                 .when().post("/api/livros").then().statusCode(201);
 
@@ -365,16 +365,16 @@ class LeituraApiTest {
     }
 
     @Test
-    void categoria_em_uso_nao_e_excluida() {
+    void area_em_uso_nao_e_excluida() {
         int nova = given().contentType(ContentType.JSON)
                 .body(Map.of("nome", "Poesia"))
-                .when().post("/api/categorias-livro").then().statusCode(201).extract().path("id");
+                .when().post("/api/areas").then().statusCode(201).extract().path("id");
 
         given().contentType(ContentType.JSON)
-                .body(Map.of("titulo", "Livro de poesia", "categoriaId", nova))
+                .body(Map.of("titulo", "Livro de poesia", "areaId", nova))
                 .when().post("/api/livros").then().statusCode(201);
 
-        given().when().delete("/api/categorias-livro/" + nova)
+        given().when().delete("/api/areas/" + nova)
                 .then().statusCode(422)
                 .body("detail", containsString("desative em vez de excluir"));
     }

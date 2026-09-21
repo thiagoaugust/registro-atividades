@@ -14,8 +14,8 @@ import jakarta.persistence.Table;
  * <p>Nao confundir com {@link Categoria}, que classifica a atividade (TREINO, ESTUDO, LEITURA...).
  */
 @Entity
-@Table(name = "categoria_livro")
-public class CategoriaLivro {
+@Table(name = "area_conhecimento")
+public class AreaConhecimento {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

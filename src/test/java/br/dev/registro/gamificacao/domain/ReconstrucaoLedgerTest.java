@@ -46,9 +46,9 @@ class ReconstrucaoLedgerTest {
         LocalDate dia = LocalDate.of(2025, 11, 4);
 
         registros.criar(new DadosRegistro(
-                dia, null, 60, Categoria.TREINO, "corrida", (short) 7, null, null, null, null, null, Map.of()));
+                dia, null, 60, Categoria.TREINO, "corrida", (short) 7, null, null, null, null, null, null, Map.of()));
         registros.criar(new DadosRegistro(
-                dia, null, 45, Categoria.ESTUDO, "estudo", (short) 5, null, null, null, null, null, Map.of()));
+                dia, null, 45, Categoria.ESTUDO, "estudo", (short) 5, null, null, null, null, null, null, Map.of()));
 
         int xpOriginal = resumos.findById(dia).xpTotal;
         assertThat(xpOriginal).isGreaterThan(0);

@@ -49,7 +49,7 @@ docker compose --profile demo up   # sobe com o perfil demo (120 dias de dados)
 .
 ├── src/main/java/br/dev/registro/
 │   ├── comum/              # Problem Details, relógio/fuso, tipos compartilhados
-│   ├── atividades/         # api/ domain/ infra/
+│   ├── atividades/         # registros, livros, cursos e areas de conhecimento
 │   ├── checkin/
 │   ├── gamificacao/
 │   ├── gtd/                # inbox, esclarecimento, acoes, contextos, referencias

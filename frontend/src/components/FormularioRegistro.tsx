@@ -69,6 +69,8 @@ export function FormularioRegistro({ data, editando, aoSalvar, aoCancelar, salva
   const [fonte, setFonte] = useState("");
   const [tecnica, setTecnica] = useState("");
   const [foco, setFoco] = useState("");
+  const [minutosPratica, setMinutosPratica] = useState("");
+  const [cursoId, setCursoId] = useState("");
   const [paginaFinal, setPaginaFinal] = useState("");
   const [progresso, setProgresso] = useState("");
   const [marco, setMarco] = useState("");
@@ -80,6 +82,7 @@ export function FormularioRegistro({ data, editando, aoSalvar, aoCancelar, salva
     queryFn: api.progressoLivros,
     enabled: categoria === "LEITURA",
   });
+  const cursos = useQuery({ queryKey: ["cursos"], queryFn: api.cursos, enabled: categoria === "ESTUDO" });
   const desafios = useQuery({ queryKey: ["desafios"], queryFn: api.desafios, enabled: categoria === "DESAFIO" });
   const projetos = useQuery({ queryKey: ["projetos"], queryFn: api.projetos, enabled: categoria === "PROJETO" });
 
@@ -103,6 +106,8 @@ export function FormularioRegistro({ data, editando, aoSalvar, aoCancelar, salva
     setFonte(String(d.fonte ?? ""));
     setTecnica(String(d.tecnica ?? ""));
     setFoco(String(d.foco ?? ""));
+    setMinutosPratica(String(d.minutosPratica ?? ""));
+    setCursoId(String(editando.curso?.id ?? ""));
     setPaginaFinal(String(d.paginaFinal ?? ""));
     setProgresso(String(d.valorProgresso ?? ""));
     setMarco(String(d.marco ?? ""));
@@ -122,6 +127,8 @@ export function FormularioRegistro({ data, editando, aoSalvar, aoCancelar, salva
     setFonte("");
     setTecnica("");
     setFoco("");
+    setMinutosPratica("");
+    setCursoId("");
     setPaginaFinal("");
     setProgresso("");
     setMarco("");
@@ -156,6 +163,7 @@ export function FormularioRegistro({ data, editando, aoSalvar, aoCancelar, salva
         por("fonte", textoOuUndefined(fonte));
         por("tecnica", textoOuUndefined(tecnica));
         por("foco", numeroOuUndefined(foco));
+        por("minutosPratica", numeroOuUndefined(minutosPratica));
         break;
       case "LEITURA":
         // So "parei na pagina X": o backend deriva o inicio a partir da ultima pagina do livro.
@@ -184,6 +192,7 @@ export function FormularioRegistro({ data, editando, aoSalvar, aoCancelar, salva
       satisfacao: numeroOuUndefined(satisfacao) ?? null,
       notas: textoOuUndefined(notas) ?? null,
       livroId: categoria === "LEITURA" ? vinculo : null,
+      cursoId: categoria === "ESTUDO" && cursoId !== "" ? Number(cursoId) : null,
       desafioId: categoria === "DESAFIO" ? vinculo : null,
       projetoId: categoria === "PROJETO" ? vinculo : null,
       detalhes: montarDetalhes(),
@@ -264,6 +273,18 @@ export function FormularioRegistro({ data, editando, aoSalvar, aoCancelar, salva
 
             {categoria === "ESTUDO" && (
               <div className="grid gap-3 sm:grid-cols-4">
+                <Campo rotulo="Curso" className="sm:col-span-2">
+                  <Select value={cursoId} onChange={(e) => setCursoId(e.target.value)}>
+                    <option value="">nenhum (estudo avulso)</option>
+                    {cursos.data
+                      ?.filter((c) => c.status === "CURSANDO")
+                      .map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.titulo}
+                        </option>
+                      ))}
+                  </Select>
+                </Campo>
                 <Campo rotulo="Tema">
                   <Input value={tema} onChange={(e) => setTema(e.target.value)} placeholder="Quarkus" />
                 </Campo>
@@ -282,6 +303,19 @@ export function FormularioRegistro({ data, editando, aoSalvar, aoCancelar, salva
                 </Campo>
                 <Campo rotulo="Foco (1-5)">
                   <Input type="number" min={1} max={5} value={foco} onChange={(e) => setFoco(e.target.value)} />
+                </Campo>
+                <Campo
+                  rotulo="Minutos de pratica"
+                  className="sm:col-span-2"
+                  dica="quanto da sessao foi exercicio, e nao consumo"
+                >
+                  <Input
+                    type="number"
+                    min={0}
+                    max={Number(duracao) || undefined}
+                    value={minutosPratica}
+                    onChange={(e) => setMinutosPratica(e.target.value)}
+                  />
                 </Campo>
               </div>
             )}

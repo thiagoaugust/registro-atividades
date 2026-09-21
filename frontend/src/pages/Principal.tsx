@@ -10,6 +10,7 @@ import { ListasGtd } from "@/components/ListasGtd";
 import { Agora } from "@/components/Agora";
 import { RevisaoSemanal } from "@/components/RevisaoSemanal";
 import { Livros } from "@/components/Livros";
+import { Cursos } from "@/components/Cursos";
 
 // Recharts responde por metade do bundle e so serve a esta aba: carrega quando ela abre.
 const Analytics = lazy(() =>
@@ -23,6 +24,7 @@ const ABAS = [
   { id: "listas", rotulo: "Listas" },
   { id: "agora", rotulo: "Agora" },
   { id: "livros", rotulo: "Livros" },
+  { id: "cursos", rotulo: "Estudo" },
   { id: "revisar", rotulo: "Revisar" },
   { id: "analytics", rotulo: "Evolucao" },
   { id: "conquistas", rotulo: "Conquistas" },
@@ -74,6 +76,7 @@ export function Principal({ aoSair }: { aoSair: () => void }) {
         {aba === "listas" && <ListasGtd />}
         {aba === "agora" && <Agora />}
         {aba === "livros" && <Livros />}
+        {aba === "cursos" && <Cursos />}
         {aba === "revisar" && <RevisaoSemanal />}
         {aba === "analytics" && (
           <Suspense fallback={<p className="text-sm text-zinc-500">Carregando graficos...</p>}>

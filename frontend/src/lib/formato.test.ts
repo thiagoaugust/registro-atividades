@@ -22,6 +22,7 @@ function registro(categoria: RegistroDto["categoria"], duracaoMin: number, esfor
     projeto: null,
     desafio: null,
     livro: null,
+    curso: null,
     detalhes: {},
     criadoEm: "",
     atualizadoEm: "",

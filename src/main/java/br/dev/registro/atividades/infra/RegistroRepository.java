@@ -24,6 +24,7 @@ public class RegistroRepository implements PanacheRepository<RegistroAtividade> 
             left join fetch r.projeto
             left join fetch r.desafio
             left join fetch r.livro
+            left join fetch r.curso
             """;
 
     public Optional<RegistroAtividade> porIdComVinculos(long id) {

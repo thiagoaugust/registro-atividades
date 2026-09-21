@@ -22,6 +22,7 @@ public record RegistroDto(
         Vinculo projeto,
         Vinculo desafio,
         Vinculo livro,
+        Vinculo curso,
         Map<String, Object> detalhes,
         Instant criadoEm,
         Instant atualizadoEm) {
@@ -43,6 +44,7 @@ public record RegistroDto(
                 r.projeto == null ? null : new Vinculo(r.projeto.id, r.projeto.titulo),
                 r.desafio == null ? null : new Vinculo(r.desafio.id, r.desafio.titulo),
                 r.livro == null ? null : new Vinculo(r.livro.id, r.livro.titulo),
+                r.curso == null ? null : new Vinculo(r.curso.id, r.curso.titulo),
                 r.detalhes,
                 r.criadoEm,
                 r.atualizadoEm);

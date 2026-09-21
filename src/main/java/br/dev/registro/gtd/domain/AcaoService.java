@@ -175,6 +175,7 @@ public class AcaoService {
                 acao.projeto == null ? null : acao.projeto.id,
                 null,
                 null,
+                null,
                 Map.of()));
 
         acao.registro = registro;

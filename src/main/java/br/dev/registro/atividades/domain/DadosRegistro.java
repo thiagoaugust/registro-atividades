@@ -28,5 +28,6 @@ public record DadosRegistro(
         Long projetoId,
         Long desafioId,
         Long livroId,
+        Long cursoId,
         Map<String, Object> detalhes) {
 }
