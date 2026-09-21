@@ -49,16 +49,21 @@ public class FaixaService {
         DiaResumo resumo = resumos.findById(dia);
         int xp = resumo == null ? 0 : resumo.xpTotal;
 
+        // Folga marcada nao e divida. O classificador ja trata descanso como dia neutro; cobrar a
+        // faixa aqui diria o contrario na mesma tela.
+        boolean descanso = checkin != null && checkin.descansoPlanejado;
+        Situacao situacao = descanso ? Situacao.DESCANSO : faixa.situacao(xp);
+
         return new FaixaDto(
                 dia,
                 banda,
-                banda == null ? "dia sem energia informada" : banda.rotulo(),
+                descanso ? "descanso planejado" : banda == null ? "dia sem energia informada" : banda.rotulo(),
                 faixa.piso(),
                 faixa.tipico(),
                 faixa.teto(),
                 xp,
-                faixa.faltaParaOPiso(xp),
-                faixa.situacao(xp),
+                descanso ? 0 : faixa.faltaParaOPiso(xp),
+                situacao,
                 faixa.diasConsiderados());
     }
 }

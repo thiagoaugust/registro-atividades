@@ -722,7 +722,10 @@ Regras do cálculo:
 - **Energia não preenchida ⇒ faixa geral**, sem recorte por banda.
 - Percentil por posto mais próximo, não interpolado: o piso é um XP que você de fato já fez.
 
-Situações: `CALIBRANDO`, `ABAIXO` (mostra quanto falta), `DENTRO`, `ACIMA`.
+Situações: `CALIBRANDO`, `DESCANSO`, `ABAIXO` (mostra quanto falta), `DENTRO`, `ACIMA`.
+
+**Descanso planejado não tem faixa.** O classificador já trata folga como dia neutro; cobrar XP dela
+na mesma tela diria o contrário.
 
 `GET /api/gamificacao/faixa/{data}` → banda, piso, típico, teto, XP do dia, situação, quantos dias
 entraram na conta. Domínio puro em `FaixaEsforco` / `BandaEnergia`; a query de histórico é a única

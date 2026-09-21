@@ -21,6 +21,8 @@ public record FaixaEsforco(
     public enum Situacao {
         /** Ainda sem historico comparavel suficiente para cobrar qualquer coisa. */
         CALIBRANDO,
+        /** Folga marcada no check-in: o dia nao esta sendo medido contra faixa nenhuma. */
+        DESCANSO,
         ABAIXO,
         DENTRO,
         ACIMA

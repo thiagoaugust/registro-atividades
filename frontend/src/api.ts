@@ -84,7 +84,7 @@ export interface DadosCheckin {
 }
 
 export type BandaEnergia = "BAIXA" | "NORMAL" | "ALTA";
-export type SituacaoFaixa = "CALIBRANDO" | "ABAIXO" | "DENTRO" | "ACIMA";
+export type SituacaoFaixa = "CALIBRANDO" | "DESCANSO" | "ABAIXO" | "DENTRO" | "ACIMA";
 
 /** Quanto e um dia justo hoje, medido contra os seus dias de energia parecida. */
 export interface FaixaDto {

@@ -78,6 +78,24 @@ class FaixaApiTest {
     }
 
     @Test
+    void descanso_planejado_nao_cobra_faixa() {
+        LocalDate hoje = LocalDate.of(2025, 11, 20);
+        for (int i = 1; i <= 8; i++) {
+            registro(hoje.minusDays(i), 60);
+            checkinComEnergia(hoje.minusDays(i), 3);
+        }
+
+        given().contentType(ContentType.JSON)
+                .body(Map.of("energia", 3, "descansoPlanejado", true))
+                .when().put("/api/checkins/" + hoje).then().statusCode(200);
+
+        given().when().get("/api/gamificacao/faixa/" + hoje)
+                .then().statusCode(200)
+                .body("situacao", is("DESCANSO"))
+                .body("faltaParaOPiso", is(0));
+    }
+
+    @Test
     void sem_historico_a_faixa_fica_calibrando() {
         LocalDate hoje = LocalDate.of(2024, 2, 15);
         checkinComEnergia(hoje, 4);

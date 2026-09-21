@@ -1,4 +1,4 @@
-import { BatteryLow, BatteryMedium, BatteryFull, Gauge } from "lucide-react";
+import { BatteryLow, BatteryMedium, BatteryFull, Gauge, Moon } from "lucide-react";
 import type { FaixaDto } from "@/api";
 import { Card } from "@/components/ui/campo";
 import { Ajuda } from "@/components/ui/campo";
@@ -20,6 +20,15 @@ export function FaixaDoDia({ faixa }: { faixa: FaixaDto | undefined }) {
   }
 
   const Icone = faixa.banda ? ICONE[faixa.banda] : Gauge;
+
+  if (faixa.situacao === "DESCANSO") {
+    return (
+      <Card className="flex items-center gap-2 text-xs text-sky-300">
+        <Moon className="size-4 shrink-0" />
+        <span>Descanso planejado. Hoje nao ha faixa a bater.</span>
+      </Card>
+    );
+  }
 
   if (faixa.situacao === "CALIBRANDO") {
     return (
