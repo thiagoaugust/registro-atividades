@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { BarraPerfil } from "@/components/ResumoDoDia";
 import { CapturaRapida } from "@/components/CapturaRapida";
 import { Conquistas } from "@/components/Conquistas";
+import { Metas } from "@/components/Metas";
 import { Esclarecer } from "@/components/Esclarecer";
 import { ListasGtd } from "@/components/ListasGtd";
 import { Agora } from "@/components/Agora";
@@ -25,6 +26,7 @@ const ABAS = [
   { id: "agora", rotulo: "Agora" },
   { id: "livros", rotulo: "Livros" },
   { id: "cursos", rotulo: "Estudo" },
+  { id: "metas", rotulo: "Metas" },
   { id: "revisar", rotulo: "Revisar" },
   { id: "analytics", rotulo: "Evolucao" },
   { id: "conquistas", rotulo: "Conquistas" },
@@ -77,6 +79,7 @@ export function Principal({ aoSair }: { aoSair: () => void }) {
         {aba === "agora" && <Agora />}
         {aba === "livros" && <Livros />}
         {aba === "cursos" && <Cursos />}
+        {aba === "metas" && <Metas />}
         {aba === "revisar" && <RevisaoSemanal />}
         {aba === "analytics" && (
           <Suspense fallback={<p className="text-sm text-zinc-500">Carregando graficos...</p>}>

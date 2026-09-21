@@ -1,6 +1,7 @@
 package br.dev.registro.gamificacao.infra;
 
 import br.dev.registro.comum.Relogio;
+import br.dev.registro.gamificacao.domain.DesafioPeriodicoService;
 import br.dev.registro.gamificacao.domain.RecalculoDiaService;
 import io.quarkus.scheduler.Scheduled;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -20,10 +21,13 @@ public class ReconciliacaoDiaria {
     private static final int DIAS = 35;
 
     private final RecalculoDiaService recalculo;
+    private final DesafioPeriodicoService desafios;
     private final Relogio relogio;
 
-    public ReconciliacaoDiaria(RecalculoDiaService recalculo, Relogio relogio) {
+    public ReconciliacaoDiaria(
+            RecalculoDiaService recalculo, DesafioPeriodicoService desafios, Relogio relogio) {
         this.recalculo = recalculo;
+        this.desafios = desafios;
         this.relogio = relogio;
     }
 
@@ -31,6 +35,8 @@ public class ReconciliacaoDiaria {
     void reconciliar() {
         LocalDate hoje = relogio.hoje();
         int dias = recalculo.recalcularIntervalo(hoje.minusDays(DIAS), hoje);
+        // Depois do recalculo: o desafio de ontem precisa ser apurado contra o dia ja fechado.
+        desafios.sincronizar(hoje);
         LOG.infof("Reconciliacao diaria: %d dias recalculados ate %s", dias, hoje);
     }
 }

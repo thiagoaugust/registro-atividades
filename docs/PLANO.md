@@ -409,6 +409,7 @@ Todos sob `/api`, autenticados, respostas de erro em `application/problem+json`.
 | GET | `/gamificacao/perfil` (XP, nível geral e por categoria, streaks) |
 | GET | `/gamificacao/conquistas` (desbloqueadas + progresso das pendentes) |
 | GET | `/gamificacao/faixa/{data}` (faixa de esforço do dia, pela banda de energia) |
+| GET | `/gamificacao/desafios` (os três horizontes + histórico + troféus do ano) |
 
 ### GTD
 | Método | Rota |
@@ -744,6 +745,69 @@ entrega, preenchidos **a mão** — não há integração e nada aqui pressupõe
 - `horas_sono` sobrevive como coluna **derivada na view** `vw_dia_analitico`, para os gráficos que
   falam em horas — um único lugar faz a divisão.
 
+
+---
+
+## 5.6 Desafios periódicos e troféus mensais
+
+Os três horizontes, na aba **Metas**: o dia, a semana e o mês. O curto prazo em XP já é da
+[faixa de esforço](#55-sono-medido-e-faixa-de-esforço-por-energia) — os desafios diários cuidam do
+que a faixa não vê (presença, equilíbrio entre categorias, prática deliberada).
+
+### Nenhum alvo é digitado
+
+Um alvo escolhido a mão só é justo no dia em que foi escolhido. Aqui o alvo nasce do **seu próprio
+histórico**, no momento em que o período abre, e **congela ali** — mudar a régua no meio da semana
+invalidaria o esforço já feito; deixá-la fixa para sempre transformaria em rotina o que era desafio.
+
+| Tipo | Alvo |
+|---|---|
+| `META` | mediana dos períodos anteriores × `fator`, nunca abaixo de `minimo` |
+| `RECORDE` | melhor período anterior + 1, nunca abaixo de `minimo` |
+
+**Mediana, não média:** uma maratona isolada não pode virar a expectativa de toda semana, e um
+período zerado não pode derrubar a meta do seguinte. Janela de calibragem: 21 dias, 8 semanas,
+6 meses — e 24 períodos para `RECORDE`, porque "mais que qualquer mês anterior" não são seis meses.
+Alvos arredondam para números de meta (45, não 47,3).
+
+Os poucos alvos fixos no catálogo são contagens que não faz sentido calibrar: concluir a revisão da
+semana é 1, não "a sua mediana de revisões".
+
+### Duas tabelas
+
+`desafio_periodico` é o **catálogo** — a ideia que se repete. `desafio_instancia` é o desafio de um
+período concreto, com alvo, progresso e desfecho. A separação dá de graça:
+
+- **repetição**: o mesmo desafio volta todo mês, com alvo novo;
+- **descontinuação**: `ativo = false` no catálogo para de gerar períodos e **não apaga o passado**;
+- **taxa de cumprimento**: `CUMPRIDO` / `PERDIDO` são história consultável, não um contador.
+
+`unique (desafio_id, periodo_inicio)` é o que torna a geração idempotente: abrir o painel duas vezes
+não duplica nada.
+
+### Quando as contas rodam
+
+`sincronizar(hoje)` abre os períodos que faltam, fecha os vencidos e reapura os abertos — nessa
+ordem, para que uma instância vencida não receba progresso de hoje. Roda no job das 03:10 (depois da
+reconciliação, que é quem fecha o dia anterior) **e na leitura do painel**.
+
+Escrever numa leitura não é elegante; a alternativa — reapurar treze métricas a cada registro salvo
+— custaria muito mais num app de uma pessoa só, e a operação é idempotente.
+
+**Cumprido não volta atrás.** Corrigir um registro depois não desfaz a semana em que você correu
+30 km. O XP cai no dia em que o alvo foi batido (ou no último dia do período, se o fechamento
+chegou atrasado), pela origem `DESAFIO_PERIODICO` do ledger — que, como a revisão semanal, fica
+fora do teto do GTD.
+
+XP por horizonte: **10** no dia, **40** na semana, **150** no mês (`gamificacao.xp.pontos-desafio-*`).
+Um troféu é um desafio mensal cumprido; a estante mostra os do ano.
+
+### Medição
+
+`MetricasPeriodoRepository.medir(métrica, de, até, categoria)` é o **único** lugar que mede um
+intervalo — a mesma conta apura o progresso e lê os períodos passados para calibrar. Se fossem duas,
+a meta e a medição poderiam discordar. A categoria vem do JSONB e entra como *parâmetro* da query,
+nunca interpolada.
 
 ---
 

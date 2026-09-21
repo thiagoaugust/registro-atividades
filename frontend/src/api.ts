@@ -100,6 +100,34 @@ export interface FaixaDto {
   diasComparaveis: number;
 }
 
+export type EscopoDesafio = "DIARIO" | "SEMANAL" | "MENSAL";
+export type StatusDesafioPeriodico = "ABERTO" | "CUMPRIDO" | "PERDIDO";
+
+/** Um desafio de um periodo concreto, com o alvo ja calibrado sobre os periodos anteriores. */
+export interface DesafioPeriodicoDto {
+  id: number;
+  escopo: EscopoDesafio;
+  titulo: string;
+  descricao: string | null;
+  unidade: string;
+  tipo: "META" | "RECORDE";
+  periodoInicio: string;
+  periodoFim: string;
+  alvo: number;
+  progresso: number;
+  fracao: number;
+  status: StatusDesafioPeriodico;
+  xp: number;
+}
+
+export interface PainelDesafiosDto {
+  diarios: DesafioPeriodicoDto[];
+  semanais: DesafioPeriodicoDto[];
+  mensais: DesafioPeriodicoDto[];
+  historico: DesafioPeriodicoDto[];
+  trofeusDoAno: number;
+}
+
 export interface ResumoDto {
   xpTotal: number;
   indiceProdutividade: number;
@@ -606,6 +634,8 @@ export const api = {
   perfil: () => requisicao<PerfilDto>("/api/gamificacao/perfil"),
 
   faixa: (data: string) => requisicao<FaixaDto>(`/api/gamificacao/faixa/${data}`),
+
+  desafiosPeriodicos: () => requisicao<PainelDesafiosDto>("/api/gamificacao/desafios"),
 
   conquistas: () => requisicao<ConquistaDto[]>("/api/gamificacao/conquistas"),
 

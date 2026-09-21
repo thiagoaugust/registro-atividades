@@ -45,6 +45,16 @@ public interface GamificacaoConfig {
         @WithDefault("50")
         int pontosRevisaoSemanal();
 
+        /** XP de um desafio cumprido, por horizonte: o mes vale mais porque custa um mes. */
+        @WithDefault("10")
+        int pontosDesafioDiario();
+
+        @WithDefault("40")
+        int pontosDesafioSemanal();
+
+        @WithDefault("150")
+        int pontosDesafioMensal();
+
         @WithDefault("0.15")
         double bonusEquilibrio();
 

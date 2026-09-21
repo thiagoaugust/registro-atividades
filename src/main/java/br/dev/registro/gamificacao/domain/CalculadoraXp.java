@@ -37,13 +37,15 @@ public final class CalculadoraXp {
     public static ResumoXp consolidar(List<Lancamento> lancamentos, ParametrosXp p) {
         Map<Categoria, Integer> brutoPorCategoria = new EnumMap<>(Categoria.class);
         int brutoGtd = 0;
-        int xpRevisao = 0;
+        // Revisao e desafio cumprido ficam fora do teto do GTD: nao sao tarefas avulsas, e limita-los
+        // junto faria uma semana cheia de acoes engolir o XP da revisao.
+        int xpBonus = 0;
 
         for (Lancamento l : lancamentos) {
             switch (l.origem()) {
                 case REGISTRO -> brutoPorCategoria.merge(l.categoria(), l.pontosBrutos(), Integer::sum);
                 case ACAO_GTD -> brutoGtd += l.pontosBrutos();
-                case REVISAO_SEMANAL -> xpRevisao += l.pontosBrutos();
+                case REVISAO_SEMANAL, DESAFIO_PERIODICO -> xpBonus += l.pontosBrutos();
             }
         }
 
@@ -61,7 +63,7 @@ public final class CalculadoraXp {
                 : 0;
         int xpGtd = Math.min(brutoGtd, p.tetoGtdDiario());
 
-        return new ResumoXp(xpBase + bonus + xpGtd + xpRevisao, xpBase, bonus, xpGtd + xpRevisao,
+        return new ResumoXp(xpBase + bonus + xpGtd + xpBonus, xpBase, bonus, xpGtd + xpBonus,
                 categorias, porCategoria);
     }
 

@@ -1,5 +1,6 @@
 package br.dev.registro.gamificacao.api;
 
+import br.dev.registro.gamificacao.domain.DesafioPeriodicoService;
 import br.dev.registro.gamificacao.domain.FaixaService;
 import br.dev.registro.gamificacao.domain.PerfilService;
 import jakarta.annotation.security.RolesAllowed;
@@ -19,10 +20,13 @@ public class GamificacaoResource {
 
     private final PerfilService service;
     private final FaixaService faixas;
+    private final DesafioPeriodicoService desafios;
 
-    public GamificacaoResource(PerfilService service, FaixaService faixas) {
+    public GamificacaoResource(
+            PerfilService service, FaixaService faixas, DesafioPeriodicoService desafios) {
         this.service = service;
         this.faixas = faixas;
+        this.desafios = desafios;
     }
 
     @GET
@@ -36,6 +40,13 @@ public class GamificacaoResource {
     @Path("faixa/{data}")
     public FaixaService.FaixaDto faixa(@PathParam("data") LocalDate data) {
         return faixas.doDia(data);
+    }
+
+    /** Dia, semana e mes: os tres horizontes, com o que ja fechou. */
+    @GET
+    @Path("desafios")
+    public DesafioPeriodicoService.PainelDto desafios() {
+        return desafios.painel();
     }
 
     @GET
