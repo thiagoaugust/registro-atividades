@@ -212,7 +212,10 @@ export function FormularioRegistro({ data, editando, aoSalvar, aoCancelar, salva
     <Card>
       <form onSubmit={enviar} className="flex flex-col gap-4">
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <Campo rotulo="Categoria">
+          <Campo
+            rotulo="Categoria"
+            ajuda="O tipo da atividade. Cada categoria tem um peso diferente no XP e um teto diario proprio, para que 4h da mesma coisa nao valham mais que um dia variado."
+          >
             <Select value={categoria} onChange={(e) => trocarCategoria(e.target.value as Categoria)}>
               {CATEGORIAS.map((c) => (
                 <option key={c} value={c}>
@@ -222,7 +225,10 @@ export function FormularioRegistro({ data, editando, aoSalvar, aoCancelar, salva
             </Select>
           </Campo>
 
-          <Campo rotulo="Duracao (min)">
+          <Campo
+            rotulo="Duracao (min)"
+            ajuda="Quanto tempo a sessao levou. E a base do XP: o tempo e multiplicado pelo esforco e pelo peso da categoria."
+          >
             <Input
               type="number"
               min={1}
@@ -233,7 +239,11 @@ export function FormularioRegistro({ data, editando, aoSalvar, aoCancelar, salva
             />
           </Campo>
 
-          <Campo rotulo={`Esforco ${esforco}`} className="col-span-2">
+          <Campo
+            rotulo={`Esforco ${esforco}`}
+            className="col-span-2"
+            ajuda="O quanto custou, de 1 a 10. Multiplica o XP: uma hora puxada rende mais que uma hora leve. E a diferenca entre tempo gasto e esforco de verdade."
+          >
             <input
               type="range"
               min={1}
@@ -248,10 +258,16 @@ export function FormularioRegistro({ data, editando, aoSalvar, aoCancelar, salva
         {expandido && (
           <div className="flex flex-col gap-3 border-t border-zinc-800 pt-4">
             <div className="grid gap-3 sm:grid-cols-2">
-              <Campo rotulo="Titulo">
+              <Campo
+                rotulo="Titulo"
+                ajuda="Como voce quer reconhecer essa sessao na lista do dia. Se ficar vazio, o nome do livro ou do projeto aparece no lugar."
+              >
                 <Input value={titulo} onChange={(e) => setTitulo(e.target.value)} placeholder="opcional" />
               </Campo>
-              <Campo rotulo="Satisfacao (1-5)">
+              <Campo
+                rotulo="Satisfacao (1-5)"
+                ajuda="O quanto o RESULTADO te agradou, independente do esforco. Serve para cruzar depois: as sessoes que mais rendem XP sao as mesmas que te deixam satisfeito?"
+              >
                 <Select value={satisfacao} onChange={(e) => setSatisfacao(e.target.value)}>
                   <option value="">-</option>
                   {[1, 2, 3, 4, 5].map((n) => (
@@ -265,16 +281,28 @@ export function FormularioRegistro({ data, editando, aoSalvar, aoCancelar, salva
 
             {categoria === "TREINO" && (
               <div className="grid gap-3 sm:grid-cols-4">
-                <Campo rotulo="Modalidade">
+                <Campo
+                  rotulo="Modalidade"
+                  ajuda="Corrida, musculacao, calistenia. Agrupa os treinos nas metricas por modalidade."
+                >
                   <Input value={modalidade} onChange={(e) => setModalidade(e.target.value)} placeholder="corrida" />
                 </Campo>
-                <Campo rotulo="Distancia (km)">
+                <Campo
+                  rotulo="Distancia (km)"
+                  ajuda="Alimenta o total de quilometros e o pace medio. Se o treino estiver vinculado a um desafio de distancia, tambem soma no progresso dele."
+                >
                   <Input type="number" step="0.01" value={distancia} onChange={(e) => setDistancia(e.target.value)} />
                 </Campo>
-                <Campo rotulo="Pace (min:seg)">
+                <Campo
+                  rotulo="Pace (min:seg)"
+                  ajuda="Ritmo por quilometro, como 5:30. Opcional: sem ele, o pace medio e calculado pelo tempo dividido pela distancia."
+                >
                   <Input value={pace} onChange={(e) => setPace(e.target.value)} placeholder="5:30" />
                 </Campo>
-                <Campo rotulo="FC media">
+                <Campo
+                  rotulo="FC media"
+                  ajuda="Frequencia cardiaca media do treino, se o relogio mediu."
+                >
                   <Input type="number" value={fcMedia} onChange={(e) => setFcMedia(e.target.value)} />
                 </Campo>
               </div>
@@ -282,7 +310,11 @@ export function FormularioRegistro({ data, editando, aoSalvar, aoCancelar, salva
 
             {categoria === "ESTUDO" && (
               <div className="grid gap-3 sm:grid-cols-4">
-                <Campo rotulo="Curso" className="sm:col-span-2">
+                <Campo
+                  rotulo="Curso"
+                  className="sm:col-span-2"
+                  ajuda="Vincular a sessao a um curso faz as horas contarem na carga horaria dele e na previsao de termino. Estudo avulso pode ficar sem curso."
+                >
                   <Select value={cursoId} onChange={(e) => setCursoId(e.target.value)}>
                     <option value="">nenhum (estudo avulso)</option>
                     {cursos.data
@@ -294,13 +326,22 @@ export function FormularioRegistro({ data, editando, aoSalvar, aoCancelar, salva
                       ))}
                   </Select>
                 </Campo>
-                <Campo rotulo="Tema">
+                <Campo
+                  rotulo="Tema"
+                  ajuda="O assunto desta sessao, em texto livre. E o detalhe fino do painel Estudo: mostra em que voce gastou as horas dentro de uma area."
+                >
                   <Input value={tema} onChange={(e) => setTema(e.target.value)} placeholder="Quarkus" />
                 </Campo>
-                <Campo rotulo="Fonte">
+                <Campo
+                  rotulo="Fonte"
+                  ajuda="De onde veio o conteudo: doc oficial, video, livro, aula."
+                >
                   <Input value={fonte} onChange={(e) => setFonte(e.target.value)} placeholder="doc oficial" />
                 </Campo>
-                <Campo rotulo="Tecnica">
+                <Campo
+                  rotulo="Tecnica"
+                  ajuda="Como voce estudou. Ler e diferente de fazer exercicio, e registrar isso mostra se voce estuda variando de metodo."
+                >
                   <Select value={tecnica} onChange={(e) => setTecnica(e.target.value)}>
                     <option value="">-</option>
                     {TECNICAS_ESTUDO.map((t) => (
@@ -310,13 +351,17 @@ export function FormularioRegistro({ data, editando, aoSalvar, aoCancelar, salva
                     ))}
                   </Select>
                 </Campo>
-                <Campo rotulo="Foco (1-5)">
+                <Campo
+                  rotulo="Foco (1-5)"
+                  ajuda="O quanto voce conseguiu se concentrar. Diferente de esforco: da para se esforcar muito num dia disperso."
+                >
                   <Input type="number" min={1} max={5} value={foco} onChange={(e) => setFoco(e.target.value)} />
                 </Campo>
                 <Campo
                   rotulo="Minutos de pratica"
                   className="sm:col-span-2"
                   dica="quanto da sessao foi exercicio, e nao consumo"
+                  ajuda="Pratica deliberada e o tempo em que voce produziu algo ou errou e corrigiu, e nao apenas assistiu. Numa sessao de 60 min podem ter sido 20. E a medida que separa estudar de consumir conteudo."
                 >
                   <Input
                     type="number"
@@ -331,7 +376,10 @@ export function FormularioRegistro({ data, editando, aoSalvar, aoCancelar, salva
 
             {categoria === "LEITURA" && (
               <div className="grid gap-3 sm:grid-cols-2">
-                <Campo rotulo="Livro">
+                <Campo
+                  rotulo="Livro"
+                  ajuda="So aparecem os livros com status lendo. Para registrar um livro novo, cadastre antes na aba Livros."
+                >
                   <Select value={vinculoId} onChange={(e) => setVinculoId(e.target.value)}>
                     <option value="">-</option>
                     {livrosSelecionaveis.map((l) => (
@@ -341,7 +389,11 @@ export function FormularioRegistro({ data, editando, aoSalvar, aoCancelar, salva
                     ))}
                   </Select>
                 </Campo>
-                <Campo rotulo="Parei na pagina" dica={dicaDaPagina}>
+                <Campo
+                  rotulo="Parei na pagina"
+                  dica={dicaDaPagina}
+                  ajuda="A pagina onde voce parou agora. O sistema calcula sozinho quantas paginas voce leu desde a ultima sessao deste livro."
+                >
                   <Input
                     type="number"
                     min={1}
@@ -354,7 +406,10 @@ export function FormularioRegistro({ data, editando, aoSalvar, aoCancelar, salva
 
             {categoria === "DESAFIO" && (
               <div className="grid gap-3 sm:grid-cols-2">
-                <Campo rotulo="Desafio">
+                <Campo
+                  rotulo="Desafio"
+                  ajuda="A meta com prazo que esta sessao faz avancar. O progresso do desafio e a soma dos registros vinculados a ele."
+                >
                   <Select value={vinculoId} onChange={(e) => setVinculoId(e.target.value)}>
                     <option value="">-</option>
                     {desafios.data?.map((d) => (
@@ -364,7 +419,10 @@ export function FormularioRegistro({ data, editando, aoSalvar, aoCancelar, salva
                     ))}
                   </Select>
                 </Campo>
-                <Campo rotulo="Progresso registrado">
+                <Campo
+                  rotulo="Progresso registrado"
+                  ajuda="Quanto voce avancou na unidade do desafio (km, paginas, repeticoes). Soma no total automaticamente."
+                >
                   <Input type="number" step="0.01" value={progresso} onChange={(e) => setProgresso(e.target.value)} />
                 </Campo>
               </div>
@@ -372,7 +430,10 @@ export function FormularioRegistro({ data, editando, aoSalvar, aoCancelar, salva
 
             {categoria === "PROJETO" && (
               <div className="grid gap-3 sm:grid-cols-3">
-                <Campo rotulo="Projeto">
+                <Campo
+                  rotulo="Projeto"
+                  ajuda="O projeto que esta sessao faz andar. E o mesmo projeto do GTD: nao existem duas listas."
+                >
                   <Select value={vinculoId} onChange={(e) => setVinculoId(e.target.value)}>
                     <option value="">-</option>
                     {projetos.data?.map((p) => (
@@ -382,16 +443,25 @@ export function FormularioRegistro({ data, editando, aoSalvar, aoCancelar, salva
                     ))}
                   </Select>
                 </Campo>
-                <Campo rotulo="Marco">
+                <Campo
+                  rotulo="Marco"
+                  ajuda="A entrega concreta desta sessao: o que ficou pronto."
+                >
                   <Input value={marco} onChange={(e) => setMarco(e.target.value)} />
                 </Campo>
-                <Campo rotulo="Status apos a sessao">
+                <Campo
+                  rotulo="Status apos a sessao"
+                  ajuda="Onde o projeto ficou quando voce parou, para voce saber por onde retomar."
+                >
                   <Input value={statusApos} onChange={(e) => setStatusApos(e.target.value)} />
                 </Campo>
               </div>
             )}
 
-            <Campo rotulo="Notas">
+            <Campo
+              rotulo="Notas"
+              ajuda="O que voce vai querer lembrar quando reler esse dia: o que funcionou, o que atrapalhou, onde parou."
+            >
               <Textarea rows={2} value={notas} onChange={(e) => setNotas(e.target.value)} />
             </Campo>
           </div>

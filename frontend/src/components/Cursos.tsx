@@ -398,7 +398,11 @@ export function Cursos() {
                 placeholder="Alura, Udemy..."
               />
             </Campo>
-            <Campo rotulo="Carga horaria" dica="da o percentual e a previsao">
+            <Campo
+              rotulo="Carga horaria"
+              dica="da o percentual e a previsao"
+              ajuda="As horas que o curso anuncia. O progresso e o tempo que voce dedicou dividido por ela; sem carga, o curso so acumula tempo."
+            >
               <Input
                 type="number"
                 step="0.5"
@@ -407,7 +411,10 @@ export function Cursos() {
                 onChange={(e) => setCargaHoraria(e.target.value)}
               />
             </Campo>
-            <Campo rotulo="Area">
+            <Campo
+              rotulo="Area"
+              ajuda="O assunto do curso. Compartilhada com os livros, para que o painel Estudo responda quanto tempo foi para cada area no total."
+            >
               <Select value={areaId} onChange={(e) => setAreaId(e.target.value)}>
                 <option value="">-</option>
                 {areas.data?.map((a) => (
@@ -423,7 +430,11 @@ export function Cursos() {
 
             {retroativo && (
               <>
-                <Campo rotulo="Horas que levou" dica="obrigatorio no retroativo">
+                <Campo
+                  rotulo="Horas que levou"
+                  dica="obrigatorio no retroativo"
+                  ajuda="Quanto tempo o curso tomou. E o que faz ele contar nas horas por area mesmo sem sessoes registradas."
+                >
                   <Input
                     type="number"
                     step="0.5"
@@ -433,7 +444,11 @@ export function Cursos() {
                     required
                   />
                 </Campo>
-                <Campo rotulo="Em quantos dias" dica="opcional; da o ritmo">
+                <Campo
+                  rotulo="Em quantos dias"
+                  dica="opcional; da o ritmo"
+                  ajuda="Em quantos dias corridos voce fez o curso. Da o ritmo em horas por semana daquele periodo."
+                >
                   <Input
                     type="number"
                     min={1}

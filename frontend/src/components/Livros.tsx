@@ -387,7 +387,11 @@ export function Livros() {
             <Campo rotulo="Autor">
               <Input value={autor} onChange={(e) => setAutor(e.target.value)} />
             </Campo>
-            <Campo rotulo="Total de paginas" dica="da a previsao e o percentual">
+            <Campo
+              rotulo="Total de paginas"
+              dica="da a previsao e o percentual"
+              ajuda="Sem o total, o livro ainda mede velocidade, mas nao ha percentual lido nem previsao de termino."
+            >
               <Input
                 type="number"
                 min={1}
@@ -396,7 +400,10 @@ export function Livros() {
               />
             </Campo>
 
-            <Campo rotulo="Area">
+            <Campo
+              rotulo="Area"
+              ajuda="O assunto do livro. A mesma lista vale para cursos, entao o painel Estudo soma livro e curso ao responder quanto tempo foi para cada area."
+            >
               <Select value={areaId} onChange={(e) => setAreaId(e.target.value)}>
                 <option value="">-</option>
                 {areas.data?.map((c) => (
@@ -406,7 +413,10 @@ export function Livros() {
                 ))}
               </Select>
             </Campo>
-            <Campo rotulo="Dificuldade">
+            <Campo
+              rotulo="Dificuldade"
+              ajuda="O quanto o texto e denso, na sua leitura. Cruzado com a velocidade real, mostra quanto um livro puxado custa a mais de tempo que um leve."
+            >
               <Select value={dificuldade} onChange={(e) => setDificuldade(e.target.value)}>
                 <option value="">-</option>
                 {[1, 2, 3, 4, 5].map((n) => (
@@ -416,7 +426,11 @@ export function Livros() {
                 ))}
               </Select>
             </Campo>
-            <Campo rotulo="URL da capa" className="sm:col-span-2">
+            <Campo
+              rotulo="URL da capa"
+              className="sm:col-span-2"
+              ajuda="Endereco da imagem da capa, copiado de qualquer site de livros. Se o link sair do ar, o cartao mostra um marcador no lugar."
+            >
               <Input
                 value={capaUrl}
                 onChange={(e) => setCapaUrl(e.target.value)}
@@ -426,7 +440,11 @@ export function Livros() {
 
             {retroativo && (
               <>
-                <Campo rotulo="Dias que levou" dica="obrigatorio no retroativo">
+                <Campo
+                  rotulo="Dias que levou"
+                  dica="obrigatorio no retroativo"
+                  ajuda="Quantos dias corridos entre comecar e terminar. Da o ritmo em paginas por dia deste livro antigo."
+                >
                   <Input
                     type="number"
                     min={1}
@@ -435,7 +453,11 @@ export function Livros() {
                     required
                   />
                 </Campo>
-                <Campo rotulo="Horas totais" dica="opcional; da a velocidade">
+                <Campo
+                  rotulo="Horas totais"
+                  dica="opcional; da a velocidade"
+                  ajuda="Quanto tempo voce passou lendo, se lembrar. So com isso o livro entra na comparacao de velocidade por dificuldade."
+                >
                   <Input
                     type="number"
                     step="0.5"
@@ -444,7 +466,11 @@ export function Livros() {
                     onChange={(e) => setHorasLeitura(e.target.value)}
                   />
                 </Campo>
-                <Campo rotulo="Terminei em" className="sm:col-span-2">
+                <Campo
+                  rotulo="Terminei em"
+                  className="sm:col-span-2"
+                  ajuda="Quando voce fechou o livro. E a data que posiciona ele na retrospectiva do ano."
+                >
                   <input
                     type="date"
                     value={concluidoEm}

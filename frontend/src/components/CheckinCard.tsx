@@ -130,22 +130,40 @@ export function CheckinCard({ data, checkin, aoSalvar, aoFechar, salvando }: Pro
       {aberto && (
         <form className="mt-4 flex flex-col gap-4" onSubmit={salvar}>
           <div className="grid gap-4 sm:grid-cols-2">
-            <Campo rotulo="Energia ao acordar">
+            <Campo
+              rotulo="Energia ao acordar"
+              ajuda="Como voce acordou, antes de o dia acontecer. Entra no calculo do indice: entregar com energia baixa vale mais do que entregar descansado."
+            >
               <Escala valor={energia} aoMudar={setEnergia} rotulos={["zerado", "inteiro"]} />
             </Campo>
-            <Campo rotulo="Qualidade do sono">
+            <Campo
+              rotulo="Qualidade do sono"
+              ajuda="Se o sono restaurou, independente das horas. Dormir 8h mal vale menos que 6h bem, e o painel cruza isso com o indice do dia."
+            >
               <Escala valor={qualidadeSono} aoMudar={setQualidadeSono} rotulos={["pessima", "otima"]} />
             </Campo>
-            <Campo rotulo="Humor">
+            <Campo
+              rotulo="Humor"
+              ajuda="Como voce esta se sentindo hoje. Compoe o contexto do dia junto com energia, sono e estresse."
+            >
               <Escala valor={humor} aoMudar={setHumor} rotulos={["ruim", "otimo"]} />
             </Campo>
-            <Campo rotulo="Estresse">
+            <Campo
+              rotulo="Estresse"
+              ajuda="O quanto voce esta sob pressao. Quanto maior, mais adverso o dia — e mais peso tem o que voce conseguir fazer nele."
+            >
               <Escala valor={estresse} aoMudar={setEstresse} rotulos={["calmo", "no limite"]} />
             </Campo>
-            <Campo rotulo="Dificuldade prevista">
+            <Campo
+              rotulo="Dificuldade prevista"
+              ajuda="O quanto voce espera que este dia seja duro. E o item de maior peso no contexto: um dia previsto como pesado em que voce entrega vira dia dificil vencido."
+            >
               <Escala valor={dificuldade} aoMudar={setDificuldade} rotulos={["tranquilo", "pesado"]} />
             </Campo>
-            <Campo rotulo="Horas de sono">
+            <Campo
+              rotulo="Horas de sono"
+              ajuda="Quantas horas voce dormiu. Nao entra no indice do dia; serve para a correlacao entre sono e produtividade no painel Evolucao."
+            >
               <Input
                 type="number"
                 step="0.5"
@@ -168,7 +186,10 @@ export function CheckinCard({ data, checkin, aoSalvar, aoFechar, salvando }: Pro
             Descanso planejado (nao quebra a streak)
           </label>
 
-          <Campo rotulo="Uma frase sobre o dia">
+          <Campo
+            rotulo="Uma frase sobre o dia"
+            ajuda="Uma linha para voce reconhecer o dia quando reler daqui a meses. O numero nao lembra que voce estava doente."
+          >
             <Textarea rows={2} value={frase} onChange={(e) => setFrase(e.target.value)} />
           </Campo>
 
@@ -180,14 +201,20 @@ export function CheckinCard({ data, checkin, aoSalvar, aoFechar, salvando }: Pro
             <p className="text-xs font-medium uppercase tracking-wide text-zinc-400">
               Fechamento do dia (opcional)
             </p>
-            <Campo rotulo="Como foi de verdade">
+            <Campo
+              rotulo="Como foi de verdade"
+              ajuda="A dificuldade com o dia ja vivido. Quando preenchida, substitui a prevista no calculo: o julgamento do fim do dia vale mais que a expectativa da manha."
+            >
               <Escala
                 valor={dificuldadeFinal}
                 aoMudar={setDificuldadeFinal}
                 rotulos={["tranquilo", "pesado"]}
               />
             </Campo>
-            <Campo rotulo="O que atrapalhou">
+            <Campo
+              rotulo="O que atrapalhou"
+              ajuda="O que tirou o dia do rumo. Nao entra em nenhuma conta; e memoria para a revisao semanal."
+            >
               <Textarea rows={2} value={atrapalhou} onChange={(e) => setAtrapalhou(e.target.value)} />
             </Campo>
             <Button
