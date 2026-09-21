@@ -17,6 +17,9 @@
         <assertj.version>3.27.6</assertj.version>
         <skipITs>true</skipITs>
         <surefire-plugin.version>3.5.6</surefire-plugin.version>
+        <jacoco-plugin.version>0.8.13</jacoco-plugin.version>
+        <!-- Piso de cobertura do build; o report tambem alimenta o SonarQube no CI. -->
+        <cobertura.minima>0.80</cobertura.minima>
     </properties>
 
     <dependencyManagement>
@@ -91,6 +94,15 @@
             <artifactId>quarkus-test-security</artifactId>
             <scope>test</scope>
         </dependency>
+        <!--
+          Sem esta extensao o JaCoCo nao enxerga o que roda dentro do @QuarkusTest: a aplicacao sobe
+          num classloader proprio, e o relatorio sai com pacotes inteiros marcados como 0%.
+        -->
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-jacoco</artifactId>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>rest-assured</artifactId>
@@ -157,6 +169,69 @@
                         <maven.home>${maven.home}</maven.home>
                     </systemPropertyVariables>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco-plugin.version}</version>
+
+                <configuration>
+                    <excludes>
+                        <!--
+                          Gerador dos ~120 dias do perfil demo: roda so com QUARKUS_PROFILE=demo e
+                          existe para popular a tela, nao para ser exercitado pela suite. Deixa-lo
+                          no calculo mediria a cobertura de dados de exemplo, nao a do sistema.
+                        -->
+                        <exclude>**/DadosDemo.class</exclude>
+                    </excludes>
+                </configuration>
+
+                <executions>
+                    <execution>
+                        <id>prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+
+                    <execution>
+                        <id>report</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+
+                    <execution>
+                        <id>check</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+
+                        <configuration>
+                            <rules>
+                                <rule>
+                                    <element>BUNDLE</element>
+
+                                    <limits>
+                                        <limit>
+                                            <counter>INSTRUCTION</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>${cobertura.minima}</minimum>
+                                        </limit>
+
+                                        <limit>
+                                            <counter>BRANCH</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>${cobertura.minima}</minimum>
+                                        </limit>
+                                    </limits>
+                                </rule>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

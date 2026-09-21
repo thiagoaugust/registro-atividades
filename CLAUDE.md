@@ -26,7 +26,7 @@ Quando uma decisão mudar, atualize **os dois** arquivos no mesmo commit.
 ```bash
 # backend
 ./mvnw quarkus:dev          # Dev Services sobe o Postgres sozinho (Docker precisa estar rodando)
-./mvnw verify               # unitários + @QuarkusTest
+./mvnw verify               # unitários + @QuarkusTest + cobertura (falha abaixo de 80%)
 ./mvnw test -Dtest=ClassificacaoDiaTest   # um teste só
 
 # frontend (dentro de frontend/)
@@ -98,6 +98,9 @@ nunca o inverso, e módulos conversam via serviços de `domain`, nunca pelo repo
   recálculo que falha desfaz a escrita que o disparou.
 - **Antes de somar em query nativa, `em.flush()`.** O Hibernate não sincroniza a sessão sozinho antes
   de SQL nativo, e a soma veria o estado velho.
+- **Cobertura:** o `verify` falha abaixo de 80% de instrucoes e de branches (JaCoCo). A extensao
+  `quarkus-jacoco` e obrigatoria: sem ela o agente nao enxerga o que roda dentro do `@QuarkusTest`
+  e pacotes inteiros aparecem como 0%. O `DadosDemo` fica fora da conta — e seed do perfil demo.
 - **Commits:** Conventional Commits, **uma linha so**, sem corpo e sem linhas de atribuicao
   (`feat(gtd): inbox com captura rapida`). O porque da mudanca vai no codigo e no docs/PLANO.md.
 
