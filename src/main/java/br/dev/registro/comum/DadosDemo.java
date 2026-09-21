@@ -145,6 +145,14 @@ public class DadosDemo {
             LocalDate dia = inicio.plusDays(i);
             TipoDeDia tipo = sortearTipo(dia, i);
 
+            // Um dia em doze e de superacao: acordou mal e entregou mesmo assim. Sem isso o gerador
+            // amarra contexto ruim a producao baixa, e "dia dificil vencido" nunca acontece — que e
+            // justamente a situacao que o indice existe para reconhecer.
+            boolean superacao = tipo != TipoDeDia.DESCANSO && sorteio.nextInt(12) == 0;
+            if (superacao) {
+                tipo = TipoDeDia.FORTE;
+            }
+
             if (tipo != TipoDeDia.DESCANSO) {
                 // Duas semanas sem treino no meio do periodo: uma lesao, uma viagem.
                 boolean semTreino = (i >= 40 && i < 54) || tipo == TipoDeDia.FRACO;
@@ -174,11 +182,17 @@ public class DadosDemo {
                         case 2 -> "Arquitetura";
                         default -> "Kubernetes";
                     };
-                    registro(dia, Categoria.ESTUDO, 25 + sorteio.nextInt(70), 4 + sorteio.nextInt(6),
+                    int minutosEstudo = 25 + sorteio.nextInt(70);
+                    // Dia forte estuda praticando; dia fraco assiste. A fracao de pratica e o que o
+                    // painel de estudo compara entre temas.
+                    double fracaoPratica = tipo == TipoDeDia.FORTE ? 0.5 : tipo == TipoDeDia.FRACO ? 0.1 : 0.3;
+                    int pratica = (int) Math.round(minutosEstudo * fracaoPratica * (0.5 + sorteio.nextDouble()));
+                    registro(dia, Categoria.ESTUDO, minutosEstudo, 4 + sorteio.nextInt(6),
                             "Estudo de " + tema,
                             Map.of("tema", tema, "fonte", "doc oficial",
-                                    "tecnica", sorteio.nextBoolean() ? "LEITURA" : "EXERCICIO",
-                                    "foco", 2 + sorteio.nextInt(4)),
+                                    "tecnica", pratica > 0 ? "EXERCICIO" : "LEITURA",
+                                    "foco", 2 + sorteio.nextInt(4),
+                                    "minutosPratica", Math.min(pratica, minutosEstudo)),
                             null, null, null);
                 }
 
@@ -219,8 +233,8 @@ public class DadosDemo {
             }
 
             // ~85% dos dias tem check-in; os outros ficam sem contexto de proposito.
-            if (sorteio.nextInt(100) < 85) {
-                checkin(dia, tipo);
+            if (superacao || sorteio.nextInt(100) < 85) {
+                checkin(dia, superacao ? TipoDeDia.FRACO : tipo);
             }
         }
 
@@ -264,7 +278,7 @@ public class DadosDemo {
             case FRACO -> 2;
             case DESCANSO -> 3;
         };
-        checkin.energia = (short) limitar(base + sorteio.nextInt(2));
+        checkin.energia = (short) limitar(base + sorteio.nextInt(2) - (tipo == TipoDeDia.FRACO ? 1 : 0));
         checkin.qualidadeSono = (short) limitar(base + sorteio.nextInt(2) - 1);
         checkin.humor = (short) limitar(base + sorteio.nextInt(2));
         checkin.estresse = (short) limitar(6 - base + sorteio.nextInt(2) - 1);
