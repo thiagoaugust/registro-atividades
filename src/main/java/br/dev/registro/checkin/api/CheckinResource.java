@@ -13,9 +13,9 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Path("/api/checkins")
 @RolesAllowed("user")
@@ -32,7 +32,14 @@ public class CheckinResource {
     public record CheckinDto(
             LocalDate dataLocal,
             Short energia,
-            BigDecimal horasSono,
+            Integer minutosSono,
+            LocalTime dormiuEm,
+            LocalTime acordouEm,
+            Integer minutosSonoProfundo,
+            Integer minutosSonoRem,
+            Integer despertares,
+            Integer fcRepouso,
+            Integer pontuacaoSono,
             Short qualidadeSono,
             Short humor,
             Short estresse,
@@ -45,7 +52,9 @@ public class CheckinResource {
 
         public static CheckinDto de(CheckinDiario c) {
             return new CheckinDto(
-                    c.dataLocal, c.energia, c.horasSono, c.qualidadeSono, c.humor, c.estresse,
+                    c.dataLocal, c.energia, c.minutosSono, c.dormiuEm, c.acordouEm,
+                    c.minutosSonoProfundo, c.minutosSonoRem, c.despertares, c.fcRepouso,
+                    c.pontuacaoSono, c.qualidadeSono, c.humor, c.estresse,
                     c.dificuldadePrevista, c.descansoPlanejado, c.frase, c.dificuldadeFinal,
                     c.atrapalhou, c.fechadoEm);
         }

@@ -8,9 +8,9 @@ import jakarta.persistence.Table;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 /**
  * Um por dia, editavel. Abertura e fechamento na mesma linha — e o mesmo dia, e duas tabelas so
@@ -29,9 +29,35 @@ public class CheckinDiario {
 
     public Short energia;
 
-    @Column(name = "horas_sono")
-    public BigDecimal horasSono;
+    /**
+     * Sono medido pelo relogio, preenchido a mao por enquanto. Tudo opcional: a manha em que voce nao
+     * olhou o relogio ainda rende um check-in.
+     */
+    @Column(name = "minutos_sono")
+    public Integer minutosSono;
 
+    @Column(name = "dormiu_em")
+    public LocalTime dormiuEm;
+
+    @Column(name = "acordou_em")
+    public LocalTime acordouEm;
+
+    @Column(name = "minutos_sono_profundo")
+    public Integer minutosSonoProfundo;
+
+    @Column(name = "minutos_sono_rem")
+    public Integer minutosSonoRem;
+
+    public Integer despertares;
+
+    @Column(name = "fc_repouso")
+    public Integer fcRepouso;
+
+    /** A nota que o proprio relogio da para a noite, de 0 a 100. */
+    @Column(name = "pontuacao_sono")
+    public Integer pontuacaoSono;
+
+    /** O que voce sente ao acordar, de 1 a 5 — deliberadamente separado do que foi medido. */
     @Column(name = "qualidade_sono")
     public Short qualidadeSono;
 

@@ -7,14 +7,13 @@ import br.dev.registro.comum.Relogio;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
 import jakarta.transaction.Transactional;
-import jakarta.validation.constraints.DecimalMax;
-import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
 
-import java.math.BigDecimal;
+import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 @ApplicationScoped
 public class CheckinService {
@@ -32,7 +31,14 @@ public class CheckinService {
     /** Abertura do dia. Todo campo e opcional: meio check-in ainda diz mais que nenhum. */
     public record DadosCheckin(
             @Min(1) @Max(5) Short energia,
-            @DecimalMin("0") @DecimalMax("24") BigDecimal horasSono,
+            @Min(0) @Max(1440) Integer minutosSono,
+            LocalTime dormiuEm,
+            LocalTime acordouEm,
+            @Min(0) @Max(1440) Integer minutosSonoProfundo,
+            @Min(0) @Max(1440) Integer minutosSonoRem,
+            @Min(0) @Max(100) Integer despertares,
+            @Min(20) @Max(220) Integer fcRepouso,
+            @Min(0) @Max(100) Integer pontuacaoSono,
             @Min(1) @Max(5) Short qualidadeSono,
             @Min(1) @Max(5) Short humor,
             @Min(1) @Max(5) Short estresse,
@@ -55,7 +61,14 @@ public class CheckinService {
     public CheckinDiario salvar(LocalDate dia, DadosCheckin dados) {
         CheckinDiario checkin = obterOuCriar(dia);
         checkin.energia = dados.energia();
-        checkin.horasSono = dados.horasSono();
+        checkin.dormiuEm = dados.dormiuEm();
+        checkin.acordouEm = dados.acordouEm();
+        checkin.minutosSono = duracaoDoSono(dados);
+        checkin.minutosSonoProfundo = dados.minutosSonoProfundo();
+        checkin.minutosSonoRem = dados.minutosSonoRem();
+        checkin.despertares = dados.despertares();
+        checkin.fcRepouso = dados.fcRepouso();
+        checkin.pontuacaoSono = dados.pontuacaoSono();
         checkin.qualidadeSono = dados.qualidadeSono();
         checkin.humor = dados.humor();
         checkin.estresse = dados.estresse();
@@ -77,6 +90,22 @@ public class CheckinService {
         // A dificuldade do fechamento entra no indice do dia, entao o resumo precisa ser refeito.
         diaAlterado.fire(new DiaAlterado(dia));
         return checkin;
+    }
+
+    /**
+     * Quem digita os horarios do relogio nao precisa fazer a subtracao. A duracao informada ganha da
+     * derivada: o relogio desconta os despertares, e a conta de deitar a acordar nao.
+     */
+    private static Integer duracaoDoSono(DadosCheckin dados) {
+        if (dados.minutosSono() != null) {
+            return dados.minutosSono();
+        }
+        if (dados.dormiuEm() == null || dados.acordouEm() == null) {
+            return null;
+        }
+        long minutos = Duration.between(dados.dormiuEm(), dados.acordouEm()).toMinutes();
+        // Deitar as 23h e acordar as 7h da negativo num relogio de 24h: a noite atravessou a meia-noite.
+        return (int) (minutos <= 0 ? minutos + Duration.ofDays(1).toMinutes() : minutos);
     }
 
     private CheckinDiario obterOuCriar(LocalDate dia) {

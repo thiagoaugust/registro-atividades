@@ -46,7 +46,14 @@ export type Classificacao = "DIFICIL" | "NORMAL" | "BOM" | "EXCELENTE";
 export interface CheckinDto {
   dataLocal: string;
   energia: number | null;
-  horasSono: number | null;
+  minutosSono: number | null;
+  dormiuEm: string | null;
+  acordouEm: string | null;
+  minutosSonoProfundo: number | null;
+  minutosSonoRem: number | null;
+  despertares: number | null;
+  fcRepouso: number | null;
+  pontuacaoSono: number | null;
   qualidadeSono: number | null;
   humor: number | null;
   estresse: number | null;
@@ -60,13 +67,37 @@ export interface CheckinDto {
 
 export interface DadosCheckin {
   energia?: number | null;
-  horasSono?: number | null;
+  minutosSono?: number | null;
+  dormiuEm?: string | null;
+  acordouEm?: string | null;
+  minutosSonoProfundo?: number | null;
+  minutosSonoRem?: number | null;
+  despertares?: number | null;
+  fcRepouso?: number | null;
+  pontuacaoSono?: number | null;
   qualidadeSono?: number | null;
   humor?: number | null;
   estresse?: number | null;
   dificuldadePrevista?: number | null;
   descansoPlanejado: boolean;
   frase?: string | null;
+}
+
+export type BandaEnergia = "BAIXA" | "NORMAL" | "ALTA";
+export type SituacaoFaixa = "CALIBRANDO" | "ABAIXO" | "DENTRO" | "ACIMA";
+
+/** Quanto e um dia justo hoje, medido contra os seus dias de energia parecida. */
+export interface FaixaDto {
+  data: string;
+  banda: BandaEnergia | null;
+  rotulo: string;
+  piso: number;
+  tipico: number;
+  teto: number;
+  xpDoDia: number;
+  faltaParaOPiso: number;
+  situacao: SituacaoFaixa;
+  diasComparaveis: number;
 }
 
 export interface ResumoDto {
@@ -573,6 +604,8 @@ export const api = {
     }),
 
   perfil: () => requisicao<PerfilDto>("/api/gamificacao/perfil"),
+
+  faixa: (data: string) => requisicao<FaixaDto>(`/api/gamificacao/faixa/${data}`),
 
   conquistas: () => requisicao<ConquistaDto[]>("/api/gamificacao/conquistas"),
 

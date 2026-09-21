@@ -408,6 +408,7 @@ Todos sob `/api`, autenticados, respostas de erro em `application/problem+json`.
 |---|---|
 | GET | `/gamificacao/perfil` (XP, nível geral e por categoria, streaks) |
 | GET | `/gamificacao/conquistas` (desbloqueadas + progresso das pendentes) |
+| GET | `/gamificacao/faixa/{data}` (faixa de esforço do dia, pela banda de energia) |
 
 ### GTD
 | Método | Rota |
@@ -684,6 +685,65 @@ válida** — "essa sessão foi só vídeo" é informação, não campo vazio.
 **Curso retroativo** segue o mesmo critério do livro: horas e dias informados no cadastro, conta na
 estante e nas áreas, **não gera registro nem XP**. Sem sessão não há como saber o que foi prática,
 então a fração aparece como "—" em vez de 0%.
+
+---
+
+## 5.5 Sono medido e faixa de esforço por energia
+
+Duas mudanças que andam juntas: **nenhuma meta é escolhida a mão**, e o que o sistema cobra de um
+dia depende de como aquele dia começou.
+
+### O que substituiu a meta fixa
+
+Não existe um número de XP para "bater no dia". Existe uma **faixa de esforço**: o intervalo
+interquartil (p25–p75) do XP dos seus próprios dias de **energia parecida**, nos últimos 90 dias.
+Metade dos dias comparáveis cai dentro dela, então *ficar dentro é o resultado esperado* — e não
+uma vitória rara nem um fracasso silencioso.
+
+| Banda | Energia no check-in |
+|-------|---------------------|
+| `BAIXA` | 1–2 |
+| `NORMAL` | 3 |
+| `ALTA` | 4–5 |
+
+Três bandas e não cinco: com cinco, cada grupo fica com poucos dias e a mediana vira ruído.
+
+**Por que isto resolve o problema certo.** O XP já mede esforço × tempo × categoria; o que faltava
+era o denominador. Um dia de energia 1 com 40 XP e um dia de energia 5 com 40 XP não são o mesmo
+dia, e uma meta única faria o primeiro parecer fracasso e o segundo parecer suficiente. A faixa
+troca a régua conforme a manhã.
+
+Regras do cálculo:
+
+- **O próprio dia não entra** — o resultado de hoje não pode definir a barra de hoje.
+- **Descanso planejado e dias sem presença ficam de fora** — folga não derruba a régua de quinta.
+- **Menos de 5 dias comparáveis ⇒ `CALIBRANDO`**: o sistema não cobra nada e diz por quê.
+- **Energia não preenchida ⇒ faixa geral**, sem recorte por banda.
+- Percentil por posto mais próximo, não interpolado: o piso é um XP que você de fato já fez.
+
+Situações: `CALIBRANDO`, `ABAIXO` (mostra quanto falta), `DENTRO`, `ACIMA`.
+
+`GET /api/gamificacao/faixa/{data}` → banda, piso, típico, teto, XP do dia, situação, quantos dias
+entraram na conta. Domínio puro em `FaixaEsforco` / `BandaEnergia`; a query de histórico é a única
+parte com banco.
+
+### Sono do relógio
+
+`horas_sono` (numérico redondo, subjetivo na prática) saiu; entraram os campos que um relógio
+entrega, preenchidos **a mão** — não há integração e nada aqui pressupõe uma:
+
+`dormiu_em`, `acordou_em`, `minutos_sono`, `minutos_sono_profundo`, `minutos_sono_rem`,
+`despertares`, `fc_repouso`, `pontuacao_sono` (0–100).
+
+- **Duração informada ganha da derivada** de deitou→acordou: o relógio desconta os despertares, a
+  subtração não. Sem o número, a conta cobre a noite que atravessa a meia-noite.
+- **`qualidade_sono` (1–5) continua**, de propósito ao lado da pontuação do relógio: o interessante é
+  justamente quando o que você sente discorda do que foi medido.
+- Nada disso entra no índice do dia. Serve para correlação — os eixos novos (`PONTUACAO_SONO`,
+  `SONO_PROFUNDO`, `SONO_REM`, `DESPERTARES`, `FC_REPOUSO`) entraram no `Eixo` do Analytics.
+- `horas_sono` sobrevive como coluna **derivada na view** `vw_dia_analitico`, para os gráficos que
+  falam em horas — um único lugar faz a divisão.
+
 
 ---
 

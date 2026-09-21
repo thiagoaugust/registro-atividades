@@ -269,7 +269,15 @@ public class DadosDemo {
         checkin.humor = (short) limitar(base + sorteio.nextInt(2));
         checkin.estresse = (short) limitar(6 - base + sorteio.nextInt(2) - 1);
         checkin.dificuldadePrevista = (short) limitar(6 - base + sorteio.nextInt(2) - 1);
-        checkin.horasSono = BigDecimal.valueOf(4.5 + base * 0.8 + sorteio.nextInt(2) * 0.5);
+        // Sono no formato que o relogio entrega: duracao ao minuto, fases e a nota da noite.
+        checkin.minutosSono = (int) Math.round((4.5 + base * 0.8 + sorteio.nextInt(2) * 0.5) * 60);
+        checkin.acordouEm = java.time.LocalTime.of(6, 0).plusMinutes(sorteio.nextInt(90));
+        checkin.dormiuEm = checkin.acordouEm.minusMinutes(checkin.minutosSono + 20L + sorteio.nextInt(40));
+        checkin.minutosSonoProfundo = (int) Math.round(checkin.minutosSono * (0.10 + base * 0.02));
+        checkin.minutosSonoRem = (int) Math.round(checkin.minutosSono * (0.15 + base * 0.02));
+        checkin.despertares = Math.max(0, 5 - base + sorteio.nextInt(2));
+        checkin.fcRepouso = 68 - base * 2 + sorteio.nextInt(5);
+        checkin.pontuacaoSono = limitar100(40 + base * 11 + sorteio.nextInt(10));
 
         if (sorteio.nextInt(10) < 3) {
             checkin.frase = switch (tipo) {
@@ -479,5 +487,9 @@ public class DadosDemo {
 
     private static int limitar(int valor) {
         return Math.max(1, Math.min(5, valor));
+    }
+
+    private static int limitar100(int valor) {
+        return Math.max(0, Math.min(100, valor));
     }
 }

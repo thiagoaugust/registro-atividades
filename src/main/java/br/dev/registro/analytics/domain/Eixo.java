@@ -7,7 +7,12 @@ package br.dev.registro.analytics.domain;
  */
 public enum Eixo {
     HORAS_SONO("horas_sono", "horas de sono"),
-    QUALIDADE_SONO("qualidade_sono", "qualidade do sono"),
+    QUALIDADE_SONO("qualidade_sono", "qualidade do sono (sentida)"),
+    PONTUACAO_SONO("pontuacao_sono", "pontuacao do sono (relogio)"),
+    SONO_PROFUNDO("minutos_sono_profundo", "minutos de sono profundo"),
+    SONO_REM("minutos_sono_rem", "minutos de sono REM"),
+    DESPERTARES("despertares", "despertares na noite"),
+    FC_REPOUSO("fc_repouso", "frequencia cardiaca de repouso"),
     ENERGIA("energia", "energia"),
     HUMOR("humor", "humor"),
     ESTRESSE("estresse", "estresse"),

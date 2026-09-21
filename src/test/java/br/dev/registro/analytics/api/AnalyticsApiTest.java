@@ -90,7 +90,8 @@ class AnalyticsApiTest {
     private static void checkin(String data, int energia, double horasSono, int qualidadeSono,
             int humor, int estresse, int dificuldade) {
         given().contentType(ContentType.JSON)
-                .body(Map.of("energia", energia, "horasSono", horasSono, "qualidadeSono", qualidadeSono,
+                .body(Map.of("energia", energia, "minutosSono", (int) Math.round(horasSono * 60),
+                        "qualidadeSono", qualidadeSono,
                         "humor", humor, "estresse", estresse, "dificuldadePrevista", dificuldade,
                         "descansoPlanejado", false))
                 .when().put("/api/checkins/" + data).then().statusCode(200);

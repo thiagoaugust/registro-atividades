@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/campo";
 import { FormularioRegistro } from "@/components/FormularioRegistro";
 import { CheckinCard } from "@/components/CheckinCard";
 import { ResumoDoDia } from "@/components/ResumoDoDia";
+import { FaixaDoDia } from "@/components/FaixaDoDia";
 import {
   CORES_CATEGORIA,
   esforcoMedio,
@@ -32,6 +33,7 @@ export function PainelDia() {
   const queryClient = useQueryClient();
 
   const dia = useQuery({ queryKey: ["dia", data], queryFn: () => api.dia(data) });
+  const faixa = useQuery({ queryKey: ["faixa", data], queryFn: () => api.faixa(data) });
 
   // Qualquer escrita mexe em XP, nivel, streak e conquistas: o jeito honesto e invalidar tudo.
   const invalidar = () => queryClient.invalidateQueries();
@@ -99,6 +101,8 @@ export function PainelDia() {
       </div>
 
       <div className="flex flex-col gap-4">
+        <FaixaDoDia faixa={faixa.data} />
+
         <CheckinCard
           data={data}
           checkin={dia.data?.checkin ?? null}

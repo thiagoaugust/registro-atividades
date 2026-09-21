@@ -3,8 +3,47 @@ import { Moon, Check } from "lucide-react";
 import type { CheckinDto, DadosCheckin } from "@/api";
 import { Button } from "@/components/ui/button";
 import { Input, Textarea } from "@/components/ui/input";
-import { Campo, Card } from "@/components/ui/campo";
+import { Ajuda, Campo, Card } from "@/components/ui/campo";
+import { formatarDuracao } from "@/lib/formato";
 import { cn } from "@/lib/utils";
+
+const texto = (valor: number | null | undefined) => (valor == null ? "" : String(valor));
+const numero = (valor: string | undefined) =>
+  valor == null || valor.trim() === "" ? null : Number(valor);
+
+/**
+ * Uma medida do relogio. Sao oito caixinhas iguais; repetir o <Campo> inteiro oito vezes so
+ * alongaria o arquivo.
+ */
+function Medida({
+  rotulo,
+  campo,
+  sono,
+  aoMudar,
+  ajuda,
+  tipo = "number",
+  ...resto
+}: {
+  rotulo: string;
+  campo: string;
+  sono: Record<string, string>;
+  aoMudar: (sono: Record<string, string>) => void;
+  ajuda: string;
+  tipo?: string;
+  min?: number;
+  max?: number;
+}) {
+  return (
+    <Campo rotulo={rotulo} ajuda={ajuda}>
+      <Input
+        type={tipo}
+        value={sono[campo] ?? ""}
+        onChange={(e) => aoMudar({ ...sono, [campo]: e.target.value })}
+        {...resto}
+      />
+    </Campo>
+  );
+}
 
 /** Escala de 1 a 5 em botoes: um clique, sem dropdown, sem arrastar. */
 function Escala({
@@ -55,7 +94,7 @@ interface Props {
 export function CheckinCard({ data, checkin, aoSalvar, aoFechar, salvando }: Props) {
   const [aberto, setAberto] = useState(false);
   const [energia, setEnergia] = useState<number | null>(null);
-  const [horasSono, setHorasSono] = useState("");
+  const [sono, setSono] = useState<Record<string, string>>({});
   const [qualidadeSono, setQualidadeSono] = useState<number | null>(null);
   const [humor, setHumor] = useState<number | null>(null);
   const [estresse, setEstresse] = useState<number | null>(null);
@@ -68,7 +107,16 @@ export function CheckinCard({ data, checkin, aoSalvar, aoFechar, salvando }: Pro
 
   useEffect(() => {
     setEnergia(checkin?.energia ?? null);
-    setHorasSono(checkin?.horasSono != null ? String(checkin.horasSono) : "");
+    setSono({
+      minutosSono: texto(checkin?.minutosSono),
+      dormiuEm: checkin?.dormiuEm?.slice(0, 5) ?? "",
+      acordouEm: checkin?.acordouEm?.slice(0, 5) ?? "",
+      minutosSonoProfundo: texto(checkin?.minutosSonoProfundo),
+      minutosSonoRem: texto(checkin?.minutosSonoRem),
+      despertares: texto(checkin?.despertares),
+      fcRepouso: texto(checkin?.fcRepouso),
+      pontuacaoSono: texto(checkin?.pontuacaoSono),
+    });
     setQualidadeSono(checkin?.qualidadeSono ?? null);
     setHumor(checkin?.humor ?? null);
     setEstresse(checkin?.estresse ?? null);
@@ -83,7 +131,14 @@ export function CheckinCard({ data, checkin, aoSalvar, aoFechar, salvando }: Pro
     evento.preventDefault();
     aoSalvar({
       energia,
-      horasSono: horasSono.trim() === "" ? null : Number(horasSono),
+      minutosSono: numero(sono.minutosSono),
+      dormiuEm: sono.dormiuEm || null,
+      acordouEm: sono.acordouEm || null,
+      minutosSonoProfundo: numero(sono.minutosSonoProfundo),
+      minutosSonoRem: numero(sono.minutosSonoRem),
+      despertares: numero(sono.despertares),
+      fcRepouso: numero(sono.fcRepouso),
+      pontuacaoSono: numero(sono.pontuacaoSono),
       qualidadeSono,
       humor,
       estresse,
@@ -116,7 +171,8 @@ export function CheckinCard({ data, checkin, aoSalvar, aoFechar, salvando }: Pro
         <p className="mt-2 text-xs text-zinc-500">
           {[
             checkin.energia && `energia ${checkin.energia}`,
-            checkin.qualidadeSono && `sono ${checkin.qualidadeSono}`,
+            checkin.minutosSono && `dormiu ${formatarDuracao(checkin.minutosSono)}`,
+            checkin.pontuacaoSono && `sono ${checkin.pontuacaoSono}/100`,
             checkin.humor && `humor ${checkin.humor}`,
             checkin.dificuldadeFinal
               ? `dificuldade ${checkin.dificuldadeFinal} (fechado)`
@@ -160,20 +216,86 @@ export function CheckinCard({ data, checkin, aoSalvar, aoFechar, salvando }: Pro
             >
               <Escala valor={dificuldade} aoMudar={setDificuldade} rotulos={["tranquilo", "pesado"]} />
             </Campo>
-            <Campo
-              rotulo="Horas de sono"
-              ajuda="Quantas horas voce dormiu. Nao entra no indice do dia; serve para a correlacao entre sono e produtividade no painel Evolucao."
-            >
-              <Input
-                type="number"
-                step="0.5"
-                min={0}
-                max={24}
-                value={horasSono}
-                onChange={(e) => setHorasSono(e.target.value)}
-                className="w-28"
+          </div>
+
+          <div className="flex flex-col gap-3 border-t border-zinc-800 pt-4">
+            <p className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-zinc-400">
+              <Moon className="size-3.5" />
+              Sono da noite
+              <Ajuda texto="O que o relogio mediu, digitado a mao. Nada disso entra no indice do dia — serve para cruzar sono medido com o que o dia rendeu, no painel Evolucao." />
+            </p>
+            <div className="grid gap-3 sm:grid-cols-3">
+              <Medida
+                rotulo="Deitou"
+                campo="dormiuEm"
+                tipo="time"
+                sono={sono}
+                aoMudar={setSono}
+                ajuda="Hora em que voce foi dormir. Junto com a hora de acordar, da a duracao quando voce nao tiver o numero do relogio."
               />
-            </Campo>
+              <Medida
+                rotulo="Acordou"
+                campo="acordouEm"
+                tipo="time"
+                sono={sono}
+                aoMudar={setSono}
+                ajuda="Hora em que voce levantou. Noite que atravessa a meia-noite e tratada certo."
+              />
+              <Medida
+                rotulo="Dormiu (min)"
+                campo="minutosSono"
+                sono={sono}
+                aoMudar={setSono}
+                min={0}
+                max={1440}
+                ajuda="Minutos de sono segundo o relogio. Se preencher, manda sobre a conta deitou-acordou: o relogio desconta os despertares, a subtracao nao."
+              />
+              <Medida
+                rotulo="Profundo (min)"
+                campo="minutosSonoProfundo"
+                sono={sono}
+                aoMudar={setSono}
+                min={0}
+                max={1440}
+                ajuda="Minutos de sono profundo. E a fase ligada a recuperacao fisica — vale cruzar com os dias de treino."
+              />
+              <Medida
+                rotulo="REM (min)"
+                campo="minutosSonoRem"
+                sono={sono}
+                aoMudar={setSono}
+                min={0}
+                max={1440}
+                ajuda="Minutos de sono REM. E a fase ligada a consolidacao do que se aprendeu — vale cruzar com os dias de estudo."
+              />
+              <Medida
+                rotulo="Despertares"
+                campo="despertares"
+                sono={sono}
+                aoMudar={setSono}
+                min={0}
+                max={100}
+                ajuda="Quantas vezes a noite quebrou. Uma noite longa e picotada rende menos que uma curta inteira."
+              />
+              <Medida
+                rotulo="FC repouso"
+                campo="fcRepouso"
+                sono={sono}
+                aoMudar={setSono}
+                min={20}
+                max={220}
+                ajuda="Frequencia cardiaca de repouso, em bpm. Sobe quando o corpo nao se recuperou — costuma avisar antes de voce sentir."
+              />
+              <Medida
+                rotulo="Pontuacao"
+                campo="pontuacaoSono"
+                sono={sono}
+                aoMudar={setSono}
+                min={0}
+                max={100}
+                ajuda="A nota de 0 a 100 que o proprio relogio da para a noite. Fica ao lado da sua nota de 1 a 5 de proposito: da para ver quando o que voce sente discorda do que foi medido."
+              />
+            </div>
           </div>
 
           <label className="flex items-center gap-2 text-sm">
