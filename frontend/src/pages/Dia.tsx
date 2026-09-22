@@ -30,8 +30,9 @@ function somarDias(iso: string, dias: number): string {
 export function PainelDia() {
   const [data, setData] = useState(hojeLocal());
   const [editando, setEditando] = useState<RegistroDto | null>(null);
-  // A chave sobe a cada clique: e o que faz o formulario reagir mesmo ao mesmo item de novo.
-  const [atalho, setAtalho] = useState<(Atalho & { chave: number }) | null>(null);
+  // `linha` diz em qual item o formulario esta aberto; `chave` sobe a cada clique, para o
+  // formulario reagir mesmo quando o item escolhido e o mesmo de antes.
+  const [atalho, setAtalho] = useState<(Atalho & { chave: number; linha: string }) | null>(null);
   const [erro, setErro] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
@@ -46,6 +47,9 @@ export function PainelDia() {
       editando ? api.atualizarRegistro(editando.id, dados) : api.criarRegistro(dados),
     onSuccess: () => {
       setEditando(null);
+      // Fecha o formulario aberto na linha: a sessao foi salva, e deixa-lo aberto com os valores
+      // digitados convida a um segundo clique que criaria registro duplicado.
+      setAtalho(null);
       setErro(null);
       invalidar();
     },
@@ -67,6 +71,24 @@ export function PainelDia() {
 
   const registros = dia.data?.registros ?? [];
   const medio = esforcoMedio(registros);
+
+  // Um elemento so, montado ou dentro da linha do item escolhido ou no lugar de sempre. Trocar de
+  // lugar remonta e zera os campos — que e justamente o que se quer ao mudar de alvo.
+  const formulario = (
+    <FormularioRegistro
+      data={data}
+      editando={editando}
+      atalho={atalho}
+      aoSalvar={(dados) => salvar.mutate(dados)}
+      aoCancelar={() => {
+        setEditando(null);
+        setAtalho(null);
+        setErro(null);
+      }}
+      salvando={salvar.isPending}
+      erro={erro}
+    />
+  );
 
   return (
     <>
@@ -107,9 +129,16 @@ export function PainelDia() {
         <FaixaDoDia faixa={faixa.data} />
 
         <EmAndamento
-          aoRegistrar={(escolha) => {
+          aberta={atalho?.linha ?? null}
+          formulario={formulario}
+          aoRegistrar={(escolha, linha) => {
             setEditando(null);
-            setAtalho({ ...escolha, chave: Date.now() });
+            setErro(null);
+            setAtalho({ ...escolha, linha, chave: Date.now() });
+          }}
+          aoFechar={() => {
+            setAtalho(null);
+            setErro(null);
           }}
         />
 
@@ -121,19 +150,7 @@ export function PainelDia() {
           salvando={salvarCheckin.isPending || fecharDia.isPending}
         />
 
-        <FormularioRegistro
-          data={data}
-          editando={editando}
-          atalho={atalho}
-          aoSalvar={(dados) => salvar.mutate(dados)}
-          aoCancelar={() => {
-            setEditando(null);
-            setAtalho(null);
-            setErro(null);
-          }}
-          salvando={salvar.isPending}
-          erro={erro}
-        />
+        {atalho === null && formulario}
       </div>
 
       <div className="mt-6 flex flex-wrap items-center gap-2 text-sm">
@@ -187,7 +204,10 @@ export function PainelDia() {
                 variante="fantasma"
                 tamanho="icone"
                 aria-label={`Editar ${registro.titulo ?? "registro"}`}
-                onClick={() => setEditando(registro)}
+                onClick={() => {
+                  setAtalho(null);
+                  setEditando(registro);
+                }}
               >
                 <Pencil className="size-4" />
               </Button>

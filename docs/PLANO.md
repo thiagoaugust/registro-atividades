@@ -821,9 +821,16 @@ nunca interpolada.
 A aba Dia abriu com o que está aberto agora: **livros em leitura, cursos em andamento e projetos
 ativos**, cada um com barra de progresso e um botão *Registrar*.
 
-O botão não registra — ele **aponta o formulário**: troca a categoria, escolhe o vínculo, abre a
-seção de detalhes e mostra em que página a leitura parou. Registrar uma sessão exigia lembrar a
-categoria certa, achar o item no select e conferir a página; o atalho resolve os três de uma vez.
+O botão não registra — ele **abre o formulário na própria linha**, já apontado: categoria trocada,
+vínculo escolhido, detalhes abertos e a página onde a leitura parou à mostra. Registrar uma sessão
+exigia lembrar a categoria certa, achar o item no select, conferir a página e ainda rolar até o
+formulário; o atalho resolve os quatro.
+
+É **um único** `FormularioRegistro`, montado ou dentro da linha escolhida ou no lugar de sempre
+(abaixo do check-in, para o registro avulso). Trocar de linha remonta o componente e zera os campos
+— que é exatamente o desejado ao mudar de alvo. Salvar fecha o formulário inline: deixá-lo aberto
+com os valores digitados convidaria a um segundo clique e um registro duplicado. Editar um registro
+pelo lápis devolve o formulário ao lugar de sempre.
 
 Nenhum endpoint novo: a tela compõe `/livros/progresso`, `/cursos/progresso` e `/gtd/projetos`, que
 já existiam. O `chave` do atalho é um timestamp, para o efeito do formulário rodar de novo mesmo

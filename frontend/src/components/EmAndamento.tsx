@@ -1,5 +1,6 @@
+import { type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { BookOpen, GraduationCap, Hammer, Plus } from "lucide-react";
+import { BookOpen, GraduationCap, Hammer, Plus, X } from "lucide-react";
 import { api, type Categoria } from "@/api";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/campo";
@@ -23,12 +24,18 @@ function Grupo({
   titulo,
   Icone,
   linhas,
+  aberta,
+  formulario,
   aoRegistrar,
+  aoFechar,
 }: {
   titulo: string;
   Icone: typeof BookOpen;
   linhas: Linha[];
-  aoRegistrar: (atalho: Atalho) => void;
+  aberta: string | null;
+  formulario: ReactNode;
+  aoRegistrar: (atalho: Atalho, chave: string) => void;
+  aoFechar: () => void;
 }) {
   if (linhas.length === 0) {
     return null;
@@ -41,30 +48,48 @@ function Grupo({
         {titulo}
       </p>
       {linhas.map((linha) => (
-        <div key={linha.chave} className="flex items-center gap-3">
-          <div className="min-w-0 flex-1">
-            <div className="flex items-baseline justify-between gap-2">
-              <span className="truncate text-sm">{linha.titulo}</span>
-              <span className="shrink-0 text-xs text-zinc-500">{linha.detalhe}</span>
-            </div>
-            {linha.fracao !== null && (
-              <div className="mt-1 h-1 w-full overflow-hidden rounded-full bg-zinc-800">
-                <div
-                  className="h-full rounded-full bg-zinc-500"
-                  style={{ width: `${Math.round(Math.min(1, linha.fracao) * 100)}%` }}
-                />
+        <div key={linha.chave} className="flex flex-col gap-2">
+          <div className="flex items-center gap-3">
+            <div className="min-w-0 flex-1">
+              <div className="flex items-baseline justify-between gap-2">
+                <span className="truncate text-sm">{linha.titulo}</span>
+                <span className="shrink-0 text-xs text-zinc-500">{linha.detalhe}</span>
               </div>
+              {linha.fracao !== null && (
+                <div className="mt-1 h-1 w-full overflow-hidden rounded-full bg-zinc-800">
+                  <div
+                    className="h-full rounded-full bg-zinc-500"
+                    style={{ width: `${Math.round(Math.min(1, linha.fracao) * 100)}%` }}
+                  />
+                </div>
+              )}
+            </div>
+            {aberta === linha.chave ? (
+              <Button
+                variante="fantasma"
+                tamanho="sm"
+                aria-label={`Fechar o registro de ${linha.titulo}`}
+                onClick={aoFechar}
+              >
+                <X className="size-3.5" />
+                Fechar
+              </Button>
+            ) : (
+              <Button
+                variante="secundario"
+                tamanho="sm"
+                aria-label={`Registrar sessao de ${linha.titulo}`}
+                onClick={() => aoRegistrar(linha.atalho, linha.chave)}
+              >
+                <Plus className="size-3.5" />
+                Registrar
+              </Button>
             )}
           </div>
-          <Button
-            variante="secundario"
-            tamanho="sm"
-            aria-label={`Registrar sessao de ${linha.titulo}`}
-            onClick={() => aoRegistrar(linha.atalho)}
-          >
-            <Plus className="size-3.5" />
-            Registrar
-          </Button>
+
+          {/* O formulario nasce aqui, nao no fim da pagina: registrar e a acao do item que voce
+              acabou de clicar, e rolar para procurar o formulario e o que tornava isso chato. */}
+          {aberta === linha.chave && <div className="border-l-2 border-zinc-700 pl-3">{formulario}</div>}
         </div>
       ))}
     </div>
@@ -76,7 +101,18 @@ function Grupo({
  * apontado para ele. Sem isto, registrar exige lembrar a categoria, achar o vinculo no select e
  * conferir em que pagina a leitura parou; o atalho resolve os tres.
  */
-export function EmAndamento({ aoRegistrar }: { aoRegistrar: (atalho: Atalho) => void }) {
+export function EmAndamento({
+  aberta,
+  formulario,
+  aoRegistrar,
+  aoFechar,
+}: {
+  /** Chave da linha com o formulario aberto, ou null. */
+  aberta: string | null;
+  formulario: ReactNode;
+  aoRegistrar: (atalho: Atalho, chave: string) => void;
+  aoFechar: () => void;
+}) {
   const livros = useQuery({ queryKey: ["progresso-livros"], queryFn: api.progressoLivros });
   const cursos = useQuery({ queryKey: ["progresso-cursos"], queryFn: api.progressoCursos });
   const projetos = useQuery({ queryKey: ["projetos"], queryFn: api.projetos });
@@ -123,9 +159,20 @@ export function EmAndamento({ aoRegistrar }: { aoRegistrar: (atalho: Atalho) => 
 
   return (
     <Card className="flex flex-col gap-4">
-      <Grupo titulo="Lendo" Icone={BookOpen} linhas={lendo} aoRegistrar={aoRegistrar} />
-      <Grupo titulo="Cursando" Icone={GraduationCap} linhas={cursando} aoRegistrar={aoRegistrar} />
-      <Grupo titulo="Projetos" Icone={Hammer} linhas={ativos} aoRegistrar={aoRegistrar} />
+      {[
+        { titulo: "Lendo", Icone: BookOpen, linhas: lendo },
+        { titulo: "Cursando", Icone: GraduationCap, linhas: cursando },
+        { titulo: "Projetos", Icone: Hammer, linhas: ativos },
+      ].map((grupo) => (
+        <Grupo
+          key={grupo.titulo}
+          {...grupo}
+          aberta={aberta}
+          formulario={formulario}
+          aoRegistrar={aoRegistrar}
+          aoFechar={aoFechar}
+        />
+      ))}
     </Card>
   );
 }
