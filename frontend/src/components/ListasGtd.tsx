@@ -4,7 +4,6 @@ import { AlertTriangle, Check, RotateCcw, Trash2 } from "lucide-react";
 import { api, type AcaoDto, type EstadoAcao } from "@/api";
 import { Button } from "@/components/ui/button";
 import { Select } from "@/components/ui/input";
-import { Card } from "@/components/ui/campo";
 import { CORES_CATEGORIA, formatarDuracao } from "@/lib/formato";
 import { RegistrarAcao } from "@/components/RegistrarAcao";
 
@@ -28,7 +27,7 @@ export function ItemAcao({
   aoExcluir?: (id: number) => void;
 }) {
   return (
-    <Card className="flex items-start justify-between gap-3">
+    <div className="flex items-start justify-between gap-3 border-b border-risco/40 py-2 last:border-0">
       <div className="min-w-0">
         <p className={acao.estado === "CONCLUIDA" ? "text-sm text-giz-apagado line-through" : "text-sm"}>
           {acao.titulo}
@@ -88,7 +87,7 @@ export function ItemAcao({
           </Button>
         )}
       </div>
-    </Card>
+    </div>
   );
 }
 
@@ -140,7 +139,7 @@ export function ListasGtd() {
   return (
     <div className="flex flex-col gap-4">
       {(parados.data?.length ?? 0) > 0 && (
-        <Card className="flex items-start gap-3 border-latao/30 bg-latao/10">
+        <div className="flex items-start gap-3 border-l-2 border-latao pl-3">
           <AlertTriangle className="mt-0.5 size-4 shrink-0 text-latao" />
           <div>
             <p className="text-sm font-medium text-latao">
@@ -150,7 +149,7 @@ export function ListasGtd() {
               {parados.data?.map((p) => p.nome).join(", ")}
             </p>
           </div>
-        </Card>
+        </div>
       )}
 
       <div className="flex flex-wrap items-center gap-2">
@@ -190,12 +189,12 @@ export function ListasGtd() {
       </div>
 
       {estado === "REFERENCIAS" ? (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col">
           {referencias.data?.length === 0 && (
-            <Card className="text-sm text-giz-apagado">Nenhuma referencia arquivada.</Card>
+            <p className="py-2 text-sm text-giz-apagado">Nenhuma referencia arquivada.</p>
           )}
           {referencias.data?.map((referencia) => (
-            <Card key={referencia.id}>
+            <div key={referencia.id} className="border-b border-risco/40 py-2 last:border-0">
               <p className="text-sm font-medium">{referencia.titulo}</p>
               {referencia.url && (
                 <a
@@ -211,13 +210,13 @@ export function ListasGtd() {
               {referencia.tags.length > 0 && (
                 <p className="mt-1 text-xs text-giz-apagado">{referencia.tags.map((t) => `#${t}`).join(" ")}</p>
               )}
-            </Card>
+            </div>
           ))}
         </div>
       ) : (
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col">
         {acoes.isLoading && <p className="text-sm text-giz-apagado">Carregando...</p>}
-        {acoes.data?.length === 0 && <Card className="text-sm text-giz-apagado">Lista vazia.</Card>}
+        {acoes.data?.length === 0 && <p className="py-2 text-sm text-giz-apagado">Lista vazia.</p>}
         {acoes.data?.map((acao) => (
           <ItemAcao
             key={acao.id}

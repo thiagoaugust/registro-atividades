@@ -4,7 +4,7 @@ import { Dumbbell, ExternalLink, GraduationCap, History, Plus, Trash2 } from "lu
 import { api, ErroApi, type ProgressoCursoDto } from "@/api";
 import { Button } from "@/components/ui/button";
 import { Input, Select } from "@/components/ui/input";
-import { Campo, Card } from "@/components/ui/campo";
+import { Campo, Card, Secao } from "@/components/ui/campo";
 import { formatarDuracao } from "@/lib/formato";
 import { formatarData } from "@/lib/leitura";
 
@@ -177,10 +177,10 @@ function OndeVaiOTempo() {
   const maiorTema = Math.max(1, ...temas.map((t) => t.minutos));
 
   return (
-    <div className="grid gap-4 lg:grid-cols-2">
-      <Card>
-        <p className="text-sm font-medium">Onde vai o tempo</p>
-        <p className="mb-3 text-xs text-giz-apagado">por area, somando curso e livro</p>
+    <div className="grid gap-x-8 gap-y-6 lg:grid-cols-2">
+      <section className="flex flex-col gap-2">
+        <Secao>Onde vai o tempo</Secao>
+        <p className="text-xs text-giz-apagado">por area, somando curso e livro</p>
         <ul className="flex flex-col gap-2">
           {areas.map((area) => (
             <li key={area.area}>
@@ -217,14 +217,14 @@ function OndeVaiOTempo() {
             <span className="size-2 rounded-full bg-giz-apagado" /> livro
           </span>
         </p>
-      </Card>
+      </section>
 
-      <Card>
-        <p className="text-sm font-medium">Assuntos dos ultimos 30 dias</p>
-        <p className="mb-3 text-xs text-giz-apagado">o tema que voce escreve em cada sessao</p>
+      <section className="flex flex-col gap-2">
+        <Secao>Assuntos dos ultimos 30 dias</Secao>
+        <p className="text-xs text-giz-apagado">o tema que voce escreve em cada sessao</p>
 
         {pratica?.percentual !== null && pratica !== undefined && (
-          <div className="mb-3 rounded-md border border-risco bg-placa p-2">
+          <div className="border-l-2 border-latao pl-3">
             <p className="text-xs text-giz-fraco">
               {pratica.percentual}% do seu estudo foi pratica deliberada
             </p>
@@ -266,7 +266,7 @@ function OndeVaiOTempo() {
             <span className="size-2 rounded-full bg-frio" /> consumo
           </span>
         </p>
-      </Card>
+      </section>
     </div>
   );
 }
@@ -485,9 +485,9 @@ export function Cursos() {
 
       {cursos.isLoading && <p className="text-sm text-giz-apagado">Carregando...</p>}
       {!cursos.isLoading && (cursos.data?.length ?? 0) === 0 && (
-        <Card className="text-sm text-giz-apagado">
+        <p className="py-2 text-sm text-giz-apagado">
           Nenhum curso cadastrado. Cadastre um para registrar a dedicacao diaria.
-        </Card>
+        </p>
       )}
 
       {cursando.map((curso) => (

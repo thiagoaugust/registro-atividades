@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { CheckCircle2, Circle, AlertTriangle } from "lucide-react";
 import { api, ErroApi, type PassoRevisao } from "@/api";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/campo";
+import { Secao } from "@/components/ui/campo";
 import { formatarDuracao } from "@/lib/formato";
 import { corDaVariacao, formatarVariacao } from "@/lib/analytics";
 
@@ -70,29 +70,28 @@ export function RevisaoSemanal() {
   const projetosParados = parados.data?.length ?? 0;
 
   return (
-    <div className="flex flex-col gap-4">
-      <Card>
-        <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <div>
-            <p className="text-sm font-medium">Revisao da semana de {semana}</p>
-            <p className="text-xs text-giz-apagado">
-              {atual?.concluidaEm
-                ? `concluida em ${new Date(atual.concluidaEm).toLocaleString("pt-BR")} · ${atual.duracaoMin} min`
-                : atual
-                  ? "em andamento"
-                  : "ainda nao iniciada"}
-            </p>
-          </div>
-          {!atual && (
-            <Button onClick={() => iniciar.mutate()} disabled={iniciar.isPending}>
-              Comecar revisao
-            </Button>
-          )}
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <div>
+          <p className="text-sm font-medium">Revisao da semana de {semana}</p>
+          <p className="text-xs text-giz-apagado">
+            {atual?.concluidaEm
+              ? `concluida em ${new Date(atual.concluidaEm).toLocaleString("pt-BR")} · ${atual.duracaoMin} min`
+              : atual
+                ? "em andamento"
+                : "ainda nao iniciada"}
+          </p>
         </div>
-      </Card>
+        {!atual && (
+          <Button onClick={() => iniciar.mutate()} disabled={iniciar.isPending}>
+            Comecar revisao
+          </Button>
+        )}
+      </div>
 
       {atual && (
-        <Card className="flex flex-col gap-3">
+        <section className="flex flex-col gap-1">
+          <Secao>Checklist</Secao>
           {checklist.data?.map((item) => {
             const feito = atual.passos[item.passo] === true;
             const alerta =
@@ -105,7 +104,7 @@ export function RevisaoSemanal() {
                 type="button"
                 disabled={atual.concluidaEm !== null}
                 onClick={() => marcar.mutate({ passo: item.passo, feito: !feito })}
-                className="flex items-start gap-3 rounded-md p-2 text-left hover:bg-placa-alta disabled:hover:bg-transparent"
+                className="flex items-start gap-3 border-b border-risco/40 px-1 py-2 text-left last-of-type:border-0 hover:bg-placa-alta disabled:hover:bg-transparent"
               >
                 {feito ? (
                   <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-aferido" />
@@ -140,20 +139,18 @@ export function RevisaoSemanal() {
               {atual.completa ? "Concluir revisao (+50 XP)" : "Marque todos os passos"}
             </Button>
           )}
-        </Card>
+        </section>
       )}
 
       {resumo.data && (
-        <Card>
-          <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
-            <p className="text-sm font-medium">A semana em numeros</p>
-            {diasDecorridos < 7 && (
-              <p className="text-xs text-latao/80">
-                semana em andamento: {diasDecorridos} de 7 dias — a comparacao com a semana cheia
-                anterior fica torta ate domingo
-              </p>
-            )}
-          </div>
+        <section className="flex flex-col gap-2">
+          <Secao>A semana em numeros</Secao>
+          {diasDecorridos < 7 && (
+            <p className="text-xs text-latao/80">
+              semana em andamento: {diasDecorridos} de 7 dias — a comparacao com a semana cheia
+              anterior fica torta ate domingo
+            </p>
+          )}
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {[
               { rotulo: "XP", valor: String(resumo.data.xp.atual), variacao: resumo.data.xp },
@@ -175,30 +172,30 @@ export function RevisaoSemanal() {
             ].map((item) => (
               <div key={item.rotulo}>
                 <p className="text-[0.8125rem] text-giz-apagado">{item.rotulo}</p>
-                <p className="text-lg font-semibold">{item.valor}</p>
+                <p className="medida text-lg font-semibold">{item.valor}</p>
                 <p className={`text-xs ${corDaVariacao(item.variacao.percentual)}`}>
                   {formatarVariacao(item.variacao.percentual)} vs semana anterior
                 </p>
               </div>
             ))}
           </div>
-        </Card>
+        </section>
       )}
 
       {(revisoes.data?.length ?? 0) > 0 && (
-        <Card>
-          <p className="mb-2 text-sm font-medium">Revisoes anteriores</p>
-          <ul className="flex flex-col gap-1 text-sm">
+        <section className="flex flex-col gap-1">
+          <Secao>Revisoes anteriores</Secao>
+          <ul className="text-sm">
             {revisoes.data?.slice(0, 8).map((revisao) => (
-              <li key={revisao.semanaInicio} className="flex justify-between">
+              <li key={revisao.semanaInicio} className="flex justify-between border-b border-risco/40 py-1.5 last:border-0">
                 <span className="text-giz">semana de {revisao.semanaInicio}</span>
-                <span className="text-xs text-giz-apagado">
+                <span className="medida text-xs text-giz-apagado">
                   {revisao.concluidaEm ? `${revisao.duracaoMin} min` : "incompleta"}
                 </span>
               </li>
             ))}
           </ul>
-        </Card>
+        </section>
       )}
     </div>
   );

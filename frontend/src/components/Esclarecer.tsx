@@ -105,13 +105,13 @@ export function Esclarecer() {
 
   if (!item) {
     return (
-      <Card className="flex items-center gap-3">
+      <div className="flex items-center gap-3 py-2">
         <CheckCircle2 className="size-5 text-aferido" />
         <div>
           <p className="text-sm font-medium">Inbox zerado</p>
           <p className="text-xs text-giz-apagado">Nada esperando esclarecimento. Ctrl+K para capturar.</p>
         </div>
-      </Card>
+      </div>
     );
   }
 
@@ -171,9 +171,10 @@ export function Esclarecer() {
 
   return (
     <div className="flex flex-col gap-4">
-      <Card>
+      {/* O item e a unica coisa em foco aqui: e o caso que o Card elevado existe para cobrir. */}
+      <Card elevada>
         <p className="text-[0.8125rem] text-giz-apagado">
-          Esclarecendo · {inbox.data?.pendentes} na fila
+          Esclarecendo · <span className="medida">{inbox.data?.pendentes}</span> na fila
         </p>
         <p className="mt-2 text-base">{item.texto}</p>
         <p className="mt-1 text-xs text-giz-apagado">

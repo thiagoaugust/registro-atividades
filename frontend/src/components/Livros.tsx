@@ -4,7 +4,7 @@ import { BookOpen, History, Plus, TrendingDown, TrendingUp, Trash2 } from "lucid
 import { api, ErroApi, type ProgressoLeituraDto } from "@/api";
 import { Button } from "@/components/ui/button";
 import { Input, Select } from "@/components/ui/input";
-import { Campo, Card } from "@/components/ui/campo";
+import { Campo, Card, Secao } from "@/components/ui/campo";
 import { formatarDuracao } from "@/lib/formato";
 import {
   formatarData,
@@ -214,9 +214,9 @@ function Estatisticas() {
   const maior = Math.max(...categorias.map((c) => c.concluidos + c.lendo));
 
   return (
-    <div className="grid gap-4 lg:grid-cols-2">
-      <Card>
-        <p className="mb-3 text-sm font-medium">Livros por categoria</p>
+    <div className="grid gap-x-8 gap-y-6 lg:grid-cols-2">
+      <section className="flex flex-col gap-2">
+        <Secao>Livros por categoria</Secao>
         <ul className="flex flex-col gap-2">
           {categorias.map((categoria) => (
             <li key={categoria.categoria}>
@@ -236,11 +236,11 @@ function Estatisticas() {
             </li>
           ))}
         </ul>
-      </Card>
+      </section>
 
-      <Card>
-        <p className="mb-1 text-sm font-medium">Velocidade por dificuldade</p>
-        <p className="mb-3 text-xs text-giz-apagado">quanto um livro denso custa a mais de tempo</p>
+      <section className="flex flex-col gap-2">
+        <Secao>Velocidade por dificuldade</Secao>
+        <p className="text-xs text-giz-apagado">quanto um livro denso custa a mais de tempo</p>
         {dificuldades.length === 0 ? (
           <p className="text-sm text-giz-apagado">
             Informe a dificuldade dos livros para ver a comparacao.
@@ -257,7 +257,7 @@ function Estatisticas() {
             ))}
           </ul>
         )}
-      </Card>
+      </section>
     </div>
   );
 }
@@ -505,9 +505,9 @@ export function Livros() {
 
       {livros.isLoading && <p className="text-sm text-giz-apagado">Carregando...</p>}
       {!livros.isLoading && (livros.data?.length ?? 0) === 0 && (
-        <Card className="text-sm text-giz-apagado">
+        <p className="py-2 text-sm text-giz-apagado">
           Nenhum livro cadastrado. Cadastre um para registrar leituras e acompanhar o ritmo.
-        </Card>
+        </p>
       )}
 
       {lendo.map((livro) => (

@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/api";
-import { Card } from "@/components/ui/campo";
+import { Secao } from "@/components/ui/campo";
 import { COR_HEATMAP, DIAS_SEMANA, montarGradeHeatmap } from "@/lib/analytics";
 import { ROTULO_CLASSIFICACAO } from "@/lib/formato";
 import { formatarDuracao } from "@/lib/formato";
@@ -17,24 +17,27 @@ export function Heatmap({ ano }: { ano: number }) {
   const semanas = montarGradeHeatmap(ano, dias.data ?? []);
 
   return (
-    <Card className="overflow-x-auto">
-      <div className="flex items-baseline justify-between">
-        <p className="text-sm font-medium">Ano de {ano}</p>
-        <div className="flex items-center gap-2 text-xs text-giz-apagado">
-          <span>menos</span>
-          {(["DIFICIL", "NORMAL", "BOM", "EXCELENTE"] as const).map((c) => (
-            <span
-              key={c}
-              className="size-3 rounded-sm"
-              style={{ backgroundColor: COR_HEATMAP[c] }}
-              title={ROTULO_CLASSIFICACAO[c]}
-            />
-          ))}
-          <span>mais</span>
-        </div>
-      </div>
+    <section className="flex flex-col gap-2">
+      <Secao
+        acao={
+          <span className="flex items-center gap-2 text-xs text-giz-apagado">
+            <span>menos</span>
+            {(["DIFICIL", "NORMAL", "BOM", "EXCELENTE"] as const).map((c) => (
+              <span
+                key={c}
+                className="size-3 rounded-sm"
+                style={{ backgroundColor: COR_HEATMAP[c] }}
+                title={ROTULO_CLASSIFICACAO[c]}
+              />
+            ))}
+            <span>mais</span>
+          </span>
+        }
+      >
+        Ano de {ano}
+      </Secao>
 
-      <div className="mt-3 flex gap-1">
+      <div className="flex gap-1 overflow-x-auto">
         <div className="flex shrink-0 flex-col gap-[3px] pt-[18px] text-[10px] text-giz-apagado">
           {DIAS_SEMANA.map((dia, i) => (
             <span key={dia} className="h-[11px] leading-[11px]">
@@ -87,9 +90,9 @@ export function Heatmap({ ano }: { ano: number }) {
         </div>
       </div>
 
-      <p className="mt-3 text-xs text-giz-apagado">
+      <p className="text-xs text-giz-apagado">
         Contorno amarelo marca os dias dificeis vencidos; celulas apagadas sao descanso planejado.
       </p>
-    </Card>
+    </section>
   );
 }

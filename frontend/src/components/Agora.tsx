@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api, type Energia } from "@/api";
 import { Select } from "@/components/ui/input";
-import { Campo, Card } from "@/components/ui/campo";
+import { Campo } from "@/components/ui/campo";
 import { ItemAcao } from "@/components/ListasGtd";
 import { RegistrarAcao } from "@/components/RegistrarAcao";
 
@@ -48,7 +48,7 @@ export function Agora() {
 
   return (
     <div className="flex flex-col gap-4">
-      <Card className="grid gap-3 sm:grid-cols-3">
+      <div className="grid gap-3 sm:grid-cols-3">
         <Campo rotulo="Onde voce esta">
           <Select value={contextoId} onChange={(e) => setContextoId(e.target.value)}>
             <option value="">qualquer contexto</option>
@@ -80,14 +80,14 @@ export function Agora() {
             <option value="ALTA">alta</option>
           </Select>
         </Campo>
-      </Card>
+      </div>
 
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col">
         {sugestoes.isLoading && <p className="text-sm text-giz-apagado">Procurando...</p>}
         {sugestoes.data?.acoes.length === 0 && (
-          <Card className="text-sm text-giz-apagado">
+          <p className="py-2 text-sm text-giz-apagado">
             Nada cabe nesses filtros. Afrouxe o tempo ou a energia — ou va descansar.
-          </Card>
+          </p>
         )}
         {sugestoes.data?.acoes.map((acao) => (
           <ItemAcao key={acao.id} acao={acao} aoConcluir={(id) => concluir.mutate(id)} />
