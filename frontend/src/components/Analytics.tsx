@@ -18,24 +18,16 @@ import {
 import { api, CATEGORIAS, type Granularidade, type Variacao } from "@/api";
 import { Button } from "@/components/ui/button";
 import { Select } from "@/components/ui/input";
-import { Campo, Card } from "@/components/ui/campo";
+import { Campo, Secao } from "@/components/ui/campo";
 import { Heatmap } from "@/components/Heatmap";
 import { Retrospectiva } from "@/components/Retrospectiva";
 import { COR_HEATMAP, DIAS_SEMANA, corDaVariacao, forcaDaCorrelacao, formatarVariacao } from "@/lib/analytics";
 import { formatarDuracao } from "@/lib/formato";
+import { COR_SERIE, EIXO_GRAFICO, GRADE_GRAFICO, PALETA, TOOLTIP_GRAFICO } from "@/lib/paleta";
 
-const CORES_GRAFICO: Record<string, string> = {
-  TREINO: "#10b981",
-  ESTUDO: "#0ea5e9",
-  LEITURA: "#8b5cf6",
-  DESAFIO: "#f59e0b",
-  PROJETO: "#f43f5e",
-};
-
-const EIXO = { stroke: "#52525b", fontSize: 11 };
-const TOOLTIP = {
-  contentStyle: { background: "#18181b", border: "1px solid #3f3f46", borderRadius: 6, fontSize: 12 },
-};
+const CORES_GRAFICO = COR_SERIE;
+const EIXO = EIXO_GRAFICO;
+const TOOLTIP = TOOLTIP_GRAFICO;
 
 function hojeLocal(): string {
   return new Date().toLocaleDateString("sv-SE", { timeZone: "America/Sao_Paulo" });
@@ -57,13 +49,13 @@ function Indicador({
   variacao: Variacao;
 }) {
   return (
-    <Card>
-      <p className="text-xs uppercase tracking-wide text-zinc-500">{rotulo}</p>
-      <p className="mt-1 text-xl font-semibold">{valor}</p>
-      <p className={`mt-0.5 text-xs ${corDaVariacao(variacao.percentual)}`}>
+    <div>
+      <p className="text-[0.8125rem] text-giz-fraco">{rotulo}</p>
+      <p className="leitura mt-0.5 text-2xl leading-none text-giz">{valor}</p>
+      <p className={`medida mt-1 text-xs ${corDaVariacao(variacao.percentual)}`}>
         {formatarVariacao(variacao.percentual)} vs periodo anterior
       </p>
-    </Card>
+    </div>
   );
 }
 
@@ -116,13 +108,13 @@ export function Analytics() {
 
   return (
     <div className="flex flex-col gap-5">
-      <Card className="grid gap-3 sm:grid-cols-4">
+      <div className="grid gap-x-6 gap-y-4 border-b border-risco pb-4 sm:grid-cols-4">
         <Campo rotulo="De">
           <input
             type="date"
             value={de}
             onChange={(e) => setDe(e.target.value)}
-            className="h-9 w-full rounded-md border border-zinc-800 bg-zinc-900 px-2 text-sm"
+            className="h-9 w-full rounded-md border border-risco bg-placa px-2 text-sm"
           />
         </Campo>
         <Campo rotulo="Ate">
@@ -130,7 +122,7 @@ export function Analytics() {
             type="date"
             value={ate}
             onChange={(e) => setAte(e.target.value)}
-            className="h-9 w-full rounded-md border border-zinc-800 bg-zinc-900 px-2 text-sm"
+            className="h-9 w-full rounded-md border border-risco bg-placa px-2 text-sm"
           />
         </Campo>
         <Campo rotulo="Agrupar por">
@@ -154,7 +146,7 @@ export function Analytics() {
             </Button>
           </div>
         </Campo>
-      </Card>
+      </div>
 
       {periodo.data && (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -177,33 +169,33 @@ export function Analytics() {
         </div>
       )}
 
-      <Card>
-        <p className="mb-3 text-sm font-medium">XP e tendencia</p>
+      <section className="flex flex-col gap-3">
+        <Secao>xp e tendencia</Secao>
         <ResponsiveContainer width="100%" height={220}>
           <LineChart data={periodo.data?.serie ?? []}>
-            <CartesianGrid stroke="#27272a" strokeDasharray="3 3" />
+            <CartesianGrid stroke={GRADE_GRAFICO} strokeDasharray="3 3" />
             <XAxis dataKey="periodo" tick={EIXO} />
             <YAxis tick={EIXO} />
             <Tooltip {...TOOLTIP} />
             <Legend wrapperStyle={{ fontSize: 12 }} />
-            <Line type="monotone" dataKey="xp" name="XP" stroke="#10b981" dot={false} strokeWidth={2} />
+            <Line type="monotone" dataKey="xp" name="XP" stroke={PALETA.aferido} dot={false} strokeWidth={2} />
             <Line
               type="monotone"
               dataKey="xpMediaMovel"
               name="media movel (7)"
-              stroke="#71717a"
+              stroke={PALETA.gizApagado}
               dot={false}
               strokeDasharray="4 4"
             />
           </LineChart>
         </ResponsiveContainer>
-      </Card>
+      </section>
 
-      <Card>
-        <p className="mb-3 text-sm font-medium">Tempo por categoria</p>
+      <section className="flex flex-col gap-3">
+        <Secao>tempo por categoria</Secao>
         <ResponsiveContainer width="100%" height={220}>
           <BarChart data={barrasEmpilhadas}>
-            <CartesianGrid stroke="#27272a" strokeDasharray="3 3" />
+            <CartesianGrid stroke={GRADE_GRAFICO} strokeDasharray="3 3" />
             <XAxis dataKey="periodo" tick={EIXO} />
             <YAxis tick={EIXO} />
             <Tooltip {...TOOLTIP} />
@@ -213,14 +205,14 @@ export function Analytics() {
             ))}
           </BarChart>
         </ResponsiveContainer>
-      </Card>
+      </section>
 
       <div className="grid gap-5 lg:grid-cols-2">
-        <Card>
-          <p className="mb-3 text-sm font-medium">Como foram os dias</p>
+        <section className="flex flex-col gap-3">
+          <Secao>como foram os dias</Secao>
           <ResponsiveContainer width="100%" height={200}>
             <BarChart data={distribuicao}>
-              <CartesianGrid stroke="#27272a" strokeDasharray="3 3" />
+              <CartesianGrid stroke={GRADE_GRAFICO} strokeDasharray="3 3" />
               <XAxis dataKey="classificacao" tick={EIXO} />
               <YAxis tick={EIXO} allowDecimals={false} />
               <Tooltip {...TOOLTIP} />
@@ -234,10 +226,10 @@ export function Analytics() {
               </Bar>
             </BarChart>
           </ResponsiveContainer>
-        </Card>
+        </section>
 
-        <Card>
-          <p className="mb-3 text-sm font-medium">Produtividade por dia da semana</p>
+        <section className="flex flex-col gap-3">
+          <Secao>produtividade por dia da semana</Secao>
           <ResponsiveContainer width="100%" height={200}>
             <BarChart
               data={(correlacoes.data?.porDiaDaSemana ?? []).map((d) => ({
@@ -245,23 +237,23 @@ export function Analytics() {
                 rotulo: DIAS_SEMANA[d.diaSemana - 1],
               }))}
             >
-              <CartesianGrid stroke="#27272a" strokeDasharray="3 3" />
+              <CartesianGrid stroke={GRADE_GRAFICO} strokeDasharray="3 3" />
               <XAxis dataKey="rotulo" tick={EIXO} />
               <YAxis tick={EIXO} />
               <Tooltip {...TOOLTIP} />
-              <Bar dataKey="indiceMedio" name="indice medio" fill="#0ea5e9" />
+              <Bar dataKey="indiceMedio" name="indice medio" fill={PALETA.frio} />
             </BarChart>
           </ResponsiveContainer>
-        </Card>
+        </section>
       </div>
 
-      <Card>
-        <p className="mb-3 text-sm font-medium">Correlacoes</p>
+      <section className="flex flex-col gap-3">
+        <Secao>correlacoes</Secao>
         <div className="grid gap-2 sm:grid-cols-2">
           {correlacoes.data?.coeficientes.map((item) => (
             <div key={item.nome} className="flex items-baseline justify-between gap-2 text-sm">
-              <span className="text-zinc-300">{item.nome}</span>
-              <span className="text-xs text-zinc-500">
+              <span className="text-giz">{item.nome}</span>
+              <span className="text-xs text-giz-apagado">
                 {item.coeficiente ?? "—"} · {forcaDaCorrelacao(item.coeficiente)} ({item.pares} dias)
               </span>
             </div>
@@ -270,56 +262,56 @@ export function Analytics() {
 
         <div className="mt-4 grid gap-4 lg:grid-cols-2">
           <div>
-            <p className="mb-2 text-xs text-zinc-500">horas de sono x indice do dia</p>
+            <p className="mb-2 text-xs text-giz-apagado">horas de sono x indice do dia</p>
             <ResponsiveContainer width="100%" height={180}>
               <ScatterChart>
-                <CartesianGrid stroke="#27272a" strokeDasharray="3 3" />
+                <CartesianGrid stroke={GRADE_GRAFICO} strokeDasharray="3 3" />
                 <XAxis dataKey="x" name="sono" tick={EIXO} type="number" />
                 <YAxis dataKey="y" name="indice" tick={EIXO} type="number" />
                 <Tooltip {...TOOLTIP} cursor={{ strokeDasharray: "3 3" }} />
-                <Scatter data={correlacoes.data?.sonoVersusIndice ?? []} fill="#8b5cf6" />
+                <Scatter data={correlacoes.data?.sonoVersusIndice ?? []} fill={PALETA.giz} />
               </ScatterChart>
             </ResponsiveContainer>
           </div>
           <div>
-            <p className="mb-2 text-xs text-zinc-500">energia x XP</p>
+            <p className="mb-2 text-xs text-giz-apagado">energia x XP</p>
             <ResponsiveContainer width="100%" height={180}>
               <ScatterChart>
-                <CartesianGrid stroke="#27272a" strokeDasharray="3 3" />
+                <CartesianGrid stroke={GRADE_GRAFICO} strokeDasharray="3 3" />
                 <XAxis dataKey="x" name="energia" tick={EIXO} type="number" />
                 <YAxis dataKey="y" name="XP" tick={EIXO} type="number" />
                 <Tooltip {...TOOLTIP} cursor={{ strokeDasharray: "3 3" }} />
-                <Scatter data={correlacoes.data?.energiaVersusXp ?? []} fill="#10b981" />
+                <Scatter data={correlacoes.data?.energiaVersusXp ?? []} fill={PALETA.aferido} />
               </ScatterChart>
             </ResponsiveContainer>
           </div>
         </div>
-      </Card>
+      </section>
 
       <div className="grid gap-5 lg:grid-cols-2">
-        <Card>
-          <p className="mb-3 text-sm font-medium">Por categoria</p>
+        <section className="flex flex-col gap-3">
+          <Secao>por categoria</Secao>
           <dl className="grid grid-cols-2 gap-y-2 text-sm">
-            <dt className="text-zinc-500">Distancia</dt>
+            <dt className="text-giz-apagado">Distancia</dt>
             <dd>{categorias.data?.treino.km ?? 0} km</dd>
-            <dt className="text-zinc-500">Pace medio</dt>
+            <dt className="text-giz-apagado">Pace medio</dt>
             <dd>
               {pace ? `${Math.floor(pace / 60)}:${String(pace % 60).padStart(2, "0")} /km` : "—"}
             </dd>
-            <dt className="text-zinc-500">Paginas lidas</dt>
+            <dt className="text-giz-apagado">Paginas lidas</dt>
             <dd>{categorias.data?.leitura.paginas ?? 0}</dd>
-            <dt className="text-zinc-500">Livros concluidos</dt>
+            <dt className="text-giz-apagado">Livros concluidos</dt>
             <dd>{categorias.data?.leitura.livrosConcluidos ?? 0}</dd>
           </dl>
 
           {(categorias.data?.temas.length ?? 0) > 0 && (
             <>
-              <p className="mt-4 text-xs uppercase tracking-wide text-zinc-500">Horas por tema</p>
+              <p className="mt-4 text-[0.8125rem] text-giz-apagado">Horas por tema</p>
               <ul className="mt-1 flex flex-col gap-1 text-sm">
                 {categorias.data?.temas.slice(0, 6).map((tema) => (
                   <li key={tema.tema} className="flex justify-between">
-                    <span className="text-zinc-300">{tema.tema}</span>
-                    <span className="text-zinc-500">{formatarDuracao(tema.minutos)}</span>
+                    <span className="text-giz">{tema.tema}</span>
+                    <span className="text-giz-apagado">{formatarDuracao(tema.minutos)}</span>
                   </li>
                 ))}
               </ul>
@@ -328,19 +320,19 @@ export function Analytics() {
 
           {(categorias.data?.desafios.length ?? 0) > 0 && (
             <>
-              <p className="mt-4 text-xs uppercase tracking-wide text-zinc-500">Desafios</p>
+              <p className="mt-4 text-[0.8125rem] text-giz-apagado">Desafios</p>
               <ul className="mt-1 flex flex-col gap-2">
                 {categorias.data?.desafios.map((desafio) => (
                   <li key={desafio.id}>
                     <div className="flex justify-between text-sm">
-                      <span className="text-zinc-300">{desafio.titulo}</span>
-                      <span className="text-zinc-500">
+                      <span className="text-giz">{desafio.titulo}</span>
+                      <span className="text-giz-apagado">
                         {desafio.progresso}/{desafio.meta} {desafio.unidade}
                       </span>
                     </div>
-                    <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-zinc-800">
+                    <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-placa-alta">
                       <div
-                        className="h-full rounded-full bg-amber-500"
+                        className="h-full rounded-full bg-latao"
                         style={{
                           width: `${Math.min((desafio.progresso / desafio.meta) * 100, 100)}%`,
                         }}
@@ -351,40 +343,40 @@ export function Analytics() {
               </ul>
             </>
           )}
-        </Card>
+        </section>
 
-        <Card>
-          <p className="mb-3 text-sm font-medium">GTD</p>
+        <section className="flex flex-col gap-3">
+          <Secao>gtd</Secao>
           <dl className="grid grid-cols-2 gap-y-2 text-sm">
-            <dt className="text-zinc-500">Capturados</dt>
+            <dt className="text-giz-apagado">Capturados</dt>
             <dd>{gtd.data?.capturados ?? 0}</dd>
-            <dt className="text-zinc-500">Processados</dt>
+            <dt className="text-giz-apagado">Processados</dt>
             <dd>{gtd.data?.processados ?? 0}</dd>
-            <dt className="text-zinc-500">No inbox agora</dt>
+            <dt className="text-giz-apagado">No inbox agora</dt>
             <dd>{gtd.data?.pendentes ?? 0}</dd>
-            <dt className="text-zinc-500">Idade media do inbox</dt>
+            <dt className="text-giz-apagado">Idade media do inbox</dt>
             <dd>
               {gtd.data?.idadeMediaPendentesDias != null
                 ? `${gtd.data.idadeMediaPendentesDias} dias`
                 : "—"}
             </dd>
-            <dt className="text-zinc-500">Acoes concluidas</dt>
+            <dt className="text-giz-apagado">Acoes concluidas</dt>
             <dd>{gtd.data?.acoesConcluidas ?? 0}</dd>
-            <dt className="text-zinc-500">Acoes abertas</dt>
+            <dt className="text-giz-apagado">Acoes abertas</dt>
             <dd>{gtd.data?.acoesAbertas ?? 0}</dd>
-            <dt className="text-zinc-500">Projetos parados</dt>
-            <dd className={gtd.data?.projetosParados ? "text-amber-400" : ""}>
+            <dt className="text-giz-apagado">Projetos parados</dt>
+            <dd className={gtd.data?.projetosParados ? "text-latao" : ""}>
               {gtd.data?.projetosParados ?? 0}
             </dd>
           </dl>
-        </Card>
+        </section>
       </div>
 
-      <div className="mt-2 flex items-center gap-2 border-t border-zinc-800 pt-5">
+      <div className="mt-2 flex items-center gap-2 border-t border-risco pt-5">
         <Button variante="secundario" tamanho="sm" onClick={() => setAno(ano - 1)}>
           {ano - 1}
         </Button>
-        <span className="text-sm text-zinc-400">o ano de {ano}</span>
+        <span className="text-sm text-giz-fraco">o ano de {ano}</span>
         <Button
           variante="secundario"
           tamanho="sm"

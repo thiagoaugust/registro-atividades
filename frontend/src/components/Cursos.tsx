@@ -11,9 +11,9 @@ import { formatarData } from "@/lib/leitura";
 function Numero({ rotulo, valor, detalhe }: { rotulo: string; valor: string; detalhe?: string }) {
   return (
     <div>
-      <p className="text-xs uppercase tracking-wide text-zinc-500">{rotulo}</p>
-      <p className="text-sm font-medium">{valor}</p>
-      {detalhe && <p className="text-xs text-zinc-600">{detalhe}</p>}
+      <p className="text-[0.8125rem] text-giz-fraco">{rotulo}</p>
+      <p className="medida text-sm text-giz">{valor}</p>
+      {detalhe && <p className="text-xs text-giz-apagado">{detalhe}</p>}
     </div>
   );
 }
@@ -32,30 +32,30 @@ function CartaoCurso({
   aoMudarStatus: (curso: ProgressoCursoDto, status: string) => void;
 }) {
   return (
-    <Card className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3 border-b border-risco/60 pb-4">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="flex items-center gap-2 text-sm font-medium">
             {curso.titulo}
             {curso.url && (
-              <a href={curso.url} target="_blank" rel="noreferrer" className="text-sky-400">
+              <a href={curso.url} target="_blank" rel="noreferrer" className="text-frio">
                 <ExternalLink className="size-3.5" />
               </a>
             )}
           </p>
-          <p className="text-xs text-zinc-500">
+          <p className="text-xs text-giz-apagado">
             {curso.instituicao ?? "sem instituicao"}
             {curso.cargaHoraria ? ` · ${curso.cargaHoraria}h de carga` : " · carga nao informada"}
           </p>
           <div className="mt-1 flex flex-wrap items-center gap-1.5">
             {curso.area && (
-              <span className="rounded-full border border-sky-500/30 bg-sky-500/15 px-2 py-0.5 text-xs text-sky-300">
+              <span className="rounded-full border border-frio/30 bg-frio/15 px-2 py-0.5 text-xs text-frio">
                 {curso.area}
               </span>
             )}
             {curso.retroativo && (
               <span
-                className="flex items-center gap-1 rounded-full border border-zinc-700 px-2 py-0.5 text-xs text-zinc-500"
+                className="flex items-center gap-1 rounded-full border border-risco-forte px-2 py-0.5 text-xs text-giz-apagado"
                 title="Cadastrado como curso antigo; nao entra nos graficos de evolucao"
               >
                 <History className="size-3" />
@@ -90,15 +90,15 @@ function CartaoCurso({
       {curso.percentualConcluido !== null && (
         <div>
           <div className="flex items-baseline justify-between text-xs">
-            <span className="text-zinc-400">
+            <span className="text-giz-fraco">
               {formatarDuracao(curso.minutos)} de {curso.cargaHoraria}h
             </span>
-            <span className="text-zinc-400">{curso.percentualConcluido}%</span>
+            <span className="text-giz-fraco">{curso.percentualConcluido}%</span>
           </div>
-          <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-zinc-800">
+          <div className="mt-1 h-0.5 overflow-hidden bg-risco">
             <div
               className={`h-full rounded-full ${
-                curso.status === "CONCLUIDO" ? "bg-sky-500" : "bg-emerald-500"
+                curso.status === "CONCLUIDO" ? "bg-frio" : "bg-aferido"
               }`}
               style={{ width: `${curso.percentualConcluido}%` }}
             />
@@ -145,13 +145,13 @@ function CartaoCurso({
 
       {curso.percentualPratica !== null && curso.minutos > 0 && (
         <div>
-          <div className="h-1 overflow-hidden rounded-full bg-zinc-800">
+          <div className="h-0.5 overflow-hidden bg-risco">
             <div
-              className="h-full rounded-full bg-amber-500"
+              className="h-full bg-latao"
               style={{ width: `${curso.percentualPratica}%` }}
             />
           </div>
-          <p className="mt-1 flex items-center gap-1 text-xs text-zinc-500">
+          <p className="mt-1 flex items-center gap-1 text-xs text-giz-apagado">
             <Dumbbell className="size-3" />
             {curso.percentualPratica >= 50
               ? "a maior parte do tempo foi praticando"
@@ -159,7 +159,7 @@ function CartaoCurso({
           </p>
         </div>
       )}
-    </Card>
+    </div>
   );
 }
 
@@ -180,28 +180,28 @@ function OndeVaiOTempo() {
     <div className="grid gap-4 lg:grid-cols-2">
       <Card>
         <p className="text-sm font-medium">Onde vai o tempo</p>
-        <p className="mb-3 text-xs text-zinc-500">por area, somando curso e livro</p>
+        <p className="mb-3 text-xs text-giz-apagado">por area, somando curso e livro</p>
         <ul className="flex flex-col gap-2">
           {areas.map((area) => (
             <li key={area.area}>
               <div className="flex items-baseline justify-between text-sm">
-                <span className="text-zinc-300">{area.area}</span>
-                <span className="text-xs text-zinc-500">
+                <span className="text-giz">{area.area}</span>
+                <span className="text-xs text-giz-apagado">
                   {formatarDuracao(area.minutosCurso + area.minutosLivro)}
                 </span>
               </div>
               {/* duas cores na mesma barra: o quanto veio de curso e o quanto veio de livro */}
-              <div className="mt-1 flex h-1.5 overflow-hidden rounded-full bg-zinc-800">
+              <div className="mt-1 flex h-0.5 overflow-hidden bg-risco">
                 <div
-                  className="h-full bg-sky-500"
+                  className="h-full bg-frio"
                   style={{ width: `${(area.minutosCurso / maiorArea) * 100}%` }}
                 />
                 <div
-                  className="h-full bg-violet-500"
+                  className="h-full bg-giz-apagado"
                   style={{ width: `${(area.minutosLivro / maiorArea) * 100}%` }}
                 />
               </div>
-              <p className="mt-0.5 text-xs text-zinc-600">
+              <p className="mt-0.5 text-xs text-giz-apagado">
                 {area.cursos > 0 && `${area.cursos} curso(s)`}
                 {area.cursos > 0 && area.livros > 0 && " · "}
                 {area.livros > 0 && `${area.livros} livro(s)`}
@@ -209,26 +209,26 @@ function OndeVaiOTempo() {
             </li>
           ))}
         </ul>
-        <p className="mt-3 flex gap-3 text-xs text-zinc-600">
+        <p className="mt-3 flex gap-3 text-xs text-giz-apagado">
           <span className="flex items-center gap-1">
-            <span className="size-2 rounded-full bg-sky-500" /> curso
+            <span className="size-2 rounded-full bg-frio" /> curso
           </span>
           <span className="flex items-center gap-1">
-            <span className="size-2 rounded-full bg-violet-500" /> livro
+            <span className="size-2 rounded-full bg-giz-apagado" /> livro
           </span>
         </p>
       </Card>
 
       <Card>
         <p className="text-sm font-medium">Assuntos dos ultimos 30 dias</p>
-        <p className="mb-3 text-xs text-zinc-500">o tema que voce escreve em cada sessao</p>
+        <p className="mb-3 text-xs text-giz-apagado">o tema que voce escreve em cada sessao</p>
 
         {pratica?.percentual !== null && pratica !== undefined && (
-          <div className="mb-3 rounded-md border border-zinc-800 bg-zinc-900/60 p-2">
-            <p className="text-xs text-zinc-400">
+          <div className="mb-3 rounded-md border border-risco bg-placa p-2">
+            <p className="text-xs text-giz-fraco">
               {pratica.percentual}% do seu estudo foi pratica deliberada
             </p>
-            <p className="text-xs text-zinc-600">
+            <p className="text-xs text-giz-apagado">
               {formatarDuracao(pratica.minutosPratica)} de {formatarDuracao(pratica.minutosEstudo)}
             </p>
           </div>
@@ -238,17 +238,17 @@ function OndeVaiOTempo() {
           {temas.map((tema) => (
             <li key={tema.tema}>
               <div className="flex items-baseline justify-between text-sm">
-                <span className="truncate text-zinc-300">{tema.tema}</span>
-                <span className="shrink-0 text-xs text-zinc-500">{formatarDuracao(tema.minutos)}</span>
+                <span className="truncate text-giz">{tema.tema}</span>
+                <span className="shrink-0 text-xs text-giz-apagado">{formatarDuracao(tema.minutos)}</span>
               </div>
-              <div className="mt-1 flex h-1.5 overflow-hidden rounded-full bg-zinc-800">
+              <div className="mt-1 flex h-0.5 overflow-hidden bg-risco">
                 <div
-                  className="h-full bg-amber-500"
+                  className="h-full bg-latao"
                   style={{ width: `${(tema.minutosPratica / maiorTema) * 100}%` }}
                   title="pratica deliberada"
                 />
                 <div
-                  className="h-full bg-sky-600"
+                  className="h-full bg-frio"
                   style={{
                     width: `${((tema.minutos - tema.minutosPratica) / maiorTema) * 100}%`,
                   }}
@@ -258,12 +258,12 @@ function OndeVaiOTempo() {
             </li>
           ))}
         </ul>
-        <p className="mt-3 flex gap-3 text-xs text-zinc-600">
+        <p className="mt-3 flex gap-3 text-xs text-giz-apagado">
           <span className="flex items-center gap-1">
-            <span className="size-2 rounded-full bg-amber-500" /> pratica
+            <span className="size-2 rounded-full bg-latao" /> pratica
           </span>
           <span className="flex items-center gap-1">
-            <span className="size-2 rounded-full bg-sky-600" /> consumo
+            <span className="size-2 rounded-full bg-frio" /> consumo
           </span>
         </p>
       </Card>
@@ -353,7 +353,7 @@ export function Cursos() {
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <p className="flex items-center gap-2 text-sm font-medium">
-          <GraduationCap className="size-4 text-sky-400" />
+          <GraduationCap className="size-4 text-frio" />
           Cursos
         </p>
         <Button tamanho="sm" onClick={() => setAberto(!aberto)}>
@@ -461,7 +461,7 @@ export function Cursos() {
                     type="date"
                     value={concluidoEm}
                     onChange={(e) => setConcluidoEm(e.target.value)}
-                    className="h-9 w-full rounded-md border border-zinc-800 bg-zinc-900 px-2 text-sm"
+                    className="h-9 w-full rounded-md border border-risco bg-placa px-2 text-sm"
                   />
                 </Campo>
               </>
@@ -479,13 +479,13 @@ export function Cursos() {
         </Card>
       )}
 
-      {erro && <p className="text-sm text-rose-400">{erro}</p>}
+      {erro && <p className="text-sm text-giz-fraco">{erro}</p>}
 
       <OndeVaiOTempo />
 
-      {cursos.isLoading && <p className="text-sm text-zinc-500">Carregando...</p>}
+      {cursos.isLoading && <p className="text-sm text-giz-apagado">Carregando...</p>}
       {!cursos.isLoading && (cursos.data?.length ?? 0) === 0 && (
-        <Card className="text-sm text-zinc-500">
+        <Card className="text-sm text-giz-apagado">
           Nenhum curso cadastrado. Cadastre um para registrar a dedicacao diaria.
         </Card>
       )}
@@ -501,7 +501,7 @@ export function Cursos() {
 
       {outros.length > 0 && (
         <>
-          <p className="mt-2 text-xs uppercase tracking-wide text-zinc-500">Fora de andamento</p>
+          <p className="mt-2 text-[0.8125rem] text-giz-apagado">Fora de andamento</p>
           {outros.map((curso) => (
             <CartaoCurso
               key={curso.cursoId}

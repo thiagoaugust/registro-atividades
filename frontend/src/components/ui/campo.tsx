@@ -18,7 +18,7 @@ export function Ajuda({ texto }: { texto: string }) {
         // O botao vive dentro do <label>: sem o preventDefault, clicar no "?" abriria o select
         // ou focaria o input ao lado.
         onClick={(evento) => evento.preventDefault()}
-        className="inline-flex cursor-help text-zinc-600 transition-colors hover:text-zinc-300 focus:text-zinc-300 focus:outline-none"
+        className="inline-flex cursor-help text-giz-apagado transition-colors hover:text-giz focus:text-giz focus:outline-none"
       >
         <HelpCircle className="size-3.5" />
       </button>
@@ -26,7 +26,7 @@ export function Ajuda({ texto }: { texto: string }) {
       <span
         id={id}
         role="tooltip"
-        className="pointer-events-none absolute left-0 top-5 z-50 w-60 rounded-md border border-zinc-700 bg-zinc-950 p-2 text-xs font-normal normal-case leading-snug tracking-normal text-zinc-300 opacity-0 shadow-lg transition-opacity group-focus-within:opacity-100 group-hover:opacity-100"
+        className="pointer-events-none absolute left-0 top-5 z-50 w-60 rounded border border-risco-forte bg-placa-alta p-2 text-xs font-normal leading-snug text-giz opacity-0 shadow-xl transition-opacity group-focus-within:opacity-100 group-hover:opacity-100"
       >
         {texto}
       </span>
@@ -34,6 +34,10 @@ export function Ajuda({ texto }: { texto: string }) {
   );
 }
 
+/**
+ * Rotulo em caixa de frase, no tamanho do texto. Caixa alta espacada em cima de cada campo era o
+ * que mais fazia a tela parecer template: quarenta rotulos gritando o mesmo volume.
+ */
 export function Campo({
   rotulo,
   children,
@@ -48,21 +52,51 @@ export function Campo({
   ajuda?: string;
 }) {
   return (
-    <label className={cn("flex flex-col gap-1.5", className)}>
-      <span className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-zinc-400">
+    <label className={cn("flex flex-col gap-1", className)}>
+      <span className="flex items-center gap-1.5 text-[0.8125rem] text-giz-fraco">
         {rotulo}
         {ajuda && <Ajuda texto={ajuda} />}
       </span>
       {children}
-      {dica && <span className="text-xs text-zinc-500">{dica}</span>}
+      {dica && <span className="text-xs text-giz-apagado">{dica}</span>}
     </label>
   );
 }
 
-export function Card({ children, className }: { children: ReactNode; className?: string }) {
+/**
+ * Regiao de conteudo. Sem borda por padrao: o que separa as regioes e o espaco e o fio do rotulo de
+ * secao, nao mais uma caixa dentro da caixa. `elevada` existe para o que precisa se destacar de
+ * verdade — na pratica, a leitura do dia.
+ */
+export function Card({
+  children,
+  className,
+  elevada,
+}: {
+  children: ReactNode;
+  className?: string;
+  elevada?: boolean;
+}) {
   return (
-    <div className={cn("rounded-lg border border-zinc-800 bg-zinc-900/50 p-4", className)}>
+    <div
+      className={cn(
+        elevada ? "rounded border border-risco bg-placa p-4" : "border border-risco/60 p-4",
+        "rounded",
+        className,
+      )}
+    >
       {children}
+    </div>
+  );
+}
+
+/** Um fio que atravessa com o nome da secao em cima dele. */
+export function Secao({ children, acao }: { children: ReactNode; acao?: ReactNode }) {
+  return (
+    <div className="flex items-center gap-3">
+      <span className="text-[0.8125rem] text-giz-fraco">{children}</span>
+      <span className="h-px flex-1 bg-risco" />
+      {acao}
     </div>
   );
 }

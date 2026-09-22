@@ -52,15 +52,15 @@ export function CapturaRapida({ pendentes }: { pendentes: number }) {
       <button
         type="button"
         onClick={() => setAberto(true)}
-        className="flex items-center gap-2 rounded-md border border-zinc-800 bg-zinc-900 px-3 py-1.5 text-xs text-zinc-400 hover:border-zinc-700"
+        className="flex items-center gap-2 rounded-md border border-risco bg-placa px-3 py-1.5 text-xs text-giz-fraco hover:border-risco-forte"
         title="Capturar (Ctrl+K)"
       >
         <Inbox className="size-4" />
         <span>Capturar</span>
         {pendentes > 0 && (
-          <span className="rounded-full bg-amber-500/20 px-1.5 text-amber-300">{pendentes}</span>
+          <span className="rounded-full bg-latao/20 px-1.5 text-latao">{pendentes}</span>
         )}
-        <kbd className="hidden rounded border border-zinc-700 px-1 text-[10px] text-zinc-500 sm:inline">
+        <kbd className="hidden rounded border border-risco-forte px-1 text-[10px] text-giz-apagado sm:inline">
           Ctrl+K
         </kbd>
       </button>
@@ -85,7 +85,7 @@ export function CapturaRapida({ pendentes }: { pendentes: number }) {
         placeholder={confirmado ? "capturado!" : "o que esta na sua cabeca?"}
         className="w-64"
       />
-      {pendentes > 0 && <span className="text-xs text-amber-300">{pendentes} no inbox</span>}
+      {pendentes > 0 && <span className="text-xs text-latao">{pendentes} no inbox</span>}
     </form>
   );
 }

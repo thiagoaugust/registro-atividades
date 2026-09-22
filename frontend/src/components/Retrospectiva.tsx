@@ -2,9 +2,10 @@ import { useQuery } from "@tanstack/react-query";
 import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Trophy } from "lucide-react";
 import { api } from "@/api";
-import { Card } from "@/components/ui/campo";
+import { Secao } from "@/components/ui/campo";
 import { COR_HEATMAP, corDaVariacao, formatarVariacao } from "@/lib/analytics";
 import { ROTULO_CLASSIFICACAO, formatarDuracao } from "@/lib/formato";
+import { EIXO_GRAFICO, GRADE_GRAFICO, PALETA } from "@/lib/paleta";
 
 const MESES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
 
@@ -19,9 +20,9 @@ function Destaque({
 }) {
   return (
     <div>
-      <p className="text-xs uppercase tracking-wide text-zinc-500">{rotulo}</p>
-      <p className="text-xl font-semibold">{valor}</p>
-      {detalhe && <p className="text-xs text-zinc-500">{detalhe}</p>}
+      <p className="text-[0.8125rem] text-giz-fraco">{rotulo}</p>
+      <p className="leitura text-2xl leading-none text-giz">{valor}</p>
+      {detalhe && <p className="mt-1 text-xs text-giz-apagado">{detalhe}</p>}
     </div>
   );
 }
@@ -31,10 +32,10 @@ export function Retrospectiva({ ano }: { ano: number }) {
   const retro = useQuery({ queryKey: ["retrospectiva", ano], queryFn: () => api.retrospectiva(ano) });
 
   if (retro.isLoading) {
-    return <Card className="text-sm text-zinc-500">Montando a retrospectiva...</Card>;
+    return <p className="text-sm text-giz-apagado">Montando a retrospectiva...</p>;
   }
   if (!retro.data || retro.data.totais.registros === 0) {
-    return <Card className="text-sm text-zinc-500">Nenhum registro em {ano}.</Card>;
+    return <p className="text-sm text-giz-apagado">Nenhum registro em {ano}.</p>;
   }
 
   const dados = retro.data;
@@ -48,10 +49,10 @@ export function Retrospectiva({ ano }: { ano: number }) {
 
   return (
     <div className="flex flex-col gap-4">
-      <Card>
-        <p className="text-sm font-medium">Retrospectiva {ano}</p>
+      <section className="flex flex-col gap-3">
+        <Secao>retrospectiva {ano}</Secao>
 
-        <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <div className="grid grid-cols-2 gap-x-6 gap-y-5 sm:grid-cols-4">
           <div>
             <Destaque rotulo="XP no ano" valor={String(dados.totais.xp)} />
             <p className={`text-xs ${corDaVariacao(dados.xp.percentual)}`}>
@@ -97,16 +98,16 @@ export function Retrospectiva({ ano }: { ano: number }) {
         </div>
 
         {dados.melhorDia && (
-          <p className="mt-5 text-sm text-zinc-400">
-            O melhor dia foi <span className="text-zinc-100">{dados.melhorDia.data}</span> — {dados.melhorDia.xp}{" "}
+          <p className="mt-5 text-sm text-giz-fraco">
+            O melhor dia foi <span className="text-giz">{dados.melhorDia.data}</span> — {dados.melhorDia.xp}{" "}
             XP, {ROTULO_CLASSIFICACAO[dados.melhorDia.classificacao].toLowerCase()}.
           </p>
         )}
-      </Card>
+      </section>
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        <Card>
-          <p className="mb-3 text-sm font-medium">XP por mes</p>
+      <div className="grid gap-6 lg:grid-cols-2">
+        <section className="flex flex-col gap-3">
+          <Secao>xp por mes</Secao>
           <ResponsiveContainer width="100%" height={200}>
             <BarChart
               data={dados.porMes.map((mes) => ({
@@ -114,33 +115,33 @@ export function Retrospectiva({ ano }: { ano: number }) {
                 rotulo: MESES[Number(mes.periodo.slice(5, 7)) - 1],
               }))}
             >
-              <CartesianGrid stroke="#27272a" strokeDasharray="3 3" />
-              <XAxis dataKey="rotulo" tick={{ stroke: "#52525b", fontSize: 11 }} />
-              <YAxis tick={{ stroke: "#52525b", fontSize: 11 }} />
+              <CartesianGrid stroke={GRADE_GRAFICO} strokeDasharray="3 3" />
+              <XAxis dataKey="rotulo" tick={EIXO_GRAFICO} />
+              <YAxis tick={EIXO_GRAFICO} />
               <Tooltip
                 contentStyle={{
-                  background: "#18181b",
-                  border: "1px solid #3f3f46",
+                  background: PALETA.placaAlta,
+                  border: `1px solid ${PALETA.riscoForte}`,
                   borderRadius: 6,
                   fontSize: 12,
                 }}
               />
-              <Bar dataKey="xp" name="XP" fill="#10b981" />
+              <Bar dataKey="xp" name="XP" fill={PALETA.aferido} />
             </BarChart>
           </ResponsiveContainer>
-        </Card>
+        </section>
 
-        <Card>
-          <p className="mb-3 text-sm font-medium">Como foram os dias do ano</p>
+        <section className="flex flex-col gap-3">
+          <Secao>como foram os dias do ano</Secao>
           <ResponsiveContainer width="100%" height={200}>
             <BarChart data={classificacoes}>
-              <CartesianGrid stroke="#27272a" strokeDasharray="3 3" />
-              <XAxis dataKey="nome" tick={{ stroke: "#52525b", fontSize: 11 }} />
-              <YAxis tick={{ stroke: "#52525b", fontSize: 11 }} allowDecimals={false} />
+              <CartesianGrid stroke={GRADE_GRAFICO} strokeDasharray="3 3" />
+              <XAxis dataKey="nome" tick={EIXO_GRAFICO} />
+              <YAxis tick={EIXO_GRAFICO} allowDecimals={false} />
               <Tooltip
                 contentStyle={{
-                  background: "#18181b",
-                  border: "1px solid #3f3f46",
+                  background: PALETA.placaAlta,
+                  border: `1px solid ${PALETA.riscoForte}`,
                   borderRadius: 6,
                   fontSize: 12,
                 }}
@@ -152,58 +153,58 @@ export function Retrospectiva({ ano }: { ano: number }) {
               </Bar>
             </BarChart>
           </ResponsiveContainer>
-        </Card>
+        </section>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <Card>
-          <p className="mb-3 text-sm font-medium">O ano por categoria</p>
+        <section className="flex flex-col gap-3">
+          <Secao>o ano por categoria</Secao>
           <dl className="grid grid-cols-2 gap-y-2 text-sm">
-            <dt className="text-zinc-500">Distancia</dt>
+            <dt className="text-giz-apagado">Distancia</dt>
             <dd>{dados.categorias.treino.km} km</dd>
-            <dt className="text-zinc-500">Pace medio</dt>
+            <dt className="text-giz-apagado">Pace medio</dt>
             <dd>{pace ? `${Math.floor(pace / 60)}:${String(pace % 60).padStart(2, "0")} /km` : "—"}</dd>
-            <dt className="text-zinc-500">Paginas lidas</dt>
+            <dt className="text-giz-apagado">Paginas lidas</dt>
             <dd>{dados.categorias.leitura.paginas}</dd>
-            <dt className="text-zinc-500">Livros concluidos</dt>
+            <dt className="text-giz-apagado">Livros concluidos</dt>
             <dd>{dados.categorias.leitura.livrosConcluidos}</dd>
-            <dt className="text-zinc-500">Acoes concluidas</dt>
+            <dt className="text-giz-apagado">Acoes concluidas</dt>
             <dd>{dados.gtd.acoesConcluidas}</dd>
-            <dt className="text-zinc-500">Itens capturados</dt>
+            <dt className="text-giz-apagado">Itens capturados</dt>
             <dd>{dados.gtd.capturados}</dd>
           </dl>
 
           {dados.categorias.temas.length > 0 && (
             <>
-              <p className="mt-4 text-xs uppercase tracking-wide text-zinc-500">Mais estudado</p>
+              <p className="mt-4 text-[0.8125rem] text-giz-apagado">Mais estudado</p>
               <ul className="mt-1 flex flex-col gap-1 text-sm">
                 {dados.categorias.temas.slice(0, 5).map((tema) => (
                   <li key={tema.tema} className="flex justify-between">
-                    <span className="text-zinc-300">{tema.tema}</span>
-                    <span className="text-zinc-500">{formatarDuracao(tema.minutos)}</span>
+                    <span className="text-giz">{tema.tema}</span>
+                    <span className="text-giz-apagado">{formatarDuracao(tema.minutos)}</span>
                   </li>
                 ))}
               </ul>
             </>
           )}
-        </Card>
+        </section>
 
-        <Card>
-          <p className="mb-3 text-sm font-medium">Conquistas de {ano}</p>
+        <section className="flex flex-col gap-3">
+          <Secao>conquistas de {ano}</Secao>
           {dados.conquistas.length === 0 ? (
-            <p className="text-sm text-zinc-500">Nenhuma conquista desbloqueada neste ano.</p>
+            <p className="text-sm text-giz-apagado">Nenhuma conquista desbloqueada neste ano.</p>
           ) : (
             <ul className="flex flex-col gap-2">
               {dados.conquistas.map((conquista) => (
                 <li key={conquista.codigo} className="flex items-center gap-2 text-sm">
-                  <Trophy className="size-4 shrink-0 text-amber-400" />
-                  <span className="text-zinc-200">{conquista.titulo}</span>
-                  <span className="ml-auto text-xs text-zinc-500">{conquista.dataLocal}</span>
+                  <Trophy className="size-4 shrink-0 text-latao" />
+                  <span className="text-giz">{conquista.titulo}</span>
+                  <span className="ml-auto text-xs text-giz-apagado">{conquista.dataLocal}</span>
                 </li>
               ))}
             </ul>
           )}
-        </Card>
+        </section>
       </div>
     </div>
   );

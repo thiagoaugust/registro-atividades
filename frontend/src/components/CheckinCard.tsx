@@ -3,7 +3,7 @@ import { Moon, Check } from "lucide-react";
 import type { CheckinDto, DadosCheckin } from "@/api";
 import { Button } from "@/components/ui/button";
 import { Input, Textarea } from "@/components/ui/input";
-import { Ajuda, Campo, Card } from "@/components/ui/campo";
+import { Ajuda, Campo, Secao } from "@/components/ui/campo";
 import { formatarDuracao } from "@/lib/formato";
 import { cn } from "@/lib/utils";
 
@@ -66,8 +66,8 @@ function Escala({
           className={cn(
             "h-8 w-8 rounded-md border text-sm transition-colors",
             valor === n
-              ? "border-emerald-500 bg-emerald-600 text-white"
-              : "border-zinc-800 bg-zinc-900 text-zinc-400 hover:border-zinc-700",
+              ? "border-aferido bg-aferido text-breu"
+              : "border-risco bg-placa text-giz-fraco hover:border-risco-forte",
           )}
           aria-label={rotulos ? `${n} de 5 (${rotulos[0]} a ${rotulos[1]})` : `${n} de 5`}
         >
@@ -75,7 +75,7 @@ function Escala({
         </button>
       ))}
       {rotulos && (
-        <span className="ml-2 text-xs text-zinc-600">
+        <span className="ml-2 text-xs text-giz-apagado">
           {rotulos[0]} &rarr; {rotulos[1]}
         </span>
       )}
@@ -151,24 +151,29 @@ export function CheckinCard({ data, checkin, aoSalvar, aoFechar, salvando }: Pro
   const preenchido = checkin != null;
 
   return (
-    <Card>
-      <button
-        type="button"
-        className="flex w-full items-center justify-between text-left"
-        onClick={() => setAberto(!aberto)}
+    <div className="flex flex-col gap-2">
+      {/* Secao com fio, como as vizinhas: uma caixa em volta so deste bloco fazia dele um corpo
+          estranho no meio de uma tela que nao usa mais caixas. */}
+      <Secao
+        acao={
+          <button
+            type="button"
+            className="text-[0.8125rem] text-giz-fraco transition-colors hover:text-giz"
+            onClick={() => setAberto(!aberto)}
+          >
+            {aberto ? "fechar" : preenchido ? "editar" : "preencher"}
+          </button>
+        }
       >
-        <span className="flex items-center gap-2 text-sm font-medium">
-          Check-in do dia
-          {preenchido && <Check className="size-4 text-emerald-400" />}
-          {checkin?.descansoPlanejado && <Moon className="size-4 text-sky-400" />}
+        <span className="flex items-center gap-1.5">
+          check-in do dia
+          {preenchido && <Check className="size-3.5 text-aferido" />}
+          {checkin?.descansoPlanejado && <Moon className="size-3.5 text-frio" />}
         </span>
-        <span className="text-xs text-zinc-500">
-          {aberto ? "fechar" : preenchido ? "editar" : "preencher"}
-        </span>
-      </button>
+      </Secao>
 
       {!aberto && preenchido && (
-        <p className="mt-2 text-xs text-zinc-500">
+        <p className="text-xs text-giz-apagado">
           {[
             checkin.energia && `energia ${checkin.energia}`,
             checkin.minutosSono && `dormiu ${formatarDuracao(checkin.minutosSono)}`,
@@ -184,7 +189,7 @@ export function CheckinCard({ data, checkin, aoSalvar, aoFechar, salvando }: Pro
       )}
 
       {aberto && (
-        <form className="mt-4 flex flex-col gap-4" onSubmit={salvar}>
+        <form className="mt-2 flex flex-col gap-4" onSubmit={salvar}>
           <div className="grid gap-4 sm:grid-cols-2">
             <Campo
               rotulo="Energia ao acordar"
@@ -218,8 +223,8 @@ export function CheckinCard({ data, checkin, aoSalvar, aoFechar, salvando }: Pro
             </Campo>
           </div>
 
-          <div className="flex flex-col gap-3 border-t border-zinc-800 pt-4">
-            <p className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-zinc-400">
+          <div className="flex flex-col gap-3 border-t border-risco pt-4">
+            <p className="flex items-center gap-1.5 text-[0.8125rem] text-giz-fraco">
               <Moon className="size-3.5" />
               Sono da noite
               <Ajuda texto="O que o relogio mediu, digitado a mao. Nada disso entra no indice do dia — serve para cruzar sono medido com o que o dia rendeu, no painel Evolucao." />
@@ -303,7 +308,7 @@ export function CheckinCard({ data, checkin, aoSalvar, aoFechar, salvando }: Pro
               type="checkbox"
               checked={descanso}
               onChange={(e) => setDescanso(e.target.checked)}
-              className="size-4 accent-emerald-500"
+              className="size-4 accent-aferido"
             />
             Descanso planejado (nao quebra a streak)
           </label>
@@ -319,8 +324,8 @@ export function CheckinCard({ data, checkin, aoSalvar, aoFechar, salvando }: Pro
             Salvar check-in
           </Button>
 
-          <div className="flex flex-col gap-3 border-t border-zinc-800 pt-4">
-            <p className="text-xs font-medium uppercase tracking-wide text-zinc-400">
+          <div className="flex flex-col gap-3 border-t border-risco pt-4">
+            <p className="text-[0.8125rem] text-giz-fraco">
               Fechamento do dia (opcional)
             </p>
             <Campo
@@ -355,6 +360,6 @@ export function CheckinCard({ data, checkin, aoSalvar, aoFechar, salvando }: Pro
           </div>
         </form>
       )}
-    </Card>
+    </div>
   );
 }

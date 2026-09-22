@@ -8,7 +8,7 @@ export function Conquistas() {
   const conquistas = useQuery({ queryKey: ["conquistas"], queryFn: api.conquistas });
 
   if (conquistas.isLoading) {
-    return <p className="text-sm text-zinc-500">Carregando conquistas...</p>;
+    return <p className="text-sm text-giz-apagado">Carregando conquistas...</p>;
   }
 
   return (
@@ -18,27 +18,27 @@ export function Conquistas() {
         return (
           <Card key={conquista.codigo} className="flex items-start gap-3">
             {conquista.desbloqueada ? (
-              <Trophy className="mt-0.5 size-4 shrink-0 text-amber-400" />
+              <Trophy className="mt-0.5 size-4 shrink-0 text-latao" />
             ) : (
-              <Lock className="mt-0.5 size-4 shrink-0 text-zinc-600" />
+              <Lock className="mt-0.5 size-4 shrink-0 text-giz-apagado" />
             )}
             <div className="min-w-0 flex-1">
-              <p className={conquista.desbloqueada ? "text-sm font-medium" : "text-sm text-zinc-400"}>
+              <p className={conquista.desbloqueada ? "text-sm font-medium" : "text-sm text-giz-fraco"}>
                 {conquista.titulo}
               </p>
-              <p className="text-xs text-zinc-500">{conquista.descricao}</p>
+              <p className="text-xs text-giz-apagado">{conquista.descricao}</p>
 
               {conquista.desbloqueada ? (
-                <p className="mt-1 text-xs text-amber-400/80">em {conquista.dataLocal}</p>
+                <p className="mt-1 text-xs text-latao/80">em {conquista.dataLocal}</p>
               ) : (
                 <div className="mt-2 flex items-center gap-2">
-                  <div className="h-1 flex-1 overflow-hidden rounded-full bg-zinc-800">
+                  <div className="h-1 flex-1 overflow-hidden rounded-full bg-placa-alta">
                     <div
-                      className="h-full rounded-full bg-zinc-600"
+                      className="h-full rounded-full bg-giz-apagado"
                       style={{ width: `${Math.round(fracao * 100)}%` }}
                     />
                   </div>
-                  <span className="text-xs text-zinc-600">
+                  <span className="text-xs text-giz-apagado">
                     {Math.round(conquista.progresso)}/{Math.round(conquista.alvo)}
                   </span>
                 </div>

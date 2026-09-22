@@ -83,9 +83,9 @@ export function Agora() {
       </Card>
 
       <div className="flex flex-col gap-2">
-        {sugestoes.isLoading && <p className="text-sm text-zinc-500">Procurando...</p>}
+        {sugestoes.isLoading && <p className="text-sm text-giz-apagado">Procurando...</p>}
         {sugestoes.data?.acoes.length === 0 && (
-          <Card className="text-sm text-zinc-500">
+          <Card className="text-sm text-giz-apagado">
             Nada cabe nesses filtros. Afrouxe o tempo ou a energia — ou va descansar.
           </Card>
         )}

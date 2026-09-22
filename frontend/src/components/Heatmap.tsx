@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/campo";
 import { COR_HEATMAP, DIAS_SEMANA, montarGradeHeatmap } from "@/lib/analytics";
 import { ROTULO_CLASSIFICACAO } from "@/lib/formato";
 import { formatarDuracao } from "@/lib/formato";
+import { PALETA } from "@/lib/paleta";
 
 const MESES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
 
@@ -19,7 +20,7 @@ export function Heatmap({ ano }: { ano: number }) {
     <Card className="overflow-x-auto">
       <div className="flex items-baseline justify-between">
         <p className="text-sm font-medium">Ano de {ano}</p>
-        <div className="flex items-center gap-2 text-xs text-zinc-500">
+        <div className="flex items-center gap-2 text-xs text-giz-apagado">
           <span>menos</span>
           {(["DIFICIL", "NORMAL", "BOM", "EXCELENTE"] as const).map((c) => (
             <span
@@ -34,7 +35,7 @@ export function Heatmap({ ano }: { ano: number }) {
       </div>
 
       <div className="mt-3 flex gap-1">
-        <div className="flex shrink-0 flex-col gap-[3px] pt-[18px] text-[10px] text-zinc-600">
+        <div className="flex shrink-0 flex-col gap-[3px] pt-[18px] text-[10px] text-giz-apagado">
           {DIAS_SEMANA.map((dia, i) => (
             <span key={dia} className="h-[11px] leading-[11px]">
               {i % 2 === 1 ? dia : ""}
@@ -43,7 +44,7 @@ export function Heatmap({ ano }: { ano: number }) {
         </div>
 
         <div>
-          <div className="mb-1 flex gap-[3px] text-[10px] text-zinc-600">
+          <div className="mb-1 flex gap-[3px] text-[10px] text-giz-apagado">
             {semanas.map((semana, i) => {
               const primeiro = semana.find(Boolean);
               const mes = primeiro ? Number(primeiro.data.slice(5, 7)) - 1 : null;
@@ -68,7 +69,7 @@ export function Heatmap({ ano }: { ano: number }) {
                     className="size-[11px] rounded-sm"
                     style={{
                       backgroundColor: dia ? COR_HEATMAP[dia.classificacao] : COR_HEATMAP.VAZIO,
-                      outline: dia?.diaDificilVencido ? "1px solid #fbbf24" : undefined,
+                      outline: dia?.diaDificilVencido ? `1px solid ${PALETA.latao}` : undefined,
                       opacity: dia?.descanso ? 0.45 : 1,
                     }}
                     title={
@@ -86,7 +87,7 @@ export function Heatmap({ ano }: { ano: number }) {
         </div>
       </div>
 
-      <p className="mt-3 text-xs text-zinc-600">
+      <p className="mt-3 text-xs text-giz-apagado">
         Contorno amarelo marca os dias dificeis vencidos; celulas apagadas sao descanso planejado.
       </p>
     </Card>

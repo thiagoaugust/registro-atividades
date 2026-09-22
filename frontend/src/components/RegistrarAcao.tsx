@@ -38,11 +38,11 @@ export function RegistrarAcao({
       onClick={aoFechar}
     >
       <div
-        className="w-full max-w-sm rounded-lg border border-zinc-800 bg-zinc-900 p-5"
+        className="w-full max-w-sm rounded-lg border border-risco bg-placa p-5"
         onClick={(evento) => evento.stopPropagation()}
       >
         <p className="text-sm font-medium">Registrar como atividade</p>
-        <p className="mt-1 text-xs text-zinc-500">
+        <p className="mt-1 text-xs text-giz-apagado">
           {acao.categoria} · {acao.titulo}
         </p>
 
@@ -63,11 +63,11 @@ export function RegistrarAcao({
               max={10}
               value={esforco}
               onChange={(e) => setEsforco(Number(e.target.value))}
-              className="h-9 w-full accent-emerald-500"
+              className="h-9 w-full accent-aferido"
             />
           </Campo>
 
-          {erro && <p className="text-sm text-rose-400">{erro}</p>}
+          {erro && <p className="text-sm text-giz-fraco">{erro}</p>}
 
           <div className="flex gap-2">
             <Button onClick={() => registrar.mutate()} disabled={registrar.isPending}>

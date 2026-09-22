@@ -322,13 +322,13 @@ export function FormularioRegistro({
               max={10}
               value={esforco}
               onChange={(e) => setEsforco(Number(e.target.value))}
-              className="h-9 w-full accent-emerald-500"
+              className="h-9 w-full accent-aferido"
             />
           </Campo>
         </div>
 
         {expandido && (
-          <div className="flex flex-col gap-3 border-t border-zinc-800 pt-4">
+          <div className="flex flex-col gap-3 border-t border-risco pt-4">
             <div className="grid gap-3 sm:grid-cols-2">
               <Campo
                 rotulo="Titulo"
@@ -541,7 +541,7 @@ export function FormularioRegistro({
           </div>
         )}
 
-        {erro && <p className="text-sm text-rose-400">{erro}</p>}
+        {erro && <p className="text-sm text-giz-fraco">{erro}</p>}
 
         <div className="flex items-center gap-2">
           <Button type="submit" disabled={salvando}>

@@ -35,12 +35,16 @@ export function rotuloDoDia(iso: string): string {
     .replace(".", "");
 }
 
+/**
+ * Categoria e identidade, nao estado — e a palavra ja diz qual e. Cinco matizes brilhantes eram
+ * decoracao: um chip neutro para todas, e a cor fica reservada para o que e estado de verdade.
+ */
 export const CORES_CATEGORIA: Record<Categoria, string> = {
-  TREINO: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30",
-  ESTUDO: "bg-sky-500/15 text-sky-300 border-sky-500/30",
-  LEITURA: "bg-violet-500/15 text-violet-300 border-violet-500/30",
-  DESAFIO: "bg-amber-500/15 text-amber-300 border-amber-500/30",
-  PROJETO: "bg-rose-500/15 text-rose-300 border-rose-500/30",
+  TREINO: "border-risco text-giz-fraco",
+  ESTUDO: "border-risco text-giz-fraco",
+  LEITURA: "border-risco text-giz-fraco",
+  DESAFIO: "border-risco text-giz-fraco",
+  PROJETO: "border-risco text-giz-fraco",
 };
 
 export const ROTULO_CLASSIFICACAO: Record<Classificacao, string> = {
@@ -50,11 +54,12 @@ export const ROTULO_CLASSIFICACAO: Record<Classificacao, string> = {
   EXCELENTE: "Dia excelente",
 };
 
+/** Aqui cor significa estado, e por isso existe. */
 export const CORES_CLASSIFICACAO: Record<Classificacao, string> = {
-  DIFICIL: "bg-zinc-500/15 text-zinc-300 border-zinc-500/30",
-  NORMAL: "bg-sky-500/15 text-sky-300 border-sky-500/30",
-  BOM: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30",
-  EXCELENTE: "bg-amber-500/15 text-amber-300 border-amber-500/30",
+  DIFICIL: "text-giz-fraco",
+  NORMAL: "text-frio",
+  BOM: "text-aferido",
+  EXCELENTE: "text-latao",
 };
 
 /** Quanto do nivel atual ja foi percorrido, de 0 a 1. */

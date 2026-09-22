@@ -30,14 +30,14 @@ export function ItemAcao({
   return (
     <Card className="flex items-start justify-between gap-3">
       <div className="min-w-0">
-        <p className={acao.estado === "CONCLUIDA" ? "text-sm text-zinc-500 line-through" : "text-sm"}>
+        <p className={acao.estado === "CONCLUIDA" ? "text-sm text-giz-apagado line-through" : "text-sm"}>
           {acao.titulo}
         </p>
-        <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-zinc-500">
-          {acao.contexto && <span className="text-sky-300">{acao.contexto.nome}</span>}
+        <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-giz-apagado">
+          {acao.contexto && <span className="text-frio">{acao.contexto.nome}</span>}
           {acao.tempoEstimadoMin && <span>{formatarDuracao(acao.tempoEstimadoMin)}</span>}
           {acao.energia && <span>energia {acao.energia.toLowerCase()}</span>}
-          {acao.projeto && <span className="text-zinc-400">{acao.projeto.nome}</span>}
+          {acao.projeto && <span className="text-giz-fraco">{acao.projeto.nome}</span>}
           {acao.categoria && (
             <span className={`rounded-full border px-1.5 ${CORES_CATEGORIA[acao.categoria]}`}>
               {acao.categoria}
@@ -49,9 +49,9 @@ export function ItemAcao({
               com {acao.delegadaPara} desde {acao.delegadaEm}
             </span>
           )}
-          {acao.registroId && <span className="text-emerald-400">registrada</span>}
+          {acao.registroId && <span className="text-aferido">registrada</span>}
         </div>
-        {acao.notas && <p className="mt-1 text-xs text-zinc-600">{acao.notas}</p>}
+        {acao.notas && <p className="mt-1 text-xs text-giz-apagado">{acao.notas}</p>}
       </div>
 
       <div className="flex shrink-0 gap-1">
@@ -140,13 +140,13 @@ export function ListasGtd() {
   return (
     <div className="flex flex-col gap-4">
       {(parados.data?.length ?? 0) > 0 && (
-        <Card className="flex items-start gap-3 border-amber-500/30 bg-amber-500/5">
-          <AlertTriangle className="mt-0.5 size-4 shrink-0 text-amber-400" />
+        <Card className="flex items-start gap-3 border-latao/30 bg-latao/10">
+          <AlertTriangle className="mt-0.5 size-4 shrink-0 text-latao" />
           <div>
-            <p className="text-sm font-medium text-amber-200">
+            <p className="text-sm font-medium text-latao">
               {parados.data?.length} projeto(s) sem proxima acao
             </p>
-            <p className="text-xs text-amber-200/70">
+            <p className="text-xs text-latao/70">
               {parados.data?.map((p) => p.nome).join(", ")}
             </p>
           </div>
@@ -192,7 +192,7 @@ export function ListasGtd() {
       {estado === "REFERENCIAS" ? (
         <div className="flex flex-col gap-2">
           {referencias.data?.length === 0 && (
-            <Card className="text-sm text-zinc-500">Nenhuma referencia arquivada.</Card>
+            <Card className="text-sm text-giz-apagado">Nenhuma referencia arquivada.</Card>
           )}
           {referencias.data?.map((referencia) => (
             <Card key={referencia.id}>
@@ -202,22 +202,22 @@ export function ListasGtd() {
                   href={referencia.url}
                   target="_blank"
                   rel="noreferrer"
-                  className="mt-1 block truncate text-xs text-sky-400 hover:underline"
+                  className="mt-1 block truncate text-xs text-frio hover:underline"
                 >
                   {referencia.url}
                 </a>
               )}
-              {referencia.conteudo && <p className="mt-1 text-xs text-zinc-500">{referencia.conteudo}</p>}
+              {referencia.conteudo && <p className="mt-1 text-xs text-giz-apagado">{referencia.conteudo}</p>}
               {referencia.tags.length > 0 && (
-                <p className="mt-1 text-xs text-zinc-600">{referencia.tags.map((t) => `#${t}`).join(" ")}</p>
+                <p className="mt-1 text-xs text-giz-apagado">{referencia.tags.map((t) => `#${t}`).join(" ")}</p>
               )}
             </Card>
           ))}
         </div>
       ) : (
       <div className="flex flex-col gap-2">
-        {acoes.isLoading && <p className="text-sm text-zinc-500">Carregando...</p>}
-        {acoes.data?.length === 0 && <Card className="text-sm text-zinc-500">Lista vazia.</Card>}
+        {acoes.isLoading && <p className="text-sm text-giz-apagado">Carregando...</p>}
+        {acoes.data?.length === 0 && <Card className="text-sm text-giz-apagado">Lista vazia.</Card>}
         {acoes.data?.map((acao) => (
           <ItemAcao
             key={acao.id}

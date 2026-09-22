@@ -8,7 +8,7 @@ export default function App() {
   const sessao = useQuery({ queryKey: ["sessao"], queryFn: api.sessao });
 
   if (sessao.isLoading) {
-    return <div className="p-6 text-sm text-zinc-500">Carregando...</div>;
+    return <div className="p-6 text-sm text-giz-apagado">Carregando...</div>;
   }
 
   if (sessao.error instanceof NaoAutenticado || !sessao.data) {

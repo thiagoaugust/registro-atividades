@@ -3,19 +3,20 @@ import type { ComponentProps } from "react";
 import { cn } from "@/lib/utils";
 
 const estilos = cva(
-  "inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/60",
+  "inline-flex items-center justify-center gap-1.5 rounded text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-40 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-aferido",
   {
     variants: {
       variante: {
-        primario: "bg-emerald-600 text-white hover:bg-emerald-500",
-        secundario: "bg-zinc-800 text-zinc-100 hover:bg-zinc-700",
-        fantasma: "text-zinc-300 hover:bg-zinc-800 hover:text-zinc-100",
-        perigo: "bg-transparent text-rose-300 hover:bg-rose-500/10",
+        primario: "bg-aferido text-breu hover:brightness-110",
+        secundario: "border border-risco bg-placa-alta text-giz hover:border-risco-forte",
+        fantasma: "text-giz-fraco hover:bg-placa hover:text-giz",
+        // Excluir e destrutivo, mas nao e erro: fica discreto ate o hover, e nunca vermelho forte.
+        perigo: "text-giz-apagado hover:bg-placa hover:text-latao",
       },
       tamanho: {
         md: "h-9 px-4",
-        sm: "h-8 px-3 text-xs",
-        icone: "h-9 w-9",
+        sm: "h-7 px-2.5 text-[0.8125rem]",
+        icone: "h-8 w-8",
       },
     },
     defaultVariants: { variante: "primario", tamanho: "md" },

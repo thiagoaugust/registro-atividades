@@ -1,12 +1,14 @@
 import type { Classificacao, DiaHeatmap } from "@/api";
+import { PALETA } from "@/lib/paleta";
 
 /** Cor de fundo de cada celula do heatmap. Dia sem dados fica no cinza mais apagado. */
 export const COR_HEATMAP: Record<Classificacao | "VAZIO", string> = {
-  VAZIO: "#27272a",
-  DIFICIL: "#3f3f46",
-  NORMAL: "#0369a1",
-  BOM: "#059669",
-  EXCELENTE: "#d97706",
+  VAZIO: PALETA.risco,
+  // Dia dificil e neutro, nao alarme: o sistema nao pune um dia em que voce apareceu.
+  DIFICIL: PALETA.gizApagado,
+  NORMAL: PALETA.frio,
+  BOM: PALETA.aferido,
+  EXCELENTE: PALETA.latao,
 };
 
 /**
@@ -51,9 +53,10 @@ export function formatarVariacao(percentual: number | null): string {
 
 export function corDaVariacao(percentual: number | null): string {
   if (percentual === null || percentual === undefined || percentual === 0) {
-    return "text-zinc-500";
+    return "text-giz-apagado";
   }
-  return percentual > 0 ? "text-emerald-400" : "text-rose-400";
+  // Queda nao e erro — fica em cinza, nao em vermelho.
+  return percentual > 0 ? "text-aferido" : "text-giz-fraco";
 }
 
 /** Coeficiente de Pearson em palavras — um numero solto nao diz nada a quem olha o painel. */

@@ -28,7 +28,7 @@ export function Login({ aoEntrar }: { aoEntrar: () => void }) {
     <div className="flex min-h-dvh items-center justify-center p-6">
       <Card className="w-full max-w-sm">
         <h1 className="text-lg font-semibold">Registro de Atividades</h1>
-        <p className="mt-1 text-sm text-zinc-400">Entre para registrar o dia.</p>
+        <p className="mt-1 text-sm text-giz-fraco">Entre para registrar o dia.</p>
 
         <form className="mt-6 flex flex-col gap-4" onSubmit={entrar}>
           <Campo rotulo="Usuario">
@@ -43,7 +43,7 @@ export function Login({ aoEntrar }: { aoEntrar: () => void }) {
               autoFocus
             />
           </Campo>
-          {erro && <p className="text-sm text-rose-400">{erro}</p>}
+          {erro && <p className="text-sm text-giz-fraco">{erro}</p>}
           <Button type="submit" disabled={enviando || senha.length === 0}>
             {enviando ? "Entrando..." : "Entrar"}
           </Button>

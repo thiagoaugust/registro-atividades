@@ -16,9 +16,9 @@ import {
 function Numero({ rotulo, valor, detalhe }: { rotulo: string; valor: string; detalhe?: string }) {
   return (
     <div>
-      <p className="text-xs uppercase tracking-wide text-zinc-500">{rotulo}</p>
-      <p className="text-sm font-medium">{valor}</p>
-      {detalhe && <p className="text-xs text-zinc-600">{detalhe}</p>}
+      <p className="text-[0.8125rem] text-giz-fraco">{rotulo}</p>
+      <p className="medida text-sm text-giz">{valor}</p>
+      {detalhe && <p className="text-xs text-giz-apagado">{detalhe}</p>}
     </div>
   );
 }
@@ -30,8 +30,8 @@ function Capa({ livro }: { livro: ProgressoLeituraDto }) {
   // um icone de imagem quebrada.
   if (!livro.capaUrl || quebrou) {
     return (
-      <div className="flex h-24 w-16 shrink-0 items-center justify-center rounded border border-zinc-800 bg-zinc-900">
-        <BookOpen className="size-5 text-zinc-700" />
+      <div className="flex h-24 w-16 shrink-0 items-center justify-center rounded border border-risco bg-placa">
+        <BookOpen className="size-5 text-giz-apagado" />
       </div>
     );
   }
@@ -40,7 +40,7 @@ function Capa({ livro }: { livro: ProgressoLeituraDto }) {
       src={livro.capaUrl}
       alt={`Capa de ${livro.titulo}`}
       onError={() => setQuebrou(true)}
-      className="h-24 w-16 shrink-0 rounded border border-zinc-800 object-cover"
+      className="h-24 w-16 shrink-0 rounded border border-risco object-cover"
     />
   );
 }
@@ -58,26 +58,26 @@ function CartaoLivro({
   const concluido = livro.status === "CONCLUIDO";
 
   return (
-    <Card className="flex gap-4">
+    <div className="flex gap-4 border-b border-risco/60 pb-4">
       <Capa livro={livro} />
 
       <div className="flex min-w-0 flex-1 flex-col gap-3">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <p className="text-sm font-medium">{livro.titulo}</p>
-            <p className="text-xs text-zinc-500">
+            <p className="text-xs text-giz-apagado">
               {livro.autor ?? "sem autor"}
               {livro.totalPaginas ? ` · ${livro.totalPaginas} paginas` : ""}
             </p>
             <div className="mt-1 flex flex-wrap items-center gap-1.5">
               {livro.area && (
-                <span className="rounded-full border border-violet-500/30 bg-violet-500/15 px-2 py-0.5 text-xs text-violet-300">
+                <span className="rounded-full border border-risco-forte bg-giz/10 px-2 py-0.5 text-xs text-giz">
                   {livro.area}
                 </span>
               )}
               {livro.dificuldade && (
                 <span
-                  className="rounded-full border border-zinc-700 px-2 py-0.5 text-xs text-zinc-400"
+                  className="rounded-full border border-risco-forte px-2 py-0.5 text-xs text-giz-fraco"
                   title={`Dificuldade ${livro.dificuldade} de 5`}
                 >
                   {rotuloDificuldade(livro.dificuldade)}
@@ -85,7 +85,7 @@ function CartaoLivro({
               )}
               {livro.retroativo && (
                 <span
-                  className="flex items-center gap-1 rounded-full border border-zinc-700 px-2 py-0.5 text-xs text-zinc-500"
+                  className="flex items-center gap-1 rounded-full border border-risco-forte px-2 py-0.5 text-xs text-giz-apagado"
                   title="Cadastrado como leitura antiga; nao entra nos graficos de evolucao"
                 >
                   <History className="size-3" />
@@ -120,15 +120,15 @@ function CartaoLivro({
         {livro.percentualLido !== null && (
           <div>
             <div className="flex items-baseline justify-between text-xs">
-              <span className="text-zinc-400">
+              <span className="text-giz-fraco">
                 pagina {livro.ultimaPagina}
                 {livro.totalPaginas ? ` de ${livro.totalPaginas}` : ""}
               </span>
-              <span className="text-zinc-400">{livro.percentualLido}%</span>
+              <span className="text-giz-fraco">{livro.percentualLido}%</span>
             </div>
-            <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-zinc-800">
+            <div className="mt-1 h-0.5 overflow-hidden bg-risco">
               <div
-                className={`h-full rounded-full ${concluido ? "bg-violet-500" : "bg-emerald-500"}`}
+                className={`h-full rounded-full ${concluido ? "bg-giz-apagado" : "bg-aferido"}`}
                 style={{ width: `${livro.percentualLido}%` }}
               />
             </div>
@@ -188,7 +188,7 @@ function CartaoLivro({
         {variacao !== null && (
           <p
             className={`flex items-center gap-1 text-xs ${
-              variacao > 0 ? "text-emerald-400" : "text-amber-400"
+              variacao > 0 ? "text-aferido" : "text-latao"
             }`}
           >
             {variacao > 0 ? <TrendingUp className="size-3.5" /> : <TrendingDown className="size-3.5" />}
@@ -198,7 +198,7 @@ function CartaoLivro({
           </p>
         )}
       </div>
-    </Card>
+    </div>
   );
 }
 
@@ -221,15 +221,15 @@ function Estatisticas() {
           {categorias.map((categoria) => (
             <li key={categoria.categoria}>
               <div className="flex items-baseline justify-between text-sm">
-                <span className="text-zinc-300">{categoria.categoria}</span>
-                <span className="text-xs text-zinc-500">
+                <span className="text-giz">{categoria.categoria}</span>
+                <span className="text-xs text-giz-apagado">
                   {categoria.concluidos} lido(s)
                   {categoria.lendo > 0 && ` · ${categoria.lendo} em leitura`}
                 </span>
               </div>
-              <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-zinc-800">
+              <div className="mt-1 h-0.5 overflow-hidden bg-risco">
                 <div
-                  className="h-full rounded-full bg-violet-500"
+                  className="h-full bg-giz-apagado"
                   style={{ width: `${((categoria.concluidos + categoria.lendo) / maior) * 100}%` }}
                 />
               </div>
@@ -240,17 +240,17 @@ function Estatisticas() {
 
       <Card>
         <p className="mb-1 text-sm font-medium">Velocidade por dificuldade</p>
-        <p className="mb-3 text-xs text-zinc-500">quanto um livro denso custa a mais de tempo</p>
+        <p className="mb-3 text-xs text-giz-apagado">quanto um livro denso custa a mais de tempo</p>
         {dificuldades.length === 0 ? (
-          <p className="text-sm text-zinc-500">
+          <p className="text-sm text-giz-apagado">
             Informe a dificuldade dos livros para ver a comparacao.
           </p>
         ) : (
           <ul className="flex flex-col gap-2 text-sm">
             {dificuldades.map((nivel) => (
               <li key={nivel.dificuldade} className="flex items-baseline justify-between">
-                <span className="text-zinc-300">{rotuloDificuldade(nivel.dificuldade)}</span>
-                <span className="text-xs text-zinc-500">
+                <span className="text-giz">{rotuloDificuldade(nivel.dificuldade)}</span>
+                <span className="text-xs text-giz-apagado">
                   {formatarVelocidade(nivel.paginasPorHora)} · {nivel.livros} livro(s)
                 </span>
               </li>
@@ -346,7 +346,7 @@ export function Livros() {
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <p className="flex items-center gap-2 text-sm font-medium">
-          <BookOpen className="size-4 text-violet-400" />
+          <BookOpen className="size-4 text-giz" />
           Livros
         </p>
         <Button tamanho="sm" onClick={() => setAberto(!aberto)}>
@@ -475,7 +475,7 @@ export function Livros() {
                     type="date"
                     value={concluidoEm}
                     onChange={(e) => setConcluidoEm(e.target.value)}
-                    className="h-9 w-full rounded-md border border-zinc-800 bg-zinc-900 px-2 text-sm"
+                    className="h-9 w-full rounded-md border border-risco bg-placa px-2 text-sm"
                   />
                 </Campo>
               </>
@@ -489,7 +489,7 @@ export function Livros() {
                 Cancelar
               </Button>
               {retroativo && (
-                <span className="text-xs text-zinc-500">
+                <span className="text-xs text-giz-apagado">
                   livros retroativos contam na estante e nas categorias, mas nao entram nos graficos
                   de evolucao
                 </span>
@@ -499,13 +499,13 @@ export function Livros() {
         </Card>
       )}
 
-      {erro && <p className="text-sm text-rose-400">{erro}</p>}
+      {erro && <p className="text-sm text-giz-fraco">{erro}</p>}
 
       <Estatisticas />
 
-      {livros.isLoading && <p className="text-sm text-zinc-500">Carregando...</p>}
+      {livros.isLoading && <p className="text-sm text-giz-apagado">Carregando...</p>}
       {!livros.isLoading && (livros.data?.length ?? 0) === 0 && (
-        <Card className="text-sm text-zinc-500">
+        <Card className="text-sm text-giz-apagado">
           Nenhum livro cadastrado. Cadastre um para registrar leituras e acompanhar o ritmo.
         </Card>
       )}
@@ -521,7 +521,7 @@ export function Livros() {
 
       {outros.length > 0 && (
         <>
-          <p className="mt-2 text-xs uppercase tracking-wide text-zinc-500">Ja lidos</p>
+          <p className="mt-2 text-[0.8125rem] text-giz-apagado">Ja lidos</p>
           {outros.map((livro) => (
             <CartaoLivro
               key={livro.livroId}

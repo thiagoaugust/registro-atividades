@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { BookOpen, GraduationCap, Hammer, Plus, X } from "lucide-react";
 import { api, type Categoria } from "@/api";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/campo";
+import { Secao } from "@/components/ui/campo";
 
 /** O que o botao manda para o formulario: a categoria certa e o vinculo ja escolhido. */
 export interface Atalho {
@@ -16,7 +16,6 @@ interface Linha {
   chave: string;
   titulo: string;
   detalhe: string;
-  fracao: number | null;
   atalho: Atalho;
 }
 
@@ -43,26 +42,18 @@ function Grupo({
 
   return (
     <div className="flex flex-col gap-1.5">
-      <p className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-zinc-400">
-        <Icone className="size-3.5" />
-        {titulo}
-      </p>
+      <Secao>
+        <span className="flex items-center gap-1.5">
+          <Icone className="size-3.5" />
+          {titulo}
+        </span>
+      </Secao>
       {linhas.map((linha) => (
-        <div key={linha.chave} className="flex flex-col gap-2">
+        <div key={linha.chave} className="flex flex-col gap-2 border-b border-risco/40 pb-1.5 last:border-0">
           <div className="flex items-center gap-3">
-            <div className="min-w-0 flex-1">
-              <div className="flex items-baseline justify-between gap-2">
-                <span className="truncate text-sm">{linha.titulo}</span>
-                <span className="shrink-0 text-xs text-zinc-500">{linha.detalhe}</span>
-              </div>
-              {linha.fracao !== null && (
-                <div className="mt-1 h-1 w-full overflow-hidden rounded-full bg-zinc-800">
-                  <div
-                    className="h-full rounded-full bg-zinc-500"
-                    style={{ width: `${Math.round(Math.min(1, linha.fracao) * 100)}%` }}
-                  />
-                </div>
-              )}
+            <div className="flex min-w-0 flex-1 items-baseline justify-between gap-3">
+              <span className="truncate text-sm text-giz">{linha.titulo}</span>
+              <span className="medida shrink-0 text-xs text-giz-apagado">{linha.detalhe}</span>
             </div>
             {aberta === linha.chave ? (
               <Button
@@ -76,7 +67,7 @@ function Grupo({
               </Button>
             ) : (
               <Button
-                variante="secundario"
+                variante="fantasma"
                 tamanho="sm"
                 aria-label={`Registrar sessao de ${linha.titulo}`}
                 onClick={() => aoRegistrar(linha.atalho, linha.chave)}
@@ -89,7 +80,7 @@ function Grupo({
 
           {/* O formulario nasce aqui, nao no fim da pagina: registrar e a acao do item que voce
               acabou de clicar, e rolar para procurar o formulario e o que tornava isso chato. */}
-          {aberta === linha.chave && <div className="border-l-2 border-zinc-700 pl-3">{formulario}</div>}
+          {aberta === linha.chave && <div className="border-l-2 border-risco-forte pl-3">{formulario}</div>}
         </div>
       ))}
     </div>
@@ -126,7 +117,6 @@ export function EmAndamento({
         l.ultimaPagina > 0
           ? `parou na pagina ${l.ultimaPagina}${l.totalPaginas ? ` de ${l.totalPaginas}` : ""}`
           : "nao comecou",
-      fracao: l.percentualLido === null ? null : l.percentualLido / 100,
       atalho: { categoria: "LEITURA", vinculoId: String(l.livroId) },
     }));
 
@@ -139,7 +129,6 @@ export function EmAndamento({
         c.horasRestantes !== null
           ? `faltam ${c.horasRestantes.toFixed(1)}h`
           : `${Math.round(c.minutos / 60)}h feitas`,
-      fracao: c.percentualConcluido === null ? null : c.percentualConcluido / 100,
       atalho: { categoria: "ESTUDO", cursoId: String(c.cursoId) },
     }));
 
@@ -149,7 +138,6 @@ export function EmAndamento({
       chave: `projeto-${p.id}`,
       titulo: p.titulo,
       detalhe: p.resultadoDesejado ?? "em andamento",
-      fracao: null,
       atalho: { categoria: "PROJETO", vinculoId: String(p.id) },
     }));
 
@@ -158,7 +146,7 @@ export function EmAndamento({
   }
 
   return (
-    <Card className="flex flex-col gap-4">
+    <div className="flex flex-col gap-5">
       {[
         { titulo: "Lendo", Icone: BookOpen, linhas: lendo },
         { titulo: "Cursando", Icone: GraduationCap, linhas: cursando },
@@ -173,6 +161,6 @@ export function EmAndamento({
           aoFechar={aoFechar}
         />
       ))}
-    </Card>
+    </div>
   );
 }

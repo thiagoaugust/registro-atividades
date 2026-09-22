@@ -75,7 +75,7 @@ export function RevisaoSemanal() {
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <div>
             <p className="text-sm font-medium">Revisao da semana de {semana}</p>
-            <p className="text-xs text-zinc-500">
+            <p className="text-xs text-giz-apagado">
               {atual?.concluidaEm
                 ? `concluida em ${new Date(atual.concluidaEm).toLocaleString("pt-BR")} · ${atual.duracaoMin} min`
                 : atual
@@ -105,20 +105,20 @@ export function RevisaoSemanal() {
                 type="button"
                 disabled={atual.concluidaEm !== null}
                 onClick={() => marcar.mutate({ passo: item.passo, feito: !feito })}
-                className="flex items-start gap-3 rounded-md p-2 text-left hover:bg-zinc-800/50 disabled:hover:bg-transparent"
+                className="flex items-start gap-3 rounded-md p-2 text-left hover:bg-placa-alta disabled:hover:bg-transparent"
               >
                 {feito ? (
-                  <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-emerald-400" />
+                  <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-aferido" />
                 ) : (
-                  <Circle className="mt-0.5 size-5 shrink-0 text-zinc-600" />
+                  <Circle className="mt-0.5 size-5 shrink-0 text-giz-apagado" />
                 )}
                 <span className="min-w-0">
-                  <span className={`block text-sm ${feito ? "text-zinc-500 line-through" : ""}`}>
+                  <span className={`block text-sm ${feito ? "text-giz-apagado line-through" : ""}`}>
                     {item.titulo}
                   </span>
-                  <span className="block text-xs text-zinc-500">{item.descricao}</span>
+                  <span className="block text-xs text-giz-apagado">{item.descricao}</span>
                   {alerta && (
-                    <span className="mt-1 flex items-center gap-1 text-xs text-amber-400">
+                    <span className="mt-1 flex items-center gap-1 text-xs text-latao">
                       <AlertTriangle className="size-3.5" />
                       {item.passo === "ESVAZIAR_INBOX"
                         ? `${pendentesInbox} item(ns) no inbox`
@@ -130,7 +130,7 @@ export function RevisaoSemanal() {
             );
           })}
 
-          {erro && <p className="text-sm text-rose-400">{erro}</p>}
+          {erro && <p className="text-sm text-giz-fraco">{erro}</p>}
 
           {!atual.concluidaEm && (
             <Button
@@ -148,7 +148,7 @@ export function RevisaoSemanal() {
           <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
             <p className="text-sm font-medium">A semana em numeros</p>
             {diasDecorridos < 7 && (
-              <p className="text-xs text-amber-400/80">
+              <p className="text-xs text-latao/80">
                 semana em andamento: {diasDecorridos} de 7 dias — a comparacao com a semana cheia
                 anterior fica torta ate domingo
               </p>
@@ -174,7 +174,7 @@ export function RevisaoSemanal() {
               },
             ].map((item) => (
               <div key={item.rotulo}>
-                <p className="text-xs uppercase tracking-wide text-zinc-500">{item.rotulo}</p>
+                <p className="text-[0.8125rem] text-giz-apagado">{item.rotulo}</p>
                 <p className="text-lg font-semibold">{item.valor}</p>
                 <p className={`text-xs ${corDaVariacao(item.variacao.percentual)}`}>
                   {formatarVariacao(item.variacao.percentual)} vs semana anterior
@@ -191,8 +191,8 @@ export function RevisaoSemanal() {
           <ul className="flex flex-col gap-1 text-sm">
             {revisoes.data?.slice(0, 8).map((revisao) => (
               <li key={revisao.semanaInicio} className="flex justify-between">
-                <span className="text-zinc-300">semana de {revisao.semanaInicio}</span>
-                <span className="text-xs text-zinc-500">
+                <span className="text-giz">semana de {revisao.semanaInicio}</span>
+                <span className="text-xs text-giz-apagado">
                   {revisao.concluidaEm ? `${revisao.duracaoMin} min` : "incompleta"}
                 </span>
               </li>

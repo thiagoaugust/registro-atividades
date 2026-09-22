@@ -1,9 +1,79 @@
 @import "tailwindcss";
+/* Archivo variavel, auto-hospedada: o app roda local e nao deve depender de CDN de fonte. */
+@import "@fontsource-variable/archivo";
+
+/*
+ * O sistema mede esforco contra adversidade — indice de 0 a 100, faixa piso/tipico/teto, escalas de
+ * 1 a 5, pontuacao de sono. E um mostrador calibrado para uma pessoa, e nao um painel de SaaS.
+ *
+ * Duas regras seguram a paleta:
+ *   1. Cor significa ESTADO, nunca decoracao.
+ *   2. Nao existe vermelho. O sistema nao pune: "abaixo da faixa" e neutro, nao alarme.
+ */
+@theme {
+  --color-breu: #10151b;
+  --color-placa: #171e26;
+  --color-placa-alta: #1e2731;
+  --color-risco: #2a333d;
+  --color-risco-forte: #3b4753;
+
+  --color-giz: #c8d2dc;
+  --color-giz-fraco: #7c8894;
+  --color-giz-apagado: #5a646f;
+
+  /* Dentro da faixa, concluido, em ordem. */
+  --color-aferido: #6fcf97;
+  --color-aferido-fundo: #6fcf9722;
+  /* Acima da faixa, trofeu, dia dificil vencido — o metal do instrumento. */
+  --color-latao: #d9a94c;
+  --color-latao-fundo: #d9a94c1f;
+  /* Descanso e sono: frio, nunca alarmante. */
+  --color-frio: #6ba8d6;
+  --color-frio-fundo: #6ba8d61f;
+
+  --font-sans: "Archivo Variable", ui-sans-serif, system-ui, sans-serif;
+}
 
 html {
   color-scheme: dark;
 }
 
 body {
-  @apply bg-zinc-950 text-zinc-100 antialiased;
+  background-color: var(--color-breu);
+  color: var(--color-giz);
+  font-family: var(--font-sans);
+  font-variation-settings: "wdth" 100;
+  -webkit-font-smoothing: antialiased;
+}
+
+/*
+ * Largura e o eixo expressivo: as leituras do dia sao mais largas que o texto ao redor, como painel
+ * de engenharia rotula as coisas. Os algarismos tabulares fazem colunas de medida alinharem.
+ */
+.leitura {
+  font-variation-settings: "wdth" 112;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+/* Todo numero que entra em coluna. */
+.medida {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Rotulo de secao: um fio que atravessa, com o nome em cima dele. */
+.secao {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--color-giz-fraco);
+  font-size: 0.8125rem;
+}
+
+.secao::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background-color: var(--color-risco);
 }

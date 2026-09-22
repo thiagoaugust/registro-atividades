@@ -41,7 +41,7 @@ function Pergunta({
     <div className="flex flex-col gap-3">
       <div>
         <p className="text-sm font-medium">{texto}</p>
-        {dica && <p className="mt-1 text-xs text-zinc-500">{dica}</p>}
+        {dica && <p className="mt-1 text-xs text-giz-apagado">{dica}</p>}
       </div>
       <div className="flex flex-wrap gap-2">
         {opcoes.map((opcao) => (
@@ -100,16 +100,16 @@ export function Esclarecer() {
   });
 
   if (inbox.isLoading) {
-    return <p className="text-sm text-zinc-500">Carregando inbox...</p>;
+    return <p className="text-sm text-giz-apagado">Carregando inbox...</p>;
   }
 
   if (!item) {
     return (
       <Card className="flex items-center gap-3">
-        <CheckCircle2 className="size-5 text-emerald-400" />
+        <CheckCircle2 className="size-5 text-aferido" />
         <div>
           <p className="text-sm font-medium">Inbox zerado</p>
-          <p className="text-xs text-zinc-500">Nada esperando esclarecimento. Ctrl+K para capturar.</p>
+          <p className="text-xs text-giz-apagado">Nada esperando esclarecimento. Ctrl+K para capturar.</p>
         </div>
       </Card>
     );
@@ -172,11 +172,11 @@ export function Esclarecer() {
   return (
     <div className="flex flex-col gap-4">
       <Card>
-        <p className="text-xs uppercase tracking-wide text-zinc-500">
+        <p className="text-[0.8125rem] text-giz-apagado">
           Esclarecendo · {inbox.data?.pendentes} na fila
         </p>
         <p className="mt-2 text-base">{item.texto}</p>
-        <p className="mt-1 text-xs text-zinc-600">
+        <p className="mt-1 text-xs text-giz-apagado">
           capturado em {new Date(item.capturadoEm).toLocaleString("pt-BR")}
         </p>
       </Card>
@@ -277,7 +277,7 @@ export function Esclarecer() {
                 />
               </Campo>
             </div>
-            <p className="text-xs font-medium uppercase tracking-wide text-zinc-400">
+            <p className="text-[0.8125rem] text-giz-fraco">
               Primeira proxima acao
             </p>
             <Campo rotulo="Acao">
@@ -418,7 +418,7 @@ export function Esclarecer() {
         )}
 
         {processar.isError && (
-          <p className="mt-3 text-sm text-rose-400">
+          <p className="mt-3 text-sm text-giz-fraco">
             {processar.error instanceof Error ? processar.error.message : "Nao deu para processar."}
           </p>
         )}
