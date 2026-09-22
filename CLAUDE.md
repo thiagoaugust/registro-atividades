@@ -37,10 +37,9 @@ npm run build
 # tudo junto (cp .env.example .env antes da primeira vez)
 docker compose up --build   # db + backend + frontend -> http://localhost:3000
 
-# com ~120 dias de dados de exemplo (so semeia com o banco vazio)
-QUARKUS_PROFILE=demo,prod docker compose up --build
+# com ~120 dias de dados de exemplo, num volume proprio (dados-demo) — o banco real fica intocado
+docker compose -f docker-compose.yml -f docker-compose.demo.yml up --build
 ./mvnw quarkus:dev -Dquarkus.profile=demo
-docker compose --profile demo up   # sobe com o perfil demo (120 dias de dados)
 ```
 
 ## Estrutura

@@ -583,6 +583,9 @@ itens velhos no inbox) para validar os dashboards visualmente.
   e o que se vê num print é o que o outro vê.
 - **Perfil demo é de runtime, não de build**: `QUARKUS_PROFILE=demo,prod` (o primeiro manda, o
   segundo dá o banco). A semeadura só roda com a tabela de registros vazia.
+- **Demo em volume próprio**: `docker-compose.demo.yml` troca o volume do Postgres por `dados-demo` e
+  liga o perfil. O `docker compose up` puro é o banco de uso real e nunca recebe dado de exemplo —
+  antes os dois dividiam o mesmo volume e ver a demo contaminava o uso de verdade.
 
 **O que os 120 dias de demo mostram** (e confirmam a limitação documentada em 3.5): com a janela
 cheia, as correlações finalmente ficam interpretáveis — sono × índice +0,56, energia × XP +0,60,

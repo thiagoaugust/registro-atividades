@@ -17,7 +17,7 @@ services:
   backend:
     build: .
     environment:
-      # QUARKUS_PROFILE=demo,prod semeia ~120 dias de dados no primeiro boot com o banco vazio
+      # a demo sobe por docker-compose.demo.yml, em volume proprio
       QUARKUS_PROFILE: ${QUARKUS_PROFILE:-prod}
       DB_URL: jdbc:postgresql://db:5432/${POSTGRES_DB:-registro}
       DB_USER: ${POSTGRES_USER:-registro}

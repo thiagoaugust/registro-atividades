@@ -1,0 +1,12 @@
+# Demo num volume proprio: o banco de uso real nunca recebe os 120 dias de exemplo.
+# docker compose -f docker-compose.yml -f docker-compose.demo.yml up --build
+services:
+  db:
+    volumes:
+      - dados-demo:/var/lib/postgresql/data
+  backend:
+    environment:
+      QUARKUS_PROFILE: demo,prod
+
+volumes:
+  dados-demo:
