@@ -55,7 +55,6 @@ function CartaoLivro({
   aoMudarStatus: (livro: ProgressoLeituraDto, status: string) => void;
 }) {
   const variacao = variacaoDeVelocidade(livro);
-  const concluido = livro.status === "CONCLUIDO";
 
   return (
     <div className="flex gap-4 border-b border-risco/60 pb-4">
@@ -128,7 +127,7 @@ function CartaoLivro({
             </div>
             <div className="mt-1 h-0.5 overflow-hidden bg-risco">
               <div
-                className={`h-full rounded-full ${concluido ? "bg-giz-apagado" : "bg-aferido"}`}
+                className="h-full rounded-full bg-aferido"
                 style={{ width: `${livro.percentualLido}%` }}
               />
             </div>
