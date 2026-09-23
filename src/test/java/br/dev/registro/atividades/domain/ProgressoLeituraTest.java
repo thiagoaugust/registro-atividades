@@ -63,11 +63,21 @@ class ProgressoLeituraTest {
 
     @Test
     void ritmo_conta_os_dias_de_folga_e_nao_so_os_de_leitura() {
-        // 40 paginas lidas num unico domingo dentro da janela: 40/14 = 2,86 por dia
+        // 40 paginas lidas num unico domingo, ha 6 dias, e nada depois: 40/7 = 5,71 por dia
         ProgressoLeitura p = ProgressoLeitura.de(
                 agregado(300, 40, 40, 60, 40, 60, 40, HOJE.minusDays(6)), HOJE);
 
-        assertThat(p.ritmoDiario()).isEqualTo(2.86);
+        assertThat(p.ritmoDiario()).isEqualTo(5.71);
+    }
+
+    @Test
+    void livro_comecado_hoje_nao_conta_os_dias_antes_de_abrir_o_livro() {
+        // 45 paginas no primeiro dia: o ritmo e 45/dia, nao 45/14
+        ProgressoLeitura p = ProgressoLeitura.de(
+                agregado(200, 45, 45, 60, 45, 60, 45, HOJE), HOJE);
+
+        assertThat(p.ritmoDiario()).isEqualTo(45.0);
+        assertThat(p.diasRestantes()).isEqualTo(4);
     }
 
     @Test

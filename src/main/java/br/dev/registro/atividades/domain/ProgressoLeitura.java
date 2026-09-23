@@ -167,18 +167,24 @@ public record ProgressoLeitura(
     /**
      * Ritmo em paginas por dia. A janela recente divide pelos dias corridos, nao pelos dias com
      * leitura: quem le 40 paginas num domingo e para a semana toda avanca 40 por semana, nao 40 por
-     * dia — e a previsao precisa contar as folgas.
+     * dia — e a previsao precisa contar as folgas. Os dias antes da primeira sessao nao sao folga:
+     * livro comecado ha menos de uma janela divide so pelos dias desde que foi aberto.
      */
     private static Double ritmoDiario(Agregado a, LocalDate hoje) {
         if (a.paginasNaJanela() > 0) {
-            return arredondar(a.paginasNaJanela() / (double) JANELA_RITMO_DIAS, 2);
+            long dias = Math.min(JANELA_RITMO_DIAS, diasDesdeAPrimeiraSessao(a, hoje));
+            return arredondar(a.paginasNaJanela() / (double) dias, 2);
         }
         // Sem leitura recente, o ritmo historico do livro ainda diz alguma coisa.
         if (a.primeiraSessao() == null || a.paginasLidas() == 0) {
             return null;
         }
-        long dias = Math.max(1, ChronoUnit.DAYS.between(a.primeiraSessao(), hoje) + 1);
-        return arredondar(a.paginasLidas() / (double) dias, 2);
+        return arredondar(a.paginasLidas() / (double) diasDesdeAPrimeiraSessao(a, hoje), 2);
+    }
+
+    /** Dias corridos contando o da primeira sessao e hoje; nunca menos que um. */
+    private static long diasDesdeAPrimeiraSessao(Agregado a, LocalDate hoje) {
+        return Math.max(1, ChronoUnit.DAYS.between(a.primeiraSessao(), hoje) + 1);
     }
 
     private static Double paginasPorHora(int paginas, int minutos) {

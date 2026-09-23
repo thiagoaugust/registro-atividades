@@ -634,8 +634,11 @@ sessão, não mudança de ritmo.
 
 **Ritmo e previsão.** Ritmo = páginas dos últimos 14 dias ÷ 14, dividindo pelos dias corridos e não
 pelos dias com leitura: quem lê 40 páginas num domingo e para a semana avança 40 por semana, não 40
-por dia, e a previsão precisa contar as folgas. Sem leitura recente, cai para a média do livro desde
-a primeira sessão. Sem dados, mostra "—" em vez de inventar data.
+por dia, e a previsão precisa contar as folgas. Livro começado há menos de 14 dias divide pelos dias
+desde a primeira sessão: os dias antes de abrir o livro não são folga, e dividi-los derrubava o ritmo
+de quem começou hoje (45 páginas no primeiro dia viravam 3,2/dia e a previsão, 49 dias). Sem leitura
+recente, cai para a média do livro desde a primeira sessão. Sem dados, mostra "—" em vez de inventar
+data.
 
 **O livro não virou `Projeto` do GTD.** A entidade de projeto tem semântica de resultado desejado com
 próximas ações; livro tem a própria (páginas, velocidade). Misturar encheria a lista de projetos —

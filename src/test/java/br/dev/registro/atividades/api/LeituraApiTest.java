@@ -132,11 +132,11 @@ class LeituraApiTest {
         assertThat(progresso, "percentualLido", 30.0f);
         assertThat(progresso, "paginasPorHoraMedia", 40.0f);
         assertThat(progresso, "paginasPorHoraRecente", 40.0f);
-        // 60 paginas em 14 dias = 4,29/dia; 140 restantes -> 33 dias
-        assertThat(progresso, "ritmoDiario", 4.29f);
-        assertThat(progresso, "diasRestantes", 33);
+        // 60 paginas nos 5 dias desde a primeira sessao = 12/dia; 140 restantes -> 12 dias
+        assertThat(progresso, "ritmoDiario", 12.0f);
+        assertThat(progresso, "diasRestantes", 12);
         org.assertj.core.api.Assertions.assertThat(progresso.get("previsaoTermino"))
-                .isEqualTo(hoje.plusDays(33).toString());
+                .isEqualTo(hoje.plusDays(12).toString());
     }
 
     @Test
