@@ -68,7 +68,7 @@ public class RegistroService {
         RegistroAtividade registro = new RegistroAtividade();
         aplicar(dados, registro);
         registros.persist(registro);
-        fecharLivroSeTerminou(registro);
+        atualizarStatusDoLivro(registro);
         registroAlterado.fire(new RegistroAlterado(registro.id, false));
         return registro;
     }
@@ -77,7 +77,7 @@ public class RegistroService {
     public RegistroAtividade atualizar(long id, DadosRegistro dados) {
         RegistroAtividade registro = porId(id);
         aplicar(dados, registro);
-        fecharLivroSeTerminou(registro);
+        atualizarStatusDoLivro(registro);
         registroAlterado.fire(new RegistroAlterado(registro.id, false));
         return registro;
     }
@@ -146,12 +146,18 @@ public class RegistroService {
         registro.detalhes.put("paginaInicial", ultima + 1);
     }
 
-    /** Leitura que chega na ultima pagina fecha o livro — senao o status ficaria eternamente LENDO. */
-    private void fecharLivroSeTerminou(RegistroAtividade registro) {
+    /**
+     * Leitura que chega na ultima pagina fecha o livro — senao o status ficaria eternamente LENDO.
+     * E a primeira sessao de um livro da fila o tira dela: ler e o que faz o livro estar em leitura.
+     */
+    private void atualizarStatusDoLivro(RegistroAtividade registro) {
         if (registro.categoria != Categoria.LEITURA || registro.livro == null) {
             return;
         }
         Livro livro = registro.livro;
+        if (livro.status == StatusLivro.QUERO_LER) {
+            livro.status = StatusLivro.LENDO;
+        }
         Object paginaFinal = registro.detalhes.get("paginaFinal");
         if (livro.totalPaginas == null || !(paginaFinal instanceof Number pagina)) {
             return;

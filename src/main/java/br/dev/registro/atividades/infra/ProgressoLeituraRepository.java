@@ -109,9 +109,10 @@ public class ProgressoLeituraRepository {
                                           where p.livro_id = l.id and p.data_local > :inicioJanela), 0)
                           from livro l
                           left join area_conhecimento c on c.id = l.area_id
-                          -- o que esta sendo lido vem primeiro; concluidos, do mais recente;
-                          -- ordenar por status cru daria ordem alfabetica (ABANDONADO, CONCLUIDO...)
-                      order by case l.status when 'LENDO' then 0 when 'CONCLUIDO' then 1 else 2 end,
+                          -- a ordem das prateleiras da estante: lendo, lidos (do mais recente), fila e
+                          -- abandonados; ordenar por status cru daria ordem alfabetica
+                      order by case l.status when 'LENDO' then 0 when 'CONCLUIDO' then 1
+                                             when 'QUERO_LER' then 2 else 3 end,
                                l.concluido_em desc nulls last,
                                l.titulo
                         """)

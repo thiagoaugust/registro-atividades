@@ -179,7 +179,7 @@ export interface LivroDto {
   titulo: string;
   autor: string | null;
   totalPaginas: number | null;
-  status: "LENDO" | "CONCLUIDO" | "ABANDONADO";
+  status: StatusLivro;
   concluidoEm: string | null;
 }
 
@@ -426,30 +426,13 @@ export interface RetrospectivaDto {
   gtd: MetricasGtdDto;
 }
 
-export type StatusLivro = "LENDO" | "CONCLUIDO" | "ABANDONADO";
+export type StatusLivro = "LENDO" | "CONCLUIDO" | "QUERO_LER" | "ABANDONADO";
 
 export interface AreaDto {
   id: number;
   nome: string;
   ativa: boolean;
   ordem: number;
-}
-
-export interface EstatisticasLeituraDto {
-  porCategoria: {
-    categoriaId: number | null;
-    categoria: string;
-    concluidos: number;
-    lendo: number;
-    paginas: number;
-    paginasPorHora: number | null;
-  }[];
-  porDificuldade: {
-    dificuldade: number;
-    livros: number;
-    paginas: number;
-    paginasPorHora: number | null;
-  }[];
 }
 
 export interface ProgressoLeituraDto {
@@ -752,7 +735,6 @@ export const api = {
 
   excluirCurso: (id: number) => requisicao<void>(`/api/cursos/${id}`, { method: "DELETE" }),
 
-  estatisticasLeitura: () => requisicao<EstatisticasLeituraDto>("/api/livros/estatisticas"),
 
   areas: () => requisicao<AreaDto[]>("/api/areas"),
 

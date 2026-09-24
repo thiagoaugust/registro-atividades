@@ -102,6 +102,12 @@ describe("progressoNaEstante", () => {
     ).toBe(100);
   });
 
+  it("na fila nao tem barra", () => {
+    expect(
+      progressoNaEstante({ ...livro(null, null), status: "QUERO_LER", percentualLido: 0 }),
+    ).toBeNull();
+  });
+
   it("abandonado nao tem barra", () => {
     expect(progressoNaEstante({ ...livro(null, null), status: "ABANDONADO" })).toBeNull();
   });

@@ -233,6 +233,61 @@ class LeituraApiTest {
                 .body("[0].status", is("LENDO"));
     }
 
+    // ---------- quero ler ----------
+
+    private static int criarNaFila(String titulo) {
+        return given().contentType(ContentType.JSON)
+                .body(Map.of("titulo", titulo, "totalPaginas", 120, "status", "QUERO_LER"))
+                .when().post("/api/livros")
+                .then().statusCode(201)
+                .body("status", is("QUERO_LER"))
+                .body("concluidoEm", nullValue())
+                .extract().path("id");
+    }
+
+    @Test
+    void livro_na_fila_nao_tem_progresso_nem_previsao() {
+        int livro = criarNaFila("Fila sem sessao");
+
+        Map<String, Object> progresso = progressoDe(livro);
+        assertThat(progresso, "status", "QUERO_LER");
+        assertThat(progresso, "sessoes", 0);
+        assertThat(progresso, "previsaoTermino", null);
+    }
+
+    @Test
+    void estante_ordena_lendo_lidos_fila_e_abandonados() {
+        int abandonado = criarLivro("Ordem abandonado", 100);
+        given().contentType(ContentType.JSON)
+                .body(Map.of("titulo", "Ordem abandonado", "status", "ABANDONADO"))
+                .when().put("/api/livros/" + abandonado)
+                .then().statusCode(200);
+        int fila = criarNaFila("Ordem fila");
+        int lido = criarLivro("Ordem lido", 100);
+        given().contentType(ContentType.JSON)
+                .body(Map.of("titulo", "Ordem lido", "status", "CONCLUIDO"))
+                .when().put("/api/livros/" + lido)
+                .then().statusCode(200);
+
+        java.util.List<String> status = given().when().get("/api/livros/progresso")
+                .then().statusCode(200)
+                .extract().path("status");
+        java.util.List<String> ordem = java.util.List.of("LENDO", "CONCLUIDO", "QUERO_LER", "ABANDONADO");
+        java.util.List<Integer> posicoes = status.stream().map(ordem::indexOf).toList();
+        org.assertj.core.api.Assertions.assertThat(posicoes).isSorted();
+        org.assertj.core.api.Assertions.assertThat(status).contains("QUERO_LER", "ABANDONADO");
+        org.assertj.core.api.Assertions.assertThat(fila).isPositive();
+    }
+
+    @Test
+    void sessao_de_leitura_tira_o_livro_da_fila() {
+        int livro = criarNaFila("Comecei a ler");
+
+        leitura("2026-07-20", livro, 30, 3, 20).statusCode(201);
+
+        assertThat(progressoDe(livro), "status", "LENDO");
+    }
+
     // ---------- categoria, dificuldade, capa e leitura retroativa ----------
 
     private static int areaPorNome(String nome) {

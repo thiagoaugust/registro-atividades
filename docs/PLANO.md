@@ -889,6 +889,27 @@ numa grade deixaria os livros indistinguíveis.
 
 Nenhum endpoint novo: a grade usa o mesmo `/livros/progresso` da lista.
 
+### Quero ler, edição e o que saiu da estante
+
+**Três prateleiras, nesta ordem:** *Lendo*, *Já lidos*, *Quero ler* — e *Abandonados* por último,
+só quando houver. É a ordem em que se abre a estante: o que está na mão, o que já foi, o que vem.
+Seis capas por linha a partir de tablet; no celular, três (seis numa tela de 390px dariam capas de
+50px, ilegíveis).
+
+**`QUERO_LER` é status do livro**, não tabela à parte: é o mesmo livro, com título, capa e área, que
+um dia muda de prateleira. A migration `V011` só alarga o `check`. Livro na fila não tem sessão,
+então não mede nada e não entra em contagem nenhuma — as queries de analytics e gamificação já
+filtram `CONCLUIDO`/`LENDO` explicitamente. **Registrar uma sessão de leitura num livro da fila o
+passa para `LENDO`**: ler é o que tira o livro da fila, e exigir a troca manual antes seria um passo
+que só existe para o sistema.
+
+**Edição reaproveita o formulário de cadastro**, preenchido — capa, área, dificuldade, páginas e,
+no retroativo, dias/horas/data. O `PUT /livros/{id}` já recebia o livro inteiro; faltava a tela.
+
+**Saíram da estante** *Livros por categoria* e *Velocidade por dificuldade*: a estante é para ver os
+livros, não painel. O endpoint `/livros/estatisticas` continua (e testado) para quando esses números
+forem para a aba Evolução. A velocidade de cada livro segue no detalhe que abre ao clicar na capa.
+
 ---
 
 ## 6. Fora do escopo da v1
