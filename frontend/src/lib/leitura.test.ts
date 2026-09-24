@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   formatarData,
   formatarVelocidade,
+  placarDaEstante,
   progressoNaEstante,
   rotuloDificuldade,
   variacaoDeVelocidade,
@@ -110,5 +111,28 @@ describe("progressoNaEstante", () => {
 
   it("abandonado nao tem barra", () => {
     expect(progressoNaEstante({ ...livro(null, null), status: "ABANDONADO" })).toBeNull();
+  });
+});
+
+describe("placarDaEstante", () => {
+  const com = (status: ProgressoLeituraDto["status"], paginasLidas: number) => ({
+    ...livro(null, null),
+    status,
+    paginasLidas,
+  });
+
+  it("estante vazia zera tudo", () => {
+    expect(placarDaEstante([])).toEqual({ lidos: 0, paginasLidas: 0, lendo: 0, naFila: 0 });
+  });
+
+  it("conta livros por prateleira e soma as paginas de todos, abandonado inclusive", () => {
+    const placar = placarDaEstante([
+      com("CONCLUIDO", 300),
+      com("CONCLUIDO", 200),
+      com("LENDO", 80),
+      com("ABANDONADO", 40),
+      com("QUERO_LER", 0),
+    ]);
+    expect(placar).toEqual({ lidos: 2, paginasLidas: 620, lendo: 1, naFila: 1 });
   });
 });

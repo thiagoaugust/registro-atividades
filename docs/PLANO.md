@@ -910,6 +910,14 @@ no retroativo, dias/horas/data. O `PUT /livros/{id}` já recebia o livro inteiro
 livros, não painel. O endpoint `/livros/estatisticas` continua (e testado) para quando esses números
 forem para a aba Evolução. A velocidade de cada livro segue no detalhe que abre ao clicar na capa.
 
+### Placar
+
+No topo da estante, quatro números: **livros lidos**, **páginas lidas**, **lendo** e **quero ler**.
+Páginas lidas é a soma de `paginasLidas` de todos os livros — abandonado conta (as páginas foram
+lidas), retroativo conta o livro inteiro, fila não tem nada a somar. É uma soma sobre a lista que a
+estante já carrega, feita por função pura (`placarDaEstante`); um endpoint para isso seria uma
+segunda fonte para o mesmo número que a lista já traz.
+
 ---
 
 ## 6. Fora do escopo da v1

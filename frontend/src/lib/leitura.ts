@@ -44,3 +44,26 @@ export function progressoNaEstante(livro: ProgressoLeituraDto): number | null {
   }
   return livro.status === "LENDO" ? livro.percentualLido : null;
 }
+
+export interface PlacarEstante {
+  lidos: number;
+  paginasLidas: number;
+  lendo: number;
+  naFila: number;
+}
+
+/**
+ * O placar do topo da estante. Paginas somam de todos os livros: abandonado foi lido ate onde parou,
+ * retroativo ja chega com o livro inteiro, e a fila nao tem pagina para somar.
+ */
+export function placarDaEstante(livros: ProgressoLeituraDto[]): PlacarEstante {
+  return livros.reduce(
+    (placar, livro) => ({
+      lidos: placar.lidos + (livro.status === "CONCLUIDO" ? 1 : 0),
+      paginasLidas: placar.paginasLidas + livro.paginasLidas,
+      lendo: placar.lendo + (livro.status === "LENDO" ? 1 : 0),
+      naFila: placar.naFila + (livro.status === "QUERO_LER" ? 1 : 0),
+    }),
+    { lidos: 0, paginasLidas: 0, lendo: 0, naFila: 0 },
+  );
+}

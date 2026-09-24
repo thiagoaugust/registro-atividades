@@ -26,6 +26,7 @@ import { cn } from "@/lib/utils";
 import {
   formatarData,
   formatarVelocidade,
+  placarDaEstante,
   progressoNaEstante,
   rotuloDificuldade,
   variacaoDeVelocidade,
@@ -523,6 +524,28 @@ function FormularioLivro({
   );
 }
 
+function Placar({ livros }: { livros: ProgressoLeituraDto[] }) {
+  const placar = placarDaEstante(livros);
+  const itens = [
+    { rotulo: "Livros lidos", valor: placar.lidos },
+    { rotulo: "Paginas lidas", valor: placar.paginasLidas },
+    { rotulo: "Lendo", valor: placar.lendo },
+    { rotulo: "Quero ler", valor: placar.naFila },
+  ];
+  return (
+    <dl className="grid grid-cols-2 gap-x-6 gap-y-4 border-y border-risco py-4 sm:grid-cols-4">
+      {itens.map((item) => (
+        <div key={item.rotulo}>
+          <dt className="text-[0.8125rem] text-giz-fraco">{item.rotulo}</dt>
+          <dd className="leitura text-2xl leading-none text-giz">
+            {item.valor.toLocaleString("pt-BR")}
+          </dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+
 type Vista = "capas" | "lista";
 
 const CHAVE_VISTA = "livros.vista";
@@ -651,6 +674,8 @@ export function Livros() {
           </Button>
         </div>
       </div>
+
+      {(livros.data?.length ?? 0) > 0 && <Placar livros={livros.data ?? []} />}
 
       {cadastrando && <FormularioLivro aoTerminar={() => setCadastrando(false)} />}
 
