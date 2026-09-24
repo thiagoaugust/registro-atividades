@@ -270,6 +270,8 @@ class LeituraApiTest {
 
         Map<String, Object> progresso = progressoDe(livro);
         assertThat(progresso, "area", "Tecnico");
+        // A tela reenvia o livro inteiro ao trocar o status; sem o id da area ela apagaria a area.
+        assertThat(progresso, "areaId", tecnico);
         assertThat(progresso, "dificuldade", 5);
         assertThat(progresso, "capaUrl", "https://exemplo.com/capa.jpg");
     }
