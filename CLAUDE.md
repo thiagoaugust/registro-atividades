@@ -121,4 +121,7 @@ nunca o inverso, e módulos conversam via serviços de `domain`, nunca pelo repo
 
 1. Uma fase por vez (ver `docs/PLANO.md`). Não começar a próxima sem confirmação explícita.
 2. Fim de fase = `./mvnw verify` verde + `docker compose up` funcionando + commit + resumo curto.
+   **Toda entrega que o usuário vai validar** (fase ou feature) termina com
+   `docker compose up --build -d` rodado de novo — a imagem velha não tem a mudança — e um aviso
+   explícito no resumo: *"pode validar em http://localhost:3000"*, com o que conferir.
 3. Mudou decisão de design? Atualizar `docs/PLANO.md` **antes** do código que a implementa.
