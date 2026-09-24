@@ -32,3 +32,15 @@ export function rotuloDificuldade(grau: number): string {
     String(grau)
   );
 }
+
+/**
+ * A barra embaixo da capa na estante. Concluido enche mesmo sem total de paginas — o livro acabou,
+ * e isso nao depende de saber quantas paginas tinha. Abandonado nao tem barra: a capa esmaecida ja
+ * diz o estado, e um 40% parado sugeriria leitura em curso.
+ */
+export function progressoNaEstante(livro: ProgressoLeituraDto): number | null {
+  if (livro.status === "CONCLUIDO") {
+    return 100;
+  }
+  return livro.status === "LENDO" ? livro.percentualLido : null;
+}

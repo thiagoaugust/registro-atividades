@@ -1,14 +1,25 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { BookOpen, History, Plus, TrendingDown, TrendingUp, Trash2 } from "lucide-react";
+import {
+  BookOpen,
+  History,
+  LayoutGrid,
+  List,
+  Plus,
+  TrendingDown,
+  TrendingUp,
+  Trash2,
+} from "lucide-react";
 import { api, ErroApi, type ProgressoLeituraDto } from "@/api";
 import { Button } from "@/components/ui/button";
 import { Input, Select } from "@/components/ui/input";
 import { Campo, Card, Secao } from "@/components/ui/campo";
 import { formatarDuracao } from "@/lib/formato";
+import { cn } from "@/lib/utils";
 import {
   formatarData,
   formatarVelocidade,
+  progressoNaEstante,
   rotuloDificuldade,
   variacaoDeVelocidade,
 } from "@/lib/leitura";
@@ -23,15 +34,38 @@ function Numero({ rotulo, valor, detalhe }: { rotulo: string; valor: string; det
   );
 }
 
-function Capa({ livro }: { livro: ProgressoLeituraDto }) {
+function Capa({
+  livro,
+  className = "h-24 w-16",
+  comTitulo = false,
+}: {
+  livro: ProgressoLeituraDto;
+  className?: string;
+  /** Na estante o marcador leva titulo e autor: o mesmo icone repetido na grade nao diz qual e qual. */
+  comTitulo?: boolean;
+}) {
   const [quebrou, setQuebrou] = useState(false);
 
   // Capa por URL depende de um site de fora; quando some, o cartao mostra um marcador em vez de
   // um icone de imagem quebrada.
   if (!livro.capaUrl || quebrou) {
     return (
-      <div className="flex h-24 w-16 shrink-0 items-center justify-center rounded border border-risco bg-placa">
-        <BookOpen className="size-5 text-giz-apagado" />
+      <div
+        className={cn(
+          "flex shrink-0 flex-col items-center justify-center gap-1 overflow-hidden rounded border border-risco bg-placa p-2 text-center",
+          className,
+        )}
+      >
+        {comTitulo ? (
+          <>
+            <p className="line-clamp-4 text-xs font-medium text-giz">{livro.titulo}</p>
+            {livro.autor && (
+              <p className="line-clamp-2 text-[0.6875rem] text-giz-apagado">{livro.autor}</p>
+            )}
+          </>
+        ) : (
+          <BookOpen className="size-5 text-giz-apagado" />
+        )}
       </div>
     );
   }
@@ -40,8 +74,55 @@ function Capa({ livro }: { livro: ProgressoLeituraDto }) {
       src={livro.capaUrl}
       alt={`Capa de ${livro.titulo}`}
       onError={() => setQuebrou(true)}
-      className="h-24 w-16 shrink-0 rounded border border-risco object-cover"
+      className={cn("shrink-0 rounded border border-risco object-cover", className)}
     />
+  );
+}
+
+function Estante({
+  livros,
+  selecionado,
+  aoSelecionar,
+}: {
+  livros: ProgressoLeituraDto[];
+  selecionado: number | null;
+  aoSelecionar: (id: number) => void;
+}) {
+  return (
+    <ul className="grid grid-cols-3 gap-x-4 gap-y-5 sm:grid-cols-5 lg:grid-cols-7">
+      {livros.map((livro) => {
+        const progresso = progressoNaEstante(livro);
+        const ativo = selecionado === livro.livroId;
+        return (
+          <li key={livro.livroId}>
+            <button
+              type="button"
+              onClick={() => aoSelecionar(livro.livroId)}
+              aria-pressed={ativo}
+              title={livro.autor ? `${livro.titulo} — ${livro.autor}` : livro.titulo}
+              className={cn(
+                "group flex w-full flex-col gap-1.5 rounded text-left outline-none focus-visible:ring-2 focus-visible:ring-giz/40",
+                livro.status === "ABANDONADO" && "opacity-45 grayscale",
+              )}
+            >
+              <Capa
+                livro={livro}
+                comTitulo
+                className={cn(
+                  "aspect-[2/3] w-full transition group-hover:border-risco-forte",
+                  ativo && "border-giz ring-1 ring-giz",
+                )}
+              />
+              <div className="h-0.5 overflow-hidden bg-risco">
+                {progresso !== null && (
+                  <div className="h-full bg-aferido" style={{ width: `${progresso}%` }} />
+                )}
+              </div>
+            </button>
+          </li>
+        );
+      })}
+    </ul>
   );
 }
 
@@ -261,7 +342,30 @@ function Estatisticas() {
   );
 }
 
+type Vista = "capas" | "lista";
+
+const CHAVE_VISTA = "livros.vista";
+
+// A vista e conveniencia de quem olha: sem storage (aba privada, site bloqueado) cai nas capas.
+function vistaLembrada(): Vista {
+  try {
+    return localStorage.getItem(CHAVE_VISTA) === "lista" ? "lista" : "capas";
+  } catch {
+    return "capas";
+  }
+}
+
+function lembrarVista(vista: Vista) {
+  try {
+    localStorage.setItem(CHAVE_VISTA, vista);
+  } catch {
+    // sem storage, a escolha vale ate recarregar
+  }
+}
+
 export function Livros() {
+  const [vista, setVista] = useState<Vista>(vistaLembrada);
+  const [selecionado, setSelecionado] = useState<number | null>(null);
   const [aberto, setAberto] = useState(false);
   const [retroativo, setRetroativo] = useState(false);
   const [titulo, setTitulo] = useState("");
@@ -340,6 +444,26 @@ export function Livros() {
 
   const lendo = livros.data?.filter((l) => l.status === "LENDO") ?? [];
   const outros = livros.data?.filter((l) => l.status !== "LENDO") ?? [];
+  // Excluido ou sumido da lista, o detalhe fecha sozinho em vez de apontar para nada.
+  const detalhe = livros.data?.find((l) => l.livroId === selecionado) ?? null;
+
+  function trocarVista(nova: Vista) {
+    setVista(nova);
+    lembrarVista(nova);
+  }
+
+  function selecionar(id: number) {
+    setSelecionado((atual) => (atual === id ? null : id));
+  }
+
+  const cartao = (livro: ProgressoLeituraDto) => (
+    <CartaoLivro
+      key={livro.livroId}
+      livro={livro}
+      aoExcluir={(id) => excluir.mutate(id)}
+      aoMudarStatus={(l, status) => atualizar.mutate({ livro: l, status })}
+    />
+  );
 
   return (
     <div className="flex flex-col gap-4">
@@ -348,10 +472,32 @@ export function Livros() {
           <BookOpen className="size-4 text-giz" />
           Livros
         </p>
-        <Button tamanho="sm" onClick={() => setAberto(!aberto)}>
-          <Plus className="size-4" />
-          Novo livro
-        </Button>
+        <div className="flex items-center gap-2">
+          <div className="flex rounded-md border border-risco p-0.5" role="group" aria-label="Vista">
+            <Button
+              variante={vista === "capas" ? "secundario" : "fantasma"}
+              tamanho="sm"
+              aria-pressed={vista === "capas"}
+              onClick={() => trocarVista("capas")}
+            >
+              <LayoutGrid className="size-4" />
+              capas
+            </Button>
+            <Button
+              variante={vista === "lista" ? "secundario" : "fantasma"}
+              tamanho="sm"
+              aria-pressed={vista === "lista"}
+              onClick={() => trocarVista("lista")}
+            >
+              <List className="size-4" />
+              lista
+            </Button>
+          </div>
+          <Button tamanho="sm" onClick={() => setAberto(!aberto)}>
+            <Plus className="size-4" />
+            Novo livro
+          </Button>
+        </div>
       </div>
 
       {aberto && (
@@ -509,26 +655,34 @@ export function Livros() {
         </p>
       )}
 
-      {lendo.map((livro) => (
-        <CartaoLivro
-          key={livro.livroId}
-          livro={livro}
-          aoExcluir={(id) => excluir.mutate(id)}
-          aoMudarStatus={(l, status) => atualizar.mutate({ livro: l, status })}
-        />
-      ))}
-
-      {outros.length > 0 && (
+      {vista === "capas" ? (
         <>
-          <p className="mt-2 text-[0.8125rem] text-giz-apagado">Ja lidos</p>
-          {outros.map((livro) => (
-            <CartaoLivro
-              key={livro.livroId}
-              livro={livro}
-              aoExcluir={(id) => excluir.mutate(id)}
-              aoMudarStatus={(l, status) => atualizar.mutate({ livro: l, status })}
-            />
-          ))}
+          {lendo.length > 0 && (
+            <section className="flex flex-col gap-3">
+              <Secao>Lendo</Secao>
+              <Estante livros={lendo} selecionado={selecionado} aoSelecionar={selecionar} />
+            </section>
+          )}
+          {detalhe?.status === "LENDO" && cartao(detalhe)}
+
+          {outros.length > 0 && (
+            <section className="mt-2 flex flex-col gap-3">
+              <Secao>Ja lidos</Secao>
+              <Estante livros={outros} selecionado={selecionado} aoSelecionar={selecionar} />
+            </section>
+          )}
+          {detalhe && detalhe.status !== "LENDO" && cartao(detalhe)}
+        </>
+      ) : (
+        <>
+          {lendo.map(cartao)}
+
+          {outros.length > 0 && (
+            <>
+              <p className="mt-2 text-[0.8125rem] text-giz-apagado">Ja lidos</p>
+              {outros.map(cartao)}
+            </>
+          )}
         </>
       )}
     </div>

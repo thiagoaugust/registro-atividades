@@ -873,6 +873,24 @@ a mexer em dois lugares.
 
 ---
 
+## 5.8 Estante de capas
+
+A aba Livros abre com **as capas lado a lado**, e a lista de cartões virou a segunda vista (alternância
+`capas | lista`, lembrada no navegador — é conveniência de quem olha, não estado do sistema). Uma
+estante se reconhece pela lombada e pela capa, não por uma coluna de números.
+
+**O detalhe abre sob a grade**, com o mesmo cartão da lista: clicar numa capa mostra velocidade,
+ritmo e previsão sem duplicar a tela. Clicar de novo fecha.
+
+**A capa carrega o estado em que o livro está**, sem texto: barra de progresso embaixo de quem está
+em leitura, barra cheia em verde para concluído, capa esmaecida para abandonado. Sem URL (ou com a
+URL quebrada), o lugar da capa mostra título e autor sobre a placa — um marcador genérico repetido
+numa grade deixaria os livros indistinguíveis.
+
+Nenhum endpoint novo: a grade usa o mesmo `/livros/progresso` da lista.
+
+---
+
 ## 6. Fora do escopo da v1
 
 Multiusuário, mobile nativo, push, integrações externas (calendário, notas, wearables). O desenho

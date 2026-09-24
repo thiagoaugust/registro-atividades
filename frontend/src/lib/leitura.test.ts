@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { formatarData, formatarVelocidade, rotuloDificuldade, variacaoDeVelocidade } from "./leitura";
+import {
+  formatarData,
+  formatarVelocidade,
+  progressoNaEstante,
+  rotuloDificuldade,
+  variacaoDeVelocidade,
+} from "./leitura";
 import type { ProgressoLeituraDto } from "@/api";
 
 function livro(recente: number | null, media: number | null): ProgressoLeituraDto {
@@ -78,5 +84,25 @@ describe("rotuloDificuldade", () => {
 describe("formatarData", () => {
   it("vira o formato brasileiro", () => {
     expect(formatarData("2026-10-14")).toBe("14/10/2026");
+  });
+});
+
+describe("progressoNaEstante", () => {
+  it("em leitura usa o percentual lido", () => {
+    expect(progressoNaEstante(livro(null, null))).toBe(33.3);
+  });
+
+  it("em leitura sem total de paginas nao tem barra", () => {
+    expect(progressoNaEstante({ ...livro(null, null), percentualLido: null })).toBeNull();
+  });
+
+  it("concluido enche a barra mesmo sem total de paginas", () => {
+    expect(
+      progressoNaEstante({ ...livro(null, null), status: "CONCLUIDO", percentualLido: null }),
+    ).toBe(100);
+  });
+
+  it("abandonado nao tem barra", () => {
+    expect(progressoNaEstante({ ...livro(null, null), status: "ABANDONADO" })).toBeNull();
   });
 });
