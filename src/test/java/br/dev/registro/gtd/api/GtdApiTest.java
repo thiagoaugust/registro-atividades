@@ -322,4 +322,74 @@ class GtdApiTest {
                 .then().statusCode(201)
                 .body("nome", is("@escritorio"));
     }
+
+    // ---------- projetos com tarefas e progresso ----------
+
+    private static int criarProjeto(String titulo) {
+        return given().contentType(ContentType.JSON)
+                .body(Map.of("titulo", titulo, "resultadoDesejado", "entregue"))
+                .when().post("/api/projetos")
+                .then().statusCode(201)
+                .extract().path("id");
+    }
+
+    private static int tarefa(int projeto, String titulo, String estado) {
+        return given().contentType(ContentType.JSON)
+                .body(Map.of("titulo", titulo, "estado", estado, "projetoId", projeto))
+                .when().post("/api/gtd/acoes")
+                .then().statusCode(201)
+                .extract().path("id");
+    }
+
+    private static Map<String, Object> progressoDoProjeto(int projeto) {
+        return given().when().get("/api/gtd/projetos/progresso")
+                .then().statusCode(200)
+                .extract()
+                .path("find { it.projetoId == %d }".formatted(projeto));
+    }
+
+    @Test
+    void progresso_do_projeto_conta_concluidas_e_ignora_descartadas() {
+        int projeto = criarProjeto("Mudar de apartamento");
+        int caixas = tarefa(projeto, "comprar caixas", "PROXIMA");
+        tarefa(projeto, "contratar frete", "PROXIMA");
+        tarefa(projeto, "pintar a sala", "ALGUM_DIA");
+        tarefa(projeto, "trocar o piso", "DESCARTADA");
+        given().when().post("/api/gtd/acoes/" + caixas + "/concluir").then().statusCode(200);
+
+        Map<String, Object> progresso = progressoDoProjeto(projeto);
+
+        org.assertj.core.api.Assertions.assertThat(progresso)
+                .containsEntry("titulo", "Mudar de apartamento")
+                .containsEntry("tarefas", 3)
+                .containsEntry("concluidas", 1)
+                .containsEntry("faltam", 2)
+                .containsEntry("percentual", 33.3f);
+    }
+
+    @Test
+    void projeto_sem_tarefa_aparece_sem_percentual_e_arquivado_some() {
+        int vazio = criarProjeto("Projeto recem criado");
+        int arquivado = criarProjeto("Projeto arquivado");
+        given().contentType(ContentType.JSON)
+                .body(Map.of("titulo", "Projeto arquivado", "status", "ARQUIVADO"))
+                .when().put("/api/projetos/" + arquivado)
+                .then().statusCode(200);
+
+        org.assertj.core.api.Assertions.assertThat(progressoDoProjeto(vazio))
+                .containsEntry("tarefas", 0)
+                .containsEntry("percentual", null);
+        org.assertj.core.api.Assertions.assertThat(progressoDoProjeto(arquivado)).isNull();
+    }
+
+    @Test
+    void concluir_a_ultima_tarefa_nao_conclui_o_projeto() {
+        int projeto = criarProjeto("Projeto de uma tarefa");
+        int unica = tarefa(projeto, "fazer tudo", "PROXIMA");
+        given().when().post("/api/gtd/acoes/" + unica + "/concluir").then().statusCode(200);
+
+        org.assertj.core.api.Assertions.assertThat(progressoDoProjeto(projeto))
+                .containsEntry("status", "ATIVO")
+                .containsEntry("faltam", 0);
+    }
 }

@@ -77,6 +77,11 @@ public class AcaoService {
         return acoes.engajar(contextoId, tempoDisponivelMin, energia);
     }
 
+    /** Cada projeto nao arquivado com quantas tarefas tem, quantas foram feitas e o que falta. */
+    public List<ProgressoProjeto> progressoProjetos() {
+        return acoes.progressoPorProjeto();
+    }
+
     /** Projeto ativo sem nenhuma acao aberta: parece vivo na lista, mas nada o move. */
     public List<br.dev.registro.atividades.domain.Projeto> projetosParados() {
         return acoes.projetosAtivosSemProximaAcao();

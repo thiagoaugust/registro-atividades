@@ -920,6 +920,30 @@ segunda fonte para o mesmo número que a lista já traz.
 
 ---
 
+## 5.9 Projetos com tarefas e progresso
+
+Não havia tela de projeto: ele nascia no Esclarecer e só aparecia no *Em andamento* e nos seletores.
+Agora **Organizar → Projetos** mostra cada projeto com a barra de progresso e a lista do que falta.
+
+**A tarefa do projeto é a `Acao` com `projeto_id`** — sem tabela nova. É o que o GTD já chama de
+ações do projeto: aparecem nas listas de contexto, contam no "projeto sem próxima ação" e podem virar
+registro. Uma lista paralela de "tarefas" duplicaria tudo isso e deixaria a próxima ação fora do
+projeto. Tarefa criada na tela do projeto nasce `PROXIMA`.
+
+**Progresso = concluídas ÷ (todas menos descartadas).** Descartada saiu do escopo, não é o que falta.
+`ALGUM_DIA` conta como falta: está na lista do projeto e ainda não foi feita — se não for mais
+necessária, descarta-se. Projeto sem tarefa não tem percentual ("—"), não 0%.
+
+**A contagem é no banco** (`AcaoRepository.progressoPorProjeto`, um `group by`), e a regra de
+percentual e "faltam" é pura (`ProgressoProjeto`). `GET /gtd/projetos/progresso` traz todos menos os
+arquivados, na ordem ativo → pausado → concluído.
+
+**Concluir a última tarefa não conclui o projeto.** No livro, a última página é o fim; no projeto, o
+resultado desejado é quem diz — acabar as ações de hoje costuma revelar a próxima. Com tudo feito, a
+tela oferece *Concluir projeto*, e a decisão fica com quem sabe se o resultado foi atingido.
+
+---
+
 ## 6. Fora do escopo da v1
 
 Multiusuário, mobile nativo, push, integrações externas (calendário, notas, wearables). O desenho

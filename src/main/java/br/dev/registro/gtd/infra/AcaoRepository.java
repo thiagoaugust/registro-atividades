@@ -1,9 +1,11 @@
 package br.dev.registro.gtd.infra;
 
 import br.dev.registro.atividades.domain.Projeto;
+import br.dev.registro.atividades.domain.StatusProjeto;
 import br.dev.registro.gtd.domain.Acao;
 import br.dev.registro.gtd.domain.Energia;
 import br.dev.registro.gtd.domain.EstadoAcao;
+import br.dev.registro.gtd.domain.ProgressoProjeto;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.TypedQuery;
@@ -105,6 +107,38 @@ public class AcaoRepository implements PanacheRepository<Acao> {
      * Projeto ativo sem nenhuma acao aberta e o erro classico do GTD: parece vivo na lista, mas nada
      * o move. A revisao semanal usa isso.
      */
+    /**
+     * Tarefas e concluidas por projeto, arquivados fora. Soma no banco com um group by; a conta de
+     * percentual fica em {@link ProgressoProjeto}.
+     */
+    public List<ProgressoProjeto> progressoPorProjeto() {
+        // Sem flush: so o GET da tela chama isto, fora de transacao e sem escrita pendente na sessao.
+        @SuppressWarnings("unchecked")
+        List<Object[]> linhas = getEntityManager()
+                .createNativeQuery(
+                        """
+                        select p.id, p.titulo, p.resultado_desejado, p.status,
+                               count(a.id) filter (where a.estado <> 'DESCARTADA'),
+                               count(a.id) filter (where a.estado = 'CONCLUIDA')
+                          from projeto p
+                          left join acao a on a.projeto_id = p.id
+                         where p.status <> 'ARQUIVADO'
+                         group by p.id
+                         order by case p.status when 'ATIVO' then 0 when 'PAUSADO' then 1 else 2 end,
+                                  p.titulo
+                        """)
+                .getResultList();
+        return linhas.stream()
+                .map(l -> ProgressoProjeto.de(
+                        ((Number) l[0]).longValue(),
+                        (String) l[1],
+                        (String) l[2],
+                        StatusProjeto.valueOf((String) l[3]),
+                        ((Number) l[4]).intValue(),
+                        ((Number) l[5]).intValue()))
+                .toList();
+    }
+
     public List<Projeto> projetosAtivosSemProximaAcao() {
         return getEntityManager()
                 .createQuery(

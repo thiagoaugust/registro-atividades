@@ -194,11 +194,31 @@ export interface DesafioDto {
   progresso: number;
 }
 
+export type StatusProjeto = "ATIVO" | "PAUSADO" | "CONCLUIDO" | "ARQUIVADO";
+
 export interface ProjetoDto {
   id: number;
   titulo: string;
   resultadoDesejado: string | null;
-  status: "ATIVO" | "PAUSADO" | "CONCLUIDO" | "ARQUIVADO";
+  status: StatusProjeto;
+}
+
+export interface DadosProjeto {
+  titulo: string;
+  resultadoDesejado?: string | null;
+  status?: StatusProjeto;
+}
+
+/** Tarefas sao as acoes do projeto, sem as descartadas. Percentual nulo quando nao ha tarefa. */
+export interface ProgressoProjetoDto {
+  projetoId: number;
+  titulo: string;
+  resultadoDesejado: string | null;
+  status: StatusProjeto;
+  tarefas: number;
+  concluidas: number;
+  faltam: number;
+  percentual: number | null;
 }
 
 export type EstadoAcao = "PROXIMA" | "AGENDA" | "AGUARDANDO" | "ALGUM_DIA" | "CONCLUIDA" | "DESCARTADA";
@@ -752,4 +772,12 @@ export const api = {
   livros: () => requisicao<LivroDto[]>("/api/livros"),
   desafios: () => requisicao<DesafioDto[]>("/api/desafios"),
   projetos: () => requisicao<ProjetoDto[]>("/api/projetos"),
+
+  criarProjeto: (dados: DadosProjeto) =>
+    requisicao<ProjetoDto>("/api/projetos", { method: "POST", body: JSON.stringify(dados) }),
+
+  atualizarProjeto: (id: number, dados: DadosProjeto) =>
+    requisicao<ProjetoDto>(`/api/projetos/${id}`, { method: "PUT", body: JSON.stringify(dados) }),
+
+  progressoProjetos: () => requisicao<ProgressoProjetoDto[]>("/api/gtd/projetos/progresso"),
 };

@@ -12,6 +12,7 @@ import br.dev.registro.gtd.api.GtdDtos.ReferenciaDto;
 import br.dev.registro.gtd.domain.AcaoService;
 import br.dev.registro.gtd.domain.Energia;
 import br.dev.registro.gtd.domain.EstadoAcao;
+import br.dev.registro.gtd.domain.ProgressoProjeto;
 import br.dev.registro.gtd.domain.GtdCatalogoService;
 import br.dev.registro.gtd.domain.InboxItem;
 import br.dev.registro.gtd.domain.InboxService;
@@ -162,6 +163,13 @@ public class GtdResource {
     public Response excluirAcao(@PathParam("id") long id) {
         acoes.excluir(id);
         return Response.noContent().build();
+    }
+
+    /** Projetos com o progresso das tarefas: a tela de projetos mostra o que falta. */
+    @GET
+    @Path("projetos/progresso")
+    public List<ProgressoProjeto> progressoProjetos() {
+        return acoes.progressoProjetos();
     }
 
     /** Projeto ativo sem nenhuma acao aberta — o alerta que a revisao semanal precisa dar. */

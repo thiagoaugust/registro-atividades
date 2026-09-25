@@ -12,6 +12,7 @@ import { Agora } from "@/components/Agora";
 import { RevisaoSemanal } from "@/components/RevisaoSemanal";
 import { Livros } from "@/components/Livros";
 import { Cursos } from "@/components/Cursos";
+import { Projetos } from "@/components/Projetos";
 import { cn } from "@/lib/utils";
 
 // Recharts responde por metade do bundle e so serve a esta secao: carrega quando ela abre.
@@ -50,6 +51,7 @@ const SECOES = [
       { id: "esclarecer", rotulo: "Esclarecer" },
       { id: "agora", rotulo: "Agora" },
       { id: "listas", rotulo: "Listas" },
+      { id: "projetos", rotulo: "Projetos" },
       { id: "revisar", rotulo: "Revisar" },
     ],
   },
@@ -67,6 +69,7 @@ const TELAS: Record<string, React.ReactNode> = {
   esclarecer: <Esclarecer />,
   agora: <Agora />,
   listas: <ListasGtd />,
+  projetos: <Projetos />,
   revisar: <RevisaoSemanal />,
 };
 
