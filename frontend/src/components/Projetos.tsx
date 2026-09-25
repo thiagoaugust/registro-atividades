@@ -6,7 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Input, Select, Textarea } from "@/components/ui/input";
 import { Campo, Card, Secao } from "@/components/ui/campo";
 import { ItemAcao } from "@/components/ListasGtd";
+import { linhasDeTarefa } from "@/lib/formato";
 import { cn } from "@/lib/utils";
+
+const MAX_TAREFAS = 50;
 
 const GRUPOS: { status: StatusProjeto; rotulo: string }[] = [
   { status: "ATIVO", rotulo: "Ativos" },
@@ -17,12 +20,19 @@ const GRUPOS: { status: StatusProjeto; rotulo: string }[] = [
 function NovoProjeto({ aoTerminar }: { aoTerminar: () => void }) {
   const [titulo, setTitulo] = useState("");
   const [resultado, setResultado] = useState("");
+  const [textoTarefas, setTextoTarefas] = useState("");
   const [erro, setErro] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
+  const tarefas = linhasDeTarefa(textoTarefas);
+
   const criar = useMutation({
     mutationFn: () =>
-      api.criarProjeto({ titulo: titulo.trim(), resultadoDesejado: resultado.trim() || null }),
+      api.criarProjetoComTarefas({
+        titulo: titulo.trim(),
+        resultadoDesejado: resultado.trim() || null,
+        tarefas,
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries();
       aoTerminar();
@@ -48,14 +58,37 @@ function NovoProjeto({ aoTerminar }: { aoTerminar: () => void }) {
         >
           <Textarea rows={2} value={resultado} onChange={(e) => setResultado(e.target.value)} />
         </Campo>
+        <Campo
+          rotulo="Tarefas"
+          dica="uma por linha"
+          ajuda="O que precisa ser feito para chegar ao resultado. Cada linha vira uma proxima acao do projeto; da para acrescentar mais depois."
+        >
+          <Textarea
+            rows={5}
+            value={textoTarefas}
+            onChange={(e) => setTextoTarefas(e.target.value)}
+            placeholder={"doar a bicicleta velha\ncomprar painel de ferramentas\ninstalar prateleira"}
+          />
+        </Campo>
         <div className="flex items-center gap-2">
-          <Button type="submit" disabled={criar.isPending || titulo.trim() === ""}>
-            Criar projeto
+          <Button
+            type="submit"
+            disabled={criar.isPending || titulo.trim() === "" || tarefas.length > MAX_TAREFAS}
+          >
+            {tarefas.length === 0
+              ? "Criar projeto"
+              : `Criar projeto com ${tarefas.length} tarefa${tarefas.length > 1 ? "s" : ""}`}
           </Button>
           <Button type="button" variante="fantasma" onClick={aoTerminar}>
             Cancelar
           </Button>
         </div>
+        {tarefas.length > MAX_TAREFAS && (
+          <p className="text-sm text-latao">
+            Ate {MAX_TAREFAS} tarefas por vez — mais que isso e um plano, nao uma lista de proximas
+            acoes.
+          </p>
+        )}
         {erro && <p className="text-sm text-giz-fraco">{erro}</p>}
       </form>
     </Card>

@@ -942,6 +942,13 @@ arquivados, na ordem ativo → pausado → concluído.
 resultado desejado é quem diz — acabar as ações de hoje costuma revelar a próxima. Com tudo feito, a
 tela oferece *Concluir projeto*, e a decisão fica com quem sabe se o resultado foi atingido.
 
+**Criar o projeto já com as tarefas:** o formulário *Novo projeto* tem um campo "Tarefas (uma por
+linha)". `POST /gtd/projetos` recebe título, resultado desejado e a lista, e grava projeto e ações
+**numa transação só** (`AcaoService.criarProjetoComTarefas`, que cria o projeto pelo
+`CatalogoService`, como o Esclarecer já faz). N chamadas do frontend deixariam, numa falha no meio,
+um projeto com metade das tarefas. Linhas em branco são ignoradas e as tarefas nascem `PROXIMA`, na
+ordem digitada; até 50 por projeto — mais que isso é um plano, não uma lista de próximas ações.
+
 ---
 
 ## 6. Fora do escopo da v1

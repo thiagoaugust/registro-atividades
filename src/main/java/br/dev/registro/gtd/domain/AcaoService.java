@@ -1,7 +1,9 @@
 package br.dev.registro.gtd.domain;
 
+import br.dev.registro.atividades.domain.CatalogoService;
 import br.dev.registro.atividades.domain.Categoria;
 import br.dev.registro.atividades.domain.DadosRegistro;
+import br.dev.registro.atividades.domain.Projeto;
 import br.dev.registro.atividades.domain.RegistroAtividade;
 import br.dev.registro.atividades.domain.RegistroService;
 import br.dev.registro.atividades.infra.ProjetoRepository;
@@ -28,6 +30,7 @@ public class AcaoService {
     private final AcaoRepository acoes;
     private final ContextoRepository contextos;
     private final ProjetoRepository projetos;
+    private final CatalogoService catalogo;
     private final RegistroService registros;
     private final Relogio relogio;
     private final Event<AcaoAlterada> acaoAlterada;
@@ -36,12 +39,14 @@ public class AcaoService {
             AcaoRepository acoes,
             ContextoRepository contextos,
             ProjetoRepository projetos,
+            CatalogoService catalogo,
             RegistroService registros,
             Relogio relogio,
             Event<AcaoAlterada> acaoAlterada) {
         this.acoes = acoes;
         this.contextos = contextos;
         this.projetos = projetos;
+        this.catalogo = catalogo;
         this.registros = registros;
         this.relogio = relogio;
         this.acaoAlterada = acaoAlterada;
@@ -60,6 +65,13 @@ public class AcaoService {
             @Size(max = 120) String delegadaPara) {
     }
 
+    /** Projeto novo com a lista do que fazer; cada linha nao vazia vira uma proxima acao. */
+    public record DadosProjetoComTarefas(
+            @NotBlank @Size(max = 200) String titulo,
+            @Size(max = 2000) String resultadoDesejado,
+            @Size(max = 50) List<@Size(max = 300) String> tarefas) {
+    }
+
     /** Dados que faltam para a acao concluida virar registro de atividade. */
     public record DadosRegistroDaAcao(@Min(1) int duracaoMin, @Min(1) int esforco, Short satisfacao) {
     }
@@ -67,6 +79,25 @@ public class AcaoService {
     public Acao porId(long id) {
         return acoes.porIdComVinculos(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Acao", id));
+    }
+
+    /**
+     * Projeto e tarefas numa transacao so: uma falha no meio nao deixa projeto com metade da lista.
+     * O projeto nasce pelo CatalogoService, como no Esclarecer.
+     */
+    @Transactional
+    public ProgressoProjeto criarProjetoComTarefas(DadosProjetoComTarefas dados) {
+        Projeto projeto = catalogo.criarProjeto(
+                new CatalogoService.DadosProjeto(dados.titulo(), dados.resultadoDesejado(), null));
+        List<String> tarefas = dados.tarefas() == null
+                ? List.of()
+                : dados.tarefas().stream().filter(t -> t != null && !t.isBlank()).map(String::trim).toList();
+        for (String tarefa : tarefas) {
+            criar(new DadosAcao(
+                    tarefa, null, EstadoAcao.PROXIMA, null, null, null, null, projeto.id, null, null));
+        }
+        return ProgressoProjeto.de(
+                projeto.id, projeto.titulo, projeto.resultadoDesejado, projeto.status, tarefas.size(), 0);
     }
 
     public List<Acao> listar(EstadoAcao estado, Long contextoId, Long projetoId) {

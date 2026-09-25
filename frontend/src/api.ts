@@ -773,11 +773,19 @@ export const api = {
   desafios: () => requisicao<DesafioDto[]>("/api/desafios"),
   projetos: () => requisicao<ProjetoDto[]>("/api/projetos"),
 
-  criarProjeto: (dados: DadosProjeto) =>
-    requisicao<ProjetoDto>("/api/projetos", { method: "POST", body: JSON.stringify(dados) }),
-
   atualizarProjeto: (id: number, dados: DadosProjeto) =>
     requisicao<ProjetoDto>(`/api/projetos/${id}`, { method: "PUT", body: JSON.stringify(dados) }),
 
   progressoProjetos: () => requisicao<ProgressoProjetoDto[]>("/api/gtd/projetos/progresso"),
+
+  /** Projeto e tarefas numa transacao so. */
+  criarProjetoComTarefas: (dados: {
+    titulo: string;
+    resultadoDesejado?: string | null;
+    tarefas: string[];
+  }) =>
+    requisicao<ProgressoProjetoDto>("/api/gtd/projetos", {
+      method: "POST",
+      body: JSON.stringify(dados),
+    }),
 };

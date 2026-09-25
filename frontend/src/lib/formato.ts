@@ -106,3 +106,11 @@ export function formatarDetalhes(detalhes: Record<string, unknown>): string {
     })
     .join(" · ");
 }
+
+/** "Tarefas (uma por linha)": cada linha com texto vira uma tarefa; as em branco somem. */
+export function linhasDeTarefa(texto: string): string[] {
+  return texto
+    .split(/\r?\n/)
+    .map((linha) => linha.trim())
+    .filter((linha) => linha !== "");
+}

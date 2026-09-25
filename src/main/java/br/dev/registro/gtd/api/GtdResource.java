@@ -165,6 +165,14 @@ public class GtdResource {
         return Response.noContent().build();
     }
 
+    /** Cria o projeto ja com as tarefas, numa transacao so. */
+    @POST
+    @Path("projetos")
+    public Response criarProjetoComTarefas(@Valid AcaoService.DadosProjetoComTarefas dados) {
+        ProgressoProjeto criado = acoes.criarProjetoComTarefas(dados);
+        return Response.created(URI.create("/api/projetos/" + criado.projetoId())).entity(criado).build();
+    }
+
     /** Projetos com o progresso das tarefas: a tela de projetos mostra o que falta. */
     @GET
     @Path("projetos/progresso")

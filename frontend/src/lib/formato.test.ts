@@ -3,6 +3,7 @@ import {
   esforcoMedio,
   formatarDetalhes,
   formatarDuracao,
+  linhasDeTarefa,
   progressoDoNivel,
   somarMinutosPorCategoria,
 } from "./formato";
@@ -103,5 +104,22 @@ describe("formatarDetalhes", () => {
 
   it("registro sem detalhes nao vira string suja", () => {
     expect(formatarDetalhes({})).toBe("");
+  });
+});
+
+describe("linhasDeTarefa", () => {
+  it("cada linha vira uma tarefa, sem espacos nas pontas", () => {
+    expect(linhasDeTarefa("  reservar pousada \nrevisar o carro")).toEqual([
+      "reservar pousada",
+      "revisar o carro",
+    ]);
+  });
+
+  it("ignora linhas em branco e aceita quebra do Windows", () => {
+    expect(linhasDeTarefa("a\r\n\r\n   \nb\n")).toEqual(["a", "b"]);
+  });
+
+  it("texto vazio nao tem tarefa", () => {
+    expect(linhasDeTarefa("")).toEqual([]);
   });
 });

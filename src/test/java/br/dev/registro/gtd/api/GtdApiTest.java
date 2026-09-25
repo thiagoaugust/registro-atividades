@@ -392,4 +392,48 @@ class GtdApiTest {
                 .containsEntry("status", "ATIVO")
                 .containsEntry("faltam", 0);
     }
+
+    @Test
+    void cria_projeto_ja_com_as_tarefas_ignorando_linhas_em_branco() {
+        int projeto = given().contentType(ContentType.JSON)
+                .body(Map.of(
+                        "titulo", "Viagem para a serra",
+                        "resultadoDesejado", "fim de semana sem imprevisto",
+                        "tarefas", List.of("reservar pousada", "  ", "revisar o carro", "comprar mapa")))
+                .when().post("/api/gtd/projetos")
+                .then().statusCode(201)
+                .body("tarefas", is(3))
+                .body("faltam", is(3))
+                .extract().path("projetoId");
+
+        List<String> titulos = given().when().get("/api/gtd/acoes?projeto=" + projeto)
+                .then().statusCode(200)
+                .body("estado", org.hamcrest.Matchers.everyItem(is("PROXIMA")))
+                .extract().path("titulo");
+        org.assertj.core.api.Assertions.assertThat(titulos)
+                .containsExactly("reservar pousada", "revisar o carro", "comprar mapa");
+    }
+
+    @Test
+    void projeto_com_tarefas_sem_titulo_e_recusado_e_nada_e_gravado() {
+        int antes = given().when().get("/api/gtd/projetos/progresso")
+                .then().statusCode(200).extract().path("size()");
+
+        given().contentType(ContentType.JSON)
+                .body(Map.of("titulo", " ", "tarefas", List.of("tarefa orfa")))
+                .when().post("/api/gtd/projetos")
+                .then().statusCode(400);
+
+        given().when().get("/api/gtd/projetos/progresso")
+                .then().statusCode(200).body("size()", is(antes));
+    }
+
+    @Test
+    void mais_de_cinquenta_tarefas_e_recusado() {
+        given().contentType(ContentType.JSON)
+                .body(Map.of("titulo", "Plano grande demais",
+                        "tarefas", java.util.Collections.nCopies(51, "passo")))
+                .when().post("/api/gtd/projetos")
+                .then().statusCode(400);
+    }
 }
